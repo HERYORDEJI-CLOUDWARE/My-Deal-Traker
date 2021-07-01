@@ -42,6 +42,22 @@ const Login = ({ navigation }) => {
 		return <Toast title={<Text>Yusuf</Text>} />;
 	};
 
+	const hotUser = {
+		_parts: [
+			['email', 'heryordejy.cloudware@gmail.com'],
+			['password', 'Yusuf1996'],
+			['role', 1],
+		],
+	};
+
+	const hotUser2 = [
+		['email', 'heryordejy.cloudware@gmail.com'],
+		['password', 'Yusuf1996'],
+		['role', 1],
+	];
+
+	const shortCut = () => userLogin(hotUser, 'Buyer');
+
 	const onLogin = async () => {
 		try {
 			if (!values.signInAs) {
@@ -60,32 +76,39 @@ const Login = ({ navigation }) => {
 			}
 			setIsLoading(true);
 			const data = new FormData();
+
 			data.append('email', values.email);
 			data.append('password', values.password);
 			data.append('role', values.signInAs);
 
-			console.log(data);
+			console.log('...', data);
 
 			const res = await userLogin(data, values.signInAs);
 
 			setIsLoading(false);
+		} catch (error) {
+			setIsLoading(false);
+			displayError(error);
+		}
+	};
 
-			// return
-			// if (val.signInAs === "Buyer's Agent") {
-			//   navigation.navigate("baStack");
-			// }
+	const onNewLogin = async () => {
+		try {
+			setIsLoading(true);
+			const data = new FormData();
+			data.append('email', 'heryordejy.cloudware@gmail.com');
+			data.append('password', 'Yusuf1996');
+			data.append('role', 1);
 
-			// if (val.signInAs === "Seller's Agent") {
-			//   navigation.navigate("saStack");
-			// }
+			// data.append('email', values.email);
+			// 			data.append('password', values.password);
+			// 			data.append('role', values.signInAs);
+			//
+			console.log('...', data);
 
-			// if (val.signInAs === "Seller's Lawyer") {
-			//   navigation.navigate("slStack");
-			// }
+			const res = await userLogin(data, values.signInAs);
 
-			// if (val.signInAs === "Buyer's Lawyer") {
-			//   navigation.navigate("blStack");
-			// }
+			setIsLoading(false);
 		} catch (error) {
 			setIsLoading(false);
 			displayError(error);
@@ -175,7 +198,8 @@ const Login = ({ navigation }) => {
 
 				<ButtonPrimaryBig
 					title={isLoading ? 'Loading...' : 'Sign In'}
-					onPress={() => handleSubmit()}
+					// onPress={() => handleSubmit()}
+					onPress={() => onNewLogin()}
 					containerStyle={{ marginVertical: RFValue(20) }}
 				/>
 

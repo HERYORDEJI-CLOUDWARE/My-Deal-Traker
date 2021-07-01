@@ -331,7 +331,7 @@ const subscribeToPlan = (dispatch) => async (data) => {
 				Authorization: `Bearer ${token}`,
 			},
 		});
-		console.log(response.data);
+		console.log('===', response.data);
 	} catch (error) {
 		displayError(error);
 	}

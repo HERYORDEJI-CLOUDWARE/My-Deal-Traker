@@ -7,8 +7,6 @@ import { formatStatus } from '../../../../utils/misc';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native';
 import { navigate } from '../../../../nav/RootNav';
-import { Card } from 'native-base';
-import { Image } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
 import { Dimensions } from 'react-native';
@@ -20,7 +18,7 @@ const { width } = Dimensions.get('window');
 
 const BuyerSelectedPropInfo = ({ property, transaction, navigation }) => {
 	return (
-		<LogoPage>
+		<LogoPage dontShow={true}>
 			<View style={styles.topWrapper}>
 				<View style={styles.statusWrapper}>
 					<Text style={styles.statusKey}>Status:</Text>
@@ -33,94 +31,48 @@ const BuyerSelectedPropInfo = ({ property, transaction, navigation }) => {
 				</Text>
 			</View>
 
-			<View style={{ borderBottomWidth: 1, paddingBottom: 25 }}>
-				<View
-					style={{
-						// flexDirection: "row",
-						// justifyContent: "space-around",
-						alignItems: 'center',
-					}}
-				>
-					<TouchableOpacity
-						activeOpacity={0.9}
-						onPress={() => {
-							navigate('buyerPropertyDetails', {
-								property,
-								transaction,
-							});
-							// setView("property")
-						}}
-					>
-						<Card style={styles.box}>
-							<Image source={require('../../../../assets/img/property.png')} />
-							<View style={{ position: 'absolute', right: 10 }}>
-								<AntDesign name='right' />
-							</View>
-						</Card>
-					</TouchableOpacity>
+			<TouchableOpacity
+				activeOpacity={0.9}
+				onPress={() =>
+					navigate('buyerPropertyDetails', {
+						property,
+						transaction,
+					})
+				}
+				style={styles.box}
+			>
+				<Text style={styles.boxTitle}>Property</Text>
+				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
+			</TouchableOpacity>
 
-					<TouchableOpacity
-						activeOpacity={0.9}
-						onPress={() => {
-							navigate('buyerConditions', { transaction, property });
-							// setView("conditions")
-						}}
-					>
-						<Card style={styles.box}>
-							<Image
-								source={require('../../../../assets/img/conditions.png')}
-							/>
-							<View style={{ position: 'absolute', right: 10 }}>
-								<AntDesign name='right' />
-							</View>
-						</Card>
-					</TouchableOpacity>
-				</View>
+			<TouchableOpacity
+				activeOpacity={0.9}
+				onPress={() => navigate('buyerConditions', { transaction, property })}
+				style={styles.box}
+			>
+				<Text style={styles.boxTitle}>Conditions</Text>
+				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
+			</TouchableOpacity>
 
-				{/* <View style={{ marginTop: 35 }} /> */}
+			<TouchableOpacity
+				activeOpacity={0.9}
+				onPress={() =>
+					navigate('buyerLawyerView', { transaction: transaction })
+				}
+				style={styles.box}
+			>
+				<Text style={styles.boxTitle}>Closing</Text>
+				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
+			</TouchableOpacity>
 
-				<View
-					style={{
-						// flexDirection: "row",
-						// justifyContent: "space-around",
-						alignItems: 'center',
-					}}
-				>
-					<TouchableOpacity
-						activeOpacity={0.9}
-						onPress={() =>
-							navigate('buyerLawyerView', { transaction: transaction })
-						}
-					>
-						<Card style={styles.box}>
-							<Image source={require('../../../../assets/img/closing.png')} />
-							<View style={{ position: 'absolute', right: 10 }}>
-								<AntDesign name='right' />
-							</View>
-						</Card>
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						activeOpacity={0.9}
-						onPress={() => navigate('fileUpload', { transaction: transaction })}
-					>
-						<Card style={styles.box}>
-							<Text
-								style={{
-									color: colors.bgBrown,
-									fontWeight: 'bold',
-									fontSize: 20,
-								}}
-							>
-								Files and uploads
-							</Text>
-							<View style={{ position: 'absolute', right: 10 }}>
-								<AntDesign name='right' />
-							</View>
-						</Card>
-					</TouchableOpacity>
-				</View>
-			</View>
+			<TouchableOpacity
+				activeOpacity={0.9}
+				onPress={() => navigate('fileUpload', { transaction: transaction })}
+				style={styles.box}
+			>
+				<Text style={styles.boxTitle}>Files and Uploads</Text>
+				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
+			</TouchableOpacity>
 		</LogoPage>
 	);
 };
@@ -130,15 +82,19 @@ export default BuyerSelectedPropInfo;
 const styles = StyleSheet.create({
 	topWrapper: { marginBottom: RFValue(20) },
 	box: {
-		width: width * 0.8,
-		padding: 15,
+		padding: RFValue(20),
+		paddingVertical: RFValue(10),
 		alignItems: 'center',
-		justifyContent: 'center',
+		backgroundColor: '#FFF',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginBottom: RFValue(20),
 	},
-	boxText: {
+	boxTitle: {
+		..._font.Big,
 		textAlign: 'center',
 		color: colors.brown,
-		fontSize: RFValue(24),
+		fontSize: RFValue(18),
 	},
 	listTitle: {
 		padding: RFValue(10),

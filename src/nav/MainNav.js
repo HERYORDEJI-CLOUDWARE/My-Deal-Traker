@@ -7,6 +7,7 @@ import ForgotPassword from '../screens/Auth/ForgotPassword';
 import colors from '../constants/colors';
 import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons';
 import { Image } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 // BUYER'S AGENT
 import Homepage from '../screens/BA/Home/Homepage';
@@ -89,6 +90,7 @@ import MortgageSearchScreen from '../screens/MB/mortgageSearchScreen';
 import MortgageTransactionDetails from '../screens/MB/mortgageTransactionDetails';
 import MortgageBrokerPropertyDetials from '../screens/MB/propertyDetails';
 import MortgageFinancing from '../screens/MB/mortgageFinancing';
+import _font from '../styles/fontStyles';
 
 const Stack = createStackNavigator();
 
@@ -336,7 +338,7 @@ const SellersLawyer = () => {
 
 const BuyerStack = () => {
 	return (
-		<Stack.Navigator headerMode={false}>
+		<Stack.Navigator>
 			<Stack.Screen
 				name='buyerName'
 				component={BuyerHomepage}
@@ -381,14 +383,14 @@ const BuyerStack = () => {
 				name='buyerPropertyDetails'
 				component={BuyerPropertyDetails}
 				options={{
-					headerShown: false,
+					// headerShown: false,
 					title: (
 						<Text
 							style={{
+								..._font.H6,
 								color: colors.white,
-								fontSize: 20,
 								fontFamily: 'pop-semibold',
-								paddingHorizontal: 20,
+								// paddingHorizontal: RFValue(20),
 							}}
 						>
 							Property Details

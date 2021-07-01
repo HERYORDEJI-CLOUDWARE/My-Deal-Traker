@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
 import LogoPage from '../../../components/LogoPage';
-import { Content, Footer, FooterTab, Button, Text } from 'native-base';
+import * as RN from 'react-native';
+import {
+	Content,
+	Footer,
+	FooterTab,
+	Button,
+	Text,
+	Container,
+} from 'native-base';
 import BuyerSelectedPropInfo from './Property/BuyerSelectedPropInfo';
 import BuyerDealProgress from './DealProgress/BuyerDealProgress';
 import BuyerNotif from './Notifs/BuyerNotif';
 import colors from '../../../constants/colors';
 import { Feather } from '@expo/vector-icons';
+import { RFValue } from 'react-native-responsive-fontsize';
+import _font from '../../../styles/fontStyles';
 
 const BuyerSelectedProperty = ({ navigation, route }) => {
 	const [selected, setSelected] = useState('prop');
@@ -14,8 +24,8 @@ const BuyerSelectedProperty = ({ navigation, route }) => {
 		property: { property, transaction },
 	} = route.params;
 
-	// let shown = <Content />;
-	let shown;
+	let shown = <Content />;
+	// let shown;
 	if (selected === 'prop') {
 		shown = (
 			<BuyerSelectedPropInfo
@@ -46,7 +56,12 @@ const BuyerSelectedProperty = ({ navigation, route }) => {
 	}
 
 	return (
-		<>
+		<Container style={styles.container}>
+			<RN.StatusBar
+				translucent={true}
+				backgroundColor={'transparent'}
+				barStyle={'light-content'}
+			/>
 			{shown}
 			<Footer>
 				<FooterTab style={{ backgroundColor: colors.bgBrown }}>
@@ -60,11 +75,13 @@ const BuyerSelectedProperty = ({ navigation, route }) => {
 					>
 						<Feather
 							name='home'
-							size={20}
+							size={RFValue(20)}
 							color={selected === 'prop' ? colors.bgBrown : colors.white}
 						/>
 						<Text
 							style={{
+								..._font.Medium,
+								fontSize: RFValue(10),
 								color: selected === 'prop' ? colors.bgBrown : colors.white,
 							}}
 						>
@@ -81,11 +98,13 @@ const BuyerSelectedProperty = ({ navigation, route }) => {
 					>
 						<Feather
 							name='trending-up'
-							size={20}
+							size={RFValue(20)}
 							color={selected === 'deal' ? colors.bgBrown : colors.white}
 						/>
 						<Text
 							style={{
+								..._font.Medium,
+								fontSize: RFValue(10),
 								color: selected === 'deal' ? colors.bgBrown : colors.white,
 							}}
 						>
@@ -100,8 +119,12 @@ const BuyerSelectedProperty = ({ navigation, route }) => {
             </Button> */}
 				</FooterTab>
 			</Footer>
-		</>
+		</Container>
 	);
 };
 
 export default BuyerSelectedProperty;
+
+const styles = RN.StyleSheet.create({
+	container: { paddingTop: RFValue(30), backgroundColor: colors.lightBrown },
+});

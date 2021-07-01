@@ -45,7 +45,11 @@ const LogoPage = ({ children, notShow, title, dontShow }) => {
 					/>
 				)} */}
 			</RN.View>
-			<Content>
+			<Content
+				showsHorizontalScrollIndicator={false}
+				showsVerticalScrollIndicator={false}
+				bounces={false}
+			>
 				<React.Fragment>{children}</React.Fragment>
 			</Content>
 			{/* Logout button */}
