@@ -1,0 +1,15 @@
+{
+  "name": "My Deal Tracker",
+  "displayName": "My Deal Tracker",
+  "expo": {
+    "name": "mdt",
+    "slug": "mdt",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.cloydware.mydealtracker"
+    }
+  }
+}
