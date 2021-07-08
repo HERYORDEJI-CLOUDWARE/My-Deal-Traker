@@ -59,7 +59,7 @@ const Register = ({ navigation }: HomeNavProp) => {
 	const onSelectCountry = (scountry: Country) => {
 		setCountryCode(scountry.cca2);
 		setFieldValue('country', scountry.name);
-		// console.log(scountry);
+		// // console.log(scountry);
 	};
 
 	const requestAccount = async () => {

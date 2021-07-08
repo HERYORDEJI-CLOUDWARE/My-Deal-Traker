@@ -9,12 +9,17 @@ import { Toast } from 'native-base';
 import axios from 'axios';
 import { Context as UserContext } from '../../context/UserContext';
 import LogoPage from '../../components/LogoPage';
+import _font from '../../styles/fontStyles';
+import { RFValue } from 'react-native-responsive-fontsize';
+import ButtonPrimaryBig from '../../components/ButtonPrimaryBig';
 
 const ViewMortgageBroker = ({ route, navigation }) => {
 	const { buyerAgentResponse } = route.params;
 	const {
 		state: { user },
 	} = useContext(UserContext);
+
+	console.log(buyerAgentResponse);
 
 	const removeBroker = async () => {
 		const token = await fetchAuthToken();
@@ -25,7 +30,7 @@ const ViewMortgageBroker = ({ route, navigation }) => {
 		data.append('buyer_agent_id', buyerAgentResponse.current.buyer_agent_id);
 		data.append('phone_email', buyerAgentResponse.current.email);
 
-		console.log(token);
+		// console.log(token);
 
 		axios
 			.post(
@@ -38,7 +43,7 @@ const ViewMortgageBroker = ({ route, navigation }) => {
 				},
 			)
 			.then((res) => {
-				console.log(res.data);
+				// console.log(res.data);
 				Toast.show({
 					type: 'success',
 					text: 'Deleted',
@@ -46,7 +51,7 @@ const ViewMortgageBroker = ({ route, navigation }) => {
 				navigation.goBack();
 			})
 			.catch((err) => {
-				console.log(err);
+				// console.log(err);
 				Toast.show({
 					type: 'danger',
 					text: err,
@@ -56,91 +61,56 @@ const ViewMortgageBroker = ({ route, navigation }) => {
 
 	return (
 		<LogoPage navigation={navigation}>
-			<View style={styles.container}>
-				<View style={{ marginHorizontal: 30 }}>
-					<Text style={{ color: 'black', fontSize: 20, fontWeight: 'bold' }}>
-						Mortgage Broker Details
-					</Text>
-				</View>
-				<View style={{ marginHorizontal: 30, flexDirection: 'row' }}>
-					<Text
-						style={{
-							marginTop: 20,
-							color: colors.white,
-							fontSize: 17,
-							fontWeight: 'bold',
-						}}
-					>
-						Name :{' '}
-					</Text>
-					<Text
-						style={{
-							marginTop: 20,
-							color: colors.white,
-							fontSize: 17,
-							fontWeight: 'bold',
-						}}
-					>
-						{' '}
-						{buyerAgentResponse.current.first_name}{' '}
-						{buyerAgentResponse.last_name}
-					</Text>
-				</View>
-				<View style={{ marginHorizontal: 30, flexDirection: 'row' }}>
-					<Text
-						style={{
-							marginTop: 20,
-							color: colors.white,
-							fontSize: 17,
-							fontWeight: 'bold',
-						}}
-					>
-						Email :{' '}
-					</Text>
-					<Text
-						style={{
-							marginTop: 20,
-							color: colors.white,
-							fontSize: 17,
-							fontWeight: 'bold',
-						}}
-					>
-						{' '}
-						{buyerAgentResponse.current.email}
-					</Text>
-					{/* {console.log("buyerAgentResponse", buyerAgentResponse.current)} */}
-				</View>
-				<View style={{ marginHorizontal: 30, flexDirection: 'row' }}>
-					<Text
-						style={{
-							marginTop: 20,
-							color: colors.white,
-							fontSize: 17,
-							fontWeight: 'bold',
-						}}
-					>
-						Phone :{' '}
-					</Text>
-					<Text
-						style={{
-							marginTop: 20,
-							color: colors.white,
-							fontSize: 17,
-							fontWeight: 'bold',
-						}}
-					>
-						{' '}
-						{buyerAgentResponse.current.phone}
-					</Text>
-				</View>
-				<TouchableOpacity style={styles.removeBtn} onPress={removeBroker}>
-					<Text
-						style={{ fontSize: 22, fontWeight: 'bold', color: colors.white }}
-					>
-						Remove
-					</Text>
-				</TouchableOpacity>
+			<View style={{}}>
+				<Text style={{ ..._font.H5, color: '#FFFFFF' }}>
+					Mortgage Broker Details
+				</Text>
 			</View>
+			{buyerAgentResponse.current !== null ? (
+				<View style={styles.container}>
+					<View style={styles.rowWrapper}>
+						<Text style={styles.key}>Name:</Text>
+						<Text style={styles.value}>
+							{buyerAgentResponse?.current?.first_name}{' '}
+							{buyerAgentResponse?.current?.last_name}
+						</Text>
+					</View>
+					<View style={styles.rowWrapper}>
+						<Text style={styles.key}>Email:</Text>
+						<Text style={styles.value}>
+							{buyerAgentResponse?.current?.email}
+						</Text>
+					</View>
+					<View style={styles.rowWrapper}>
+						<Text style={styles.key}>Phone:</Text>
+						<Text style={styles.value}>
+							{buyerAgentResponse?.current?.phone}
+						</Text>
+					</View>
+				</View>
+			) : (
+				<View style={{}}>
+					<Text style={{ ..._font.Medium, color: '#FFFFFF' }}>
+						No Mortgage Broker added yet.
+					</Text>
+				</View>
+			)}
+			{buyerAgentResponse.current !== null ? (
+				<ButtonPrimaryBig
+					title={'Remove'}
+					onPress={removeBroker}
+					containerStyle={{ backgroundColor: colors.brown }}
+				/>
+			) : (
+				<ButtonPrimaryBig
+					title={'Add Broker'}
+					onPress={removeBroker}
+					containerStyle={{
+						backgroundColor: colors.fair,
+						marginVertical: RFValue(30),
+					}}
+				/>
+			)}
 		</LogoPage>
 	);
 };
@@ -148,11 +118,8 @@ const ViewMortgageBroker = ({ route, navigation }) => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: colors.lightBrown,
 		justifyContent: 'center',
-		borderRadius: 2,
-		borderColor: 'grey',
-		borderWidth: 0.5,
+		marginVertical: RFValue(30),
 	},
 
 	removeBtn: {
@@ -165,6 +132,20 @@ const styles = StyleSheet.create({
 		borderColor: 'white',
 		borderWidth: 0.5,
 		borderRadius: 10,
+	},
+	rowWrapper: { flex: 1, flexDirection: 'row', alignItems: 'flex-start' },
+	key: {
+		..._font.Small,
+		fontSize: RFValue(14),
+		color: '#CCC',
+		flex: 0.15,
+		marginRight: RFValue(5),
+	},
+	value: {
+		..._font.Small,
+		fontSize: RFValue(14),
+		fontFamily: 'pop-medium',
+		flex: 0.85,
 	},
 });
 

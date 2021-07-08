@@ -25,7 +25,7 @@ import Inspection from './Inspection';
 import Appraisal from './Appraisal';
 import Repairs from './Repairs';
 
-const CheckList = ({ repairReqSelectModal, route }) => {
+const BuyerCheckList = ({ repairReqSelectModal, route }) => {
 	const [fetchedList, setFetchedList] = useState([]);
 	const [propertyCheckList, setPropertyCheckList] = useState([]);
 	const [fetchingList, setFetchingList] = useState(true);
@@ -57,9 +57,7 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 		try {
 			const token = await fetchAuthToken();
 			const response = await appApi.get(
-				`/fetch_buyer_agent_checked_lists_for_property.php?transaction_id=${
-					transaction?.transaction_id ?? property?.transaction_id
-				}`,
+				`/fetch_buyer_agent_checked_lists_for_property.php?transaction_id=${transaction.transaction_id}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -113,7 +111,6 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 					},
 				},
 			);
-			console.log(response);
 			if (response.data.response.status === 200) {
 				return response.data.response.data;
 			}
@@ -308,28 +305,62 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 
 	useEffect(() => {
 		setLoadingList(true);
-		if (property) {
+		if (transaction) {
 			// fetchTransactionCheckList();
 			// fetchPropertyCheckList();
 
 			newFetchPropertyCheckList().then((res) => {
 				setNewProptChecklist(res);
 				setLoadingList(false);
-				console.log(res);
 			});
 		}
 	}, []);
 	// console.log(transaction, '\n \n', property);
 
+	const rendered = () => {
+		switch (view) {
+			case 'financing':
+				return <Financing transaction={transaction} />;
+			case 'inspection':
+				return <Inspection transaction={transaction} property={property} />;
+			case 'appraisal':
+				return <Appraisal />;
+			case 'repairs':
+				return (
+					<Repairs
+						repairReqSelectModal={repairReqSelectModal}
+						transaction={transaction}
+						property={property}
+						setView={setView}
+						notAgent={notAgent}
+					/>
+				);
+			// case 'check':
+			// 	return (
+			// 		<>
+			// 			<CheckList
+			// 				repairReqSelectModal={repairReqSelectModal}
+			// 				transaction={transaction}
+			// 				property={property}
+			// 				route={{ params: { transaction, property, sect: true } }}
+			// 				notAgent={notAgent}
+			// 			/>
+			// 		</>
+			// 	);
+			default:
+				return <ActivityIndicator size='large' color={colors.white} />;
+		}
+	};
+
 	return (
-		<View
+		<Container
 			style={{
-				// flex: 1,
-				// padding: RFValue(20),
-				// paddingTop: RFValue(90),
+				padding: RFValue(20),
+				paddingTop: RFValue(40),
 				backgroundColor: colors.bgBrown,
 			}}
 		>
+			{/*{repairReqSelectModal}*/}
 			<FlatList
 				data={newProptChecklist}
 				ListEmptyComponent={
@@ -347,7 +378,7 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 					<View
 						style={{ flexDirection: 'row', justifyContent: 'space-between' }}
 					>
-						<Text style={styles.title}>Requirement Checklist</Text>
+						<Text style={styles.title}>Requirement Checklist..</Text>
 						{/*{repairReqSelectModal}*/}
 					</View>
 				}
@@ -388,11 +419,11 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 					)
 				}
 			/>
-		</View>
+		</Container>
 	);
 };
 
-export default CheckList;
+export default BuyerCheckList;
 
 const styles = StyleSheet.create({
 	title: { ..._font.H5, color: colors.white, marginBottom: RFValue(20) },

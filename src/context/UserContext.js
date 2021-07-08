@@ -1,9 +1,10 @@
 import createDataContext from './createDataContext';
 import { Alert, Platform } from 'react-native';
 import { Toast } from 'native-base';
-import { displayError, fetchAuthToken } from '../utils/misc';
+import { catchError, displayError, fetchAuthToken } from '../utils/misc';
 import appApi from '../api/appApi';
 import { navigate } from '../nav/RootNav';
+import axios from 'axios';
 
 const userStoreReducer = (state, action) => {
 	switch (action.type) {
@@ -71,8 +72,8 @@ const userLogin = (dispatch) => async (values, role) => {
 				Authorization: `Bearer ${token}`,
 			},
 		});
-		// console.log(response.data.response.status)
-		console.log("I'm in login action");
+		// // console.log(response.data.response.status)
+		// console.log("I'm in login action");
 		if (response.data.response.status == 200) {
 			Toast.show({
 				type: 'success',
@@ -87,7 +88,7 @@ const userLogin = (dispatch) => async (values, role) => {
 
 			// if (role == "7") {
 			//   navigate("mortgageBrokerHome");
-			//   console.log("He is a mortgage Broker")
+			//   // console.log("He is a mortgage Broker")
 			// }
 
 			// if (role == "2") {
@@ -163,7 +164,7 @@ const fetchSAListings = (dispatch) => async (email) => {
 				},
 			},
 		);
-		// console.log(response.data)
+		// // console.log(response.data)
 		if (response.data.response.status == 200) {
 			dispatch({
 				type: 'SA_LISTINGS',
@@ -277,7 +278,7 @@ const fetchBuyerTrans = (dispatch) => async (email) => {
 				},
 			},
 		);
-		// console.log(response.data.response.status)
+		// console.log('^^^^^^^^^', response.data.response.data);
 		if (response.data.response.status == 200) {
 			dispatch({
 				type: 'FETCH_BUYER_TRANS',
@@ -291,6 +292,75 @@ const fetchBuyerTrans = (dispatch) => async (email) => {
 		}
 	} catch (error) {
 		displayError(error);
+		catchError(error);
+	}
+};
+
+export const fetchRandomProperties = async () => {
+	try {
+		const token = await fetchAuthToken();
+		const response = await appApi.get(`/fetch_random_properties.php`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (e) {
+		catchError(e);
+	}
+};
+
+export const getRandomProperties = async () => {
+	try {
+		const endpoint = `https://mydealtracker.staging.cloudware.ng/api/fetch_random_properties.php`;
+		const token = await fetchAuthToken();
+		const res = await axios.get(endpoint, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return res.data;
+	} catch (err) {
+		// console.log('API conection failed');
+	}
+};
+
+export const getSellerProperties = async (email) => {
+	try {
+		const endpoint = `https://mydealtracker.staging.cloudware.ng/api/fetch_seller_properties.php?phone_email=${email}`;
+		const token = await fetchAuthToken();
+		const res = await axios.get(endpoint, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return res.data;
+	} catch (err) {
+		// console.log('API conection failed');
+	}
+};
+
+export const newFetchBuyerTrans = async (email) => {
+	try {
+		const token = await fetchAuthToken();
+		const response = await appApi.get(
+			`/fetch_transaction_for_buyer.php?buyer_email=${email}`,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		);
+		return response.data.response.data;
+		// // console.log('^^^^^^^^^', response.data.response);
+		// if (response.data.response.status == 200) {
+		// 	return response.data.response.data;
+		// } else {
+		// 	// console.log('Network too poor');
+		// }
+	} catch (error) {
+		displayError(error);
+		catchError(error);
 	}
 };
 
@@ -305,7 +375,7 @@ const fetchSubStatus = (dispatch) => async (userid) => {
 				},
 			},
 		);
-		console.log(response.data.response.status);
+		// console.log(response.data.response.status);
 		if (response.data.response.status === 200) {
 			dispatch({
 				type: 'SUBSCRIPTION_STATUS',
@@ -331,7 +401,7 @@ const subscribeToPlan = (dispatch) => async (data) => {
 				Authorization: `Bearer ${token}`,
 			},
 		});
-		console.log('===', response.data);
+		// console.log('===', response.data);
 	} catch (error) {
 		displayError(error);
 	}

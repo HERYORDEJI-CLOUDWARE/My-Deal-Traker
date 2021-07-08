@@ -41,18 +41,22 @@ const ListingCard = ({
 
 	return (
 		<TouchableOpacity
-			onPress={() =>
+			onPress={() => {
 				navigation.navigate(view || 'viewListing', {
 					property: item,
 					transaction_id: item.transaction_id,
 					property_id: property_id,
-				})
-			}
+				});
+				console.log('i t e m+++', property_id);
+			}}
 			activeOpacity={0.8}
+			style={{}}
 		>
 			<Card containerStyle={styles.card}>
-				<View style={styles.innerCircle} />
-				<View style={styles.upperCircle} />
+				{/*<View style={styles.innerCircle} />*/}
+				{/*<View style={styles.upperCircle} />*/}
+				{/*<View style={styles.upperCircle} />*/}
+				{/*<View style={styles.upperCircle} />*/}
 				<View style={{ overflow: 'hidden' }}>
 					{listNo ? (
 						<View style={styles.rowWrapper}>
@@ -60,14 +64,12 @@ const ListingCard = ({
 							<Text style={styles.value}>{listNo}</Text>
 						</View>
 					) : null}
-					{/* {console.log(transaction_id)} */}
 					{transId ? (
 						<View style={styles.rowWrapper}>
 							<Text style={styles.key}>Transaction ID : </Text>
 							<Text style={styles.value}>{transId}</Text>
 						</View>
 					) : null}
-					{console.log('transaction ID', item)}
 
 					<View style={styles.rowWrapper}>
 						<Text style={styles.key}>Status:</Text>
@@ -99,11 +101,12 @@ const styles = StyleSheet.create({
 	card: {
 		// width: width * 0.8,
 		// alignSelf: 'center',
-		padding: RFValue(10),
-		margin: 0,
+		padding: RFValue(20),
 		marginBottom: RFValue(20),
 		borderRadius: RFValue(10),
 		overflow: 'hidden',
+		elevation: 3,
+		margin: 0,
 	},
 	innerCircle: {
 		width: RFValue(70),

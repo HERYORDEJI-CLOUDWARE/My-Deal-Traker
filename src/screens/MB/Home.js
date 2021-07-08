@@ -46,7 +46,7 @@ const BuyerHomepage = ({ navigation }) => {
 	const submitSearch = async () => {
 		const token = await fetchAuthToken();
 		const data = new FormData();
-		console.log(searchValue);
+		// console.log(searchValue);
 		data.append('keyword', searchValue);
 		axios
 			.post(
@@ -64,7 +64,7 @@ const BuyerHomepage = ({ navigation }) => {
 				navigation.navigate('mortgageSearchScreen', { search: search });
 			})
 			.catch((err) => {
-				console.log(err);
+				// console.log(err);
 			});
 	};
 
@@ -79,10 +79,10 @@ const BuyerHomepage = ({ navigation }) => {
 			.then((res) => {
 				const data = JSON.parse(res.data.response.data);
 				setRandomProperties(data.properties);
-				// console.log(data.properties[0])
+				// // console.log(data.properties[0])
 			})
 			.catch((err) => {
-				console.log(err);
+				// console.log(err);
 			});
 	};
 
@@ -99,7 +99,7 @@ const BuyerHomepage = ({ navigation }) => {
 			)
 			.then((res) => {
 				const data = res.data.response.data;
-				console.log(res.data);
+				// console.log(res.data);
 				mortgageBrokerProperty.current = data;
 				// search.current = data
 				navigation.navigate('mortgageSearchScreen', {
@@ -107,7 +107,7 @@ const BuyerHomepage = ({ navigation }) => {
 				});
 			})
 			.catch((err) => {
-				console.log(err);
+				// console.log(err);
 			});
 	};
 

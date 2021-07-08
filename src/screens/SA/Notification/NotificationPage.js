@@ -24,6 +24,8 @@ import LogoPage from '../../../components/LogoPage';
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
 import { ScrollView } from 'react-native';
+import _font from '../../../styles/fontStyles';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const { width } = Dimensions.get('window');
 
@@ -87,11 +89,11 @@ const NotificationPage = ({ transaction, property }) => {
 
 	if (!transaction) {
 		return (
-			<Container style={{ backgroundColor: colors.bgBrown }}>
+			<LogoPage style={{ backgroundColor: colors.bgBrown }}>
 				<Text style={{ textAlign: 'center', color: colors.white }}>
 					No transaction in progress for this property
 				</Text>
-			</Container>
+			</LogoPage>
 		);
 	}
 
@@ -107,15 +109,14 @@ const NotificationPage = ({ transaction, property }) => {
 	if (offerForMe.length < 1) {
 		return (
 			<LogoPage dontShow={true}>
-				<Header style={{ backgroundColor: colors.bgBrown }} />
-				<View>
-					<AntDesign
-						name='warning'
-						size={150}
-						color={colors.brown}
-						style={{ alignSelf: 'center', marginTop: 200 }}
-					/>
-					<Text style={{ textAlign: 'center', color: colors.white }}>
+				<View style={{ paddingVertical: RFValue(20) }}>
+					<Text
+						style={{
+							..._font.Medium,
+							// textAlign: 'center',
+							color: colors.white,
+						}}
+					>
 						You have not received an offer for this transaction
 					</Text>
 				</View>

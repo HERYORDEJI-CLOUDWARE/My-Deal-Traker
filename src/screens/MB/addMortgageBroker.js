@@ -10,6 +10,9 @@ import { fetchAuthToken } from '../../utils/misc';
 import appApi from '../../api/appApi';
 import axios from 'axios';
 import LogoPage from '../../components/LogoPage';
+import _font from '../../styles/fontStyles';
+import { RFValue } from 'react-native-responsive-fontsize';
+import ButtonPrimaryBig from '../../components/ButtonPrimaryBig';
 
 const addMortgageBroker = ({ route, navigation }) => {
 	const [firstName, setFirstName] = useState('');
@@ -25,10 +28,10 @@ const addMortgageBroker = ({ route, navigation }) => {
 	const submitHandler = async () => {
 		const data = new FormData();
 		const token = await fetchAuthToken();
-		transaction
-			? console.log(transaction.transaction_id)
-			: nulconsole.log('empty');
-
+		// transaction
+		// 	?  console.log(transaction.transaction_id)
+		// 	: nul// console.log('empty');
+		//
 		data.append('transaction_id', transaction.transaction_id);
 		data.append('property_id', property.transaction_id);
 		data.append('buyer_agent_id', user.unique_id);
@@ -37,7 +40,7 @@ const addMortgageBroker = ({ route, navigation }) => {
 		data.append('phone', phoneNumber);
 		data.append('email', email);
 
-		// console.log(property.transaction_id)
+		// // console.log(property.transaction_id)
 
 		axios
 			.post(
@@ -50,7 +53,7 @@ const addMortgageBroker = ({ route, navigation }) => {
 				},
 			)
 			.then((res) => {
-				console.log(res.data.response.message);
+				// console.log(res.data.response.message);
 				const response = res.data.response.message;
 				if (response === 'This property already has a mortgage broker') {
 					Toast.show({
@@ -67,7 +70,7 @@ const addMortgageBroker = ({ route, navigation }) => {
 				}
 			})
 			.catch((err) => {
-				console.log(err);
+				// console.log(err);
 				Toast.show({
 					type: 'danger',
 					text: err,
@@ -76,52 +79,53 @@ const addMortgageBroker = ({ route, navigation }) => {
 	};
 
 	return (
-		<LogoPage navigation={navigation}>
-			<SafeAreaView style={styles.container}>
-				<View style={styles.formView}>
-					<View style={{ marginBottom: 30 }}>
-						<Text style={styles.inputText}>First Name</Text>
-						<TextInput
-							placeholder={"mortgage broker's first name"}
-							style={styles.inputField}
-							onChangeText={(text) => setFirstName(text)}
-						/>
-					</View>
-					<View style={{ marginBottom: 30 }}>
-						<Text style={styles.inputText}>Last Name</Text>
-						<TextInput
-							placeholder={"mortgage broker's last name"}
-							style={styles.inputField}
-							onChangeText={(text) => setLastName(text)}
-						/>
-					</View>
-					<View style={{ marginBottom: 30 }}>
-						<Text style={styles.inputText}>Cell Phone</Text>
-						<TextInput
-							placeholder={"mortgage broker's phone number"}
-							style={styles.inputField}
-							onChangeText={(text) => setPhoneNumber(text)}
-						/>
-					</View>
-					<View style={{ marginBottom: 30 }}>
-						<Text style={styles.inputText}>Email</Text>
-						<TextInput
-							placeholder={"mortgage broker's email"}
-							style={styles.inputField}
-							onChangeText={(text) => setEmail(text)}
-						/>
-					</View>
-					<TouchableOpacity
-						style={styles.continueButton}
-						onPress={submitHandler}
-					>
-						<Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>
-							Send
-						</Text>
-					</TouchableOpacity>
-					{/* <Text style={{color:'white', fontSize:20, fontWeight:'bold'}}>{}{user.unique_id}</Text> */}
+		<LogoPage>
+			{/*<SafeAreaView style={styles.container}>*/}
+			<View style={styles.formView}>
+				<View style={styles.textInputWrapper}>
+					<Text style={styles.label}>First Name</Text>
+					<TextInput
+						placeholder={"Broker's first name"}
+						style={styles.textInput}
+						onChangeText={(text) => setFirstName(text)}
+					/>
 				</View>
-			</SafeAreaView>
+				<View style={styles.textInputWrapper}>
+					<Text style={styles.label}>Last Name</Text>
+					<TextInput
+						placeholder={"Broker's last name"}
+						style={styles.textInput}
+						onChangeText={(text) => setLastName(text)}
+					/>
+				</View>
+				<View style={styles.textInputWrapper}>
+					<Text style={styles.label}>Phone Number</Text>
+					<TextInput
+						placeholder={"Broker's phone number"}
+						style={styles.textInput}
+						onChangeText={(text) => setPhoneNumber(text)}
+					/>
+				</View>
+				<View style={styles.textInputWrapper}>
+					<Text style={styles.label}>Email</Text>
+					<TextInput
+						placeholder={"Broker's email"}
+						style={styles.textInput}
+						onChangeText={(text) => setEmail(text)}
+					/>
+				</View>
+
+				<ButtonPrimaryBig
+					title={'Send'}
+					onPress={submitHandler}
+					containerStyle={{
+						backgroundColor: colors.brown,
+						marginVertical: RFValue(30),
+					}}
+				/>
+				{/* <Text style={{color:'white', fontSize:20, fontWeight:'bold'}}>{}{user.unique_id}</Text> */}
+			</View>
+			{/*</SafeAreaView>*/}
 		</LogoPage>
 	);
 };
@@ -134,7 +138,6 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.lightBrown,
 	},
 	formView: {
-		marginHorizontal: 30,
 		// marginTop:100
 	},
 	inputText: {
@@ -154,5 +157,20 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		justifyContent: 'center',
 		alignItems: 'center',
+	},
+	textInputWrapper: {
+		marginBottom: RFValue(20),
+	},
+	label: { ..._font.Medium, color: colors.black },
+	textInput: {
+		..._font.Medium,
+		backgroundColor: '#FFFFFF',
+		height: RFValue(50),
+		padding: 0,
+		margin: 0,
+		borderWidth: 0,
+		justifyContent: 'center',
+		flex: 1,
+		paddingHorizontal: RFValue(10),
 	},
 });

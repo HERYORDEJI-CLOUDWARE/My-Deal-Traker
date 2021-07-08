@@ -11,21 +11,26 @@ import {
 	View,
 } from 'react-native';
 import { Checkbox } from 'react-native-paper';
-import appApi from '../../../api/appApi';
-import colors from '../../../constants/colors';
-import { Context as UserContext } from '../../../context/UserContext';
-import { catchError, displayError, fetchAuthToken } from '../../../utils/misc';
+import appApi from '../../api/appApi';
+import colors from '../../constants/colors';
+import { Context as UserContext } from '../../context/UserContext';
+import { catchError, displayError, fetchAuthToken } from '../../utils/misc';
 import { RFValue } from 'react-native-responsive-fontsize';
-import _font from '../../../styles/fontStyles';
-import ButtonPrimaryBig from '../../../components/ButtonPrimaryBig';
+import _font from '../../styles/fontStyles';
+import ButtonPrimaryBig from '../../components/ButtonPrimaryBig';
 import * as NB from 'native-base';
-import LogoPage from '../../../components/LogoPage';
-import Financing from './Financing';
-import Inspection from './Inspection';
-import Appraisal from './Appraisal';
-import Repairs from './Repairs';
+import LogoPage from '../../components/LogoPage';
+import Financing from './SaConditions/Financing';
+import Appraisal from './SaConditions/Appraisal';
+import Inspection from './SaConditions/Inspection';
+import Repairs from './SaConditions/Repairs';
+import CheckList from './SaConditions/CheckList';
+// import Financing from '../B';
+// import Inspection from './Inspection';
+// import Appraisal from './Appraisal';
+// import Repairs from './Repairs';
 
-const CheckList = ({ repairReqSelectModal, route }) => {
+const SellerCheckList = ({ repairReqSelectModal, route }) => {
 	const [fetchedList, setFetchedList] = useState([]);
 	const [propertyCheckList, setPropertyCheckList] = useState([]);
 	const [fetchingList, setFetchingList] = useState(true);
@@ -113,7 +118,6 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 					},
 				},
 			);
-			console.log(response);
 			if (response.data.response.status === 200) {
 				return response.data.response.data;
 			}
@@ -308,33 +312,69 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 
 	useEffect(() => {
 		setLoadingList(true);
-		if (property) {
+		if (transaction) {
 			// fetchTransactionCheckList();
 			// fetchPropertyCheckList();
 
 			newFetchPropertyCheckList().then((res) => {
 				setNewProptChecklist(res);
 				setLoadingList(false);
-				console.log(res);
 			});
 		}
 	}, []);
 	// console.log(transaction, '\n \n', property);
 
+	const [view, setView] = useState('check');
+
+	const rendered = () => {
+		switch (view) {
+			case 'financing':
+				return <Financing transaction={transaction} />;
+			case 'inspection':
+				return <Inspection transaction={transaction} property={property} />;
+			case 'appraisal':
+				return <Appraisal />;
+			case 'repairs':
+				return (
+					<Repairs
+						repairReqSelectModal={repairReqSelectModal}
+						transaction={transaction}
+						property={property}
+						setView={setView}
+						notAgent={notAgent}
+					/>
+				);
+			case 'check':
+				return (
+					<>
+						<CheckList
+							repairReqSelectModal={repairReqSelectModal}
+							transaction={transaction}
+							property={property}
+							route={{ params: { transaction, property, sect: true } }}
+							// notAgent={notAgent}
+						/>
+					</>
+				);
+			default:
+				return <ActivityIndicator size='large' color={colors.white} />;
+		}
+	};
+
 	return (
-		<View
+		<Container
 			style={{
-				// flex: 1,
-				// padding: RFValue(20),
-				// paddingTop: RFValue(90),
+				padding: RFValue(20),
+				paddingTop: RFValue(40),
 				backgroundColor: colors.bgBrown,
 			}}
 		>
+			{/*{repairReqSelectModal}*/}
 			<FlatList
 				data={newProptChecklist}
 				ListEmptyComponent={
 					loadingList ? (
-						<ActivityIndicator size={'large'} color={colors.white} />
+						<ActivityIndicator size={'large'} color={colors.brown} />
 					) : (
 						<React.Fragment>
 							<Text style={{ ..._font.Medium, color: colors.white }}>
@@ -388,11 +428,12 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 					)
 				}
 			/>
-		</View>
+			{rendered()}
+		</Container>
 	);
 };
 
-export default CheckList;
+export default SellerCheckList;
 
 const styles = StyleSheet.create({
 	title: { ..._font.H5, color: colors.white, marginBottom: RFValue(20) },

@@ -1,277 +1,405 @@
-import { AntDesign } from "@expo/vector-icons";
-import { Text, Toast } from "native-base";
-import React, { useContext, useEffect } from "react";
-import { useState } from "react";
-import { ActivityIndicator } from "react-native";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Checkbox } from "react-native-paper";
-import appApi from "../../../api/appApi";
-import colors from "../../../constants/colors";
-import { Context as UserContext } from "../../../context/UserContext";
-import { displayError, fetchAuthToken } from "../../../utils/misc";
+import { AntDesign, Entypo } from '@expo/vector-icons';
+import { Toast, Icon, Container } from 'native-base';
+import React, { useContext, useEffect } from 'react';
+import { useState } from 'react';
+import { ActivityIndicator } from 'react-native';
+import {
+	Text,
+	FlatList,
+	StyleSheet,
+	TouchableOpacity,
+	View,
+} from 'react-native';
+import { Checkbox } from 'react-native-paper';
+import appApi from '../../../api/appApi';
+import colors from '../../../constants/colors';
+import { Context as UserContext } from '../../../context/UserContext';
+import { catchError, displayError, fetchAuthToken } from '../../../utils/misc';
+import { RFValue } from 'react-native-responsive-fontsize';
+import _font from '../../../styles/fontStyles';
+import ButtonPrimaryBig from '../../../components/ButtonPrimaryBig';
+import * as NB from 'native-base';
+import LogoPage from '../../../components/LogoPage';
+import Financing from './Financing';
+import Inspection from './Inspection';
+import Appraisal from './Appraisal';
+import Repairs from './Repairs';
 
-const CheckList = ({ transaction, property }) => {
-  const [fetchedList, setFetchedList] = useState([]);
-  const [propertyCheckList, setPropertyCheckList] = useState([]);
-  const [fetchingList, setFetchingList] = useState(true);
-  const [isSending, setIsSending] = useState(false);
-  const {
-    state: { user },
-  } = useContext(UserContext);
+const CheckList = ({ repairReqSelectModal, route }) => {
+	const [fetchedList, setFetchedList] = useState([]);
+	const [propertyCheckList, setPropertyCheckList] = useState([]);
+	const [fetchingList, setFetchingList] = useState(true);
+	const [isSending, setIsSending] = useState(false);
+	const [newProptChecklist, setNewProptChecklist] = useState(undefined);
+	const [checklistList, setChecklistList] = useState([]);
+	const [loadingList, setLoadingList] = useState(false);
+	const {
+		state: { user },
+	} = useContext(UserContext);
 
-  useEffect(() => {
-    if (transaction) {
-      fetchTransactionCheckList();
-      fetchPropertyCheckList();
-    }
-  }, []);
+	const { transaction, property } = route.params;
 
-  if (!transaction) {
-    return (
-      <React.Fragment>
-        <View style={{ alignItems: "center", justifyContent: "center" }}>
-          <AntDesign name="warning" size={100} color={colors.white} />
-          <Text style={{ color: colors.white }}>
-            You have not shown interest in this property
-          </Text>
-        </View>
-      </React.Fragment>
-    );
-  }
+	const readOnlyMode = user?.role === '1' || user?.role === '2' ? true : false;
 
-  const fetchTransactionCheckList = async () => {
-    try {
-      const token = await fetchAuthToken();
-      const response = await appApi.get(
-        `/fetch_buyer_agent_checked_lists_for_property.php?transaction_id=${transaction.transaction_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.data.response.status == 200) {
-        if (response.data.response.data) {
-          setFetchedList(JSON.parse(response.data.response.data.task_array));
-        } else {
-          // setFetchedList(response.data.response.data);
-        }
-      }
-      setFetchingList(false);
-    } catch (error) {
-      setFetchingList(false);
-      displayError(error);
-    }
-  };
+	// if (!transaction) {
+	// 	return (
+	// 		<LogoPage>
+	// 			<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+	// 				<Text style={{ ..._font.Big, color: colors.white }}>
+	// 					You have not shown interest in this property
+	// 				</Text>
+	// 			</View>
+	// 		</LogoPage>
+	// 	);
+	// }
 
-  const fetchPropertyCheckList = async () => {
-    try {
-      const token = await fetchAuthToken();
-      const response = await appApi.get(
-        `/fetch_tasks.php?property_transaction_id=${property.transaction_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.data.response.status == 200) {
-        setPropertyCheckList(response.data.response.data);
-      }
-      setFetchingList(false);
-    } catch (error) {
-      setFetchingList(false);
-      displayError(error);
-    }
-  };
+	const fetchTransactionCheckList = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const response = await appApi.get(
+				`/fetch_buyer_agent_checked_lists_for_property.php?transaction_id=${transaction.transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			if (response.data.response.status == 200) {
+				if (response.data.response.data) {
+					setFetchedList(JSON.parse(response.data.response.data.task_array));
+				} else {
+					// setFetchedList(response.data.response.data);
+				}
+			}
+			setFetchingList(false);
+		} catch (error) {
+			setFetchingList(false);
+			displayError(error);
+			catchError(error);
+		}
+	};
 
-  let renderedList = [];
-  if (!fetchedList.length) {
-    renderedList = propertyCheckList;
-  } else {
-    renderedList = fetchedList;
-  }
+	// const fetchPropertyCheckList = async () => {
+	// 	try {
+	// 		const token = await fetchAuthToken();
+	// 		const response = await appApi.get(
+	// 			`/fetch_tasks.php?property_transaction_id=${property.transaction_id}`,
+	// 			{
+	// 				headers: {
+	// 					Authorization: `Bearer ${token}`,
+	// 				},
+	// 			},
+	// 		);
+	// 		if (response.data.response.status == 200) {
+	// 			setPropertyCheckList(response.data.response.data);
+	// 		}
+	// 		setFetchingList(false);
+	// 	} catch (error) {
+	// 		setFetchingList(false);
+	// 		displayError(error);
+	// 	}
+	// };
 
-  const newArr = [];
-  for (let index = 0; index < propertyCheckList.length; index++) {
-    const element = propertyCheckList[index];
-    if (!fetchedList.length) {
-      newArr.push(element);
-    } else {
-      const findOldArr = fetchedList.find(
-        (val) => val.task_id == element.unique_id
-      );
-      if (!findOldArr) {
-        const alreadyExists = renderedList.find((e) => {
-          console.log(e.task_id + " ======" + element.unique_id);
-          return e.task_id == element.unique_id;
-        });
-        if (!alreadyExists) {
-          renderedList.push({
-            status: element.status,
-            task: element.task,
-            task_id: element.unique_id,
-          });
-        }
-      }
-    }
-  }
+	const newFetchPropertyCheckList = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const response = await appApi.get(
+				`/fetch_tasks.php?property_transaction_id=${property.transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			if (response.data.response.status === 200) {
+				return response.data.response.data;
+			}
+		} catch (error) {
+			return error;
+		}
+	};
 
-  const onToggleCheckList = (index) => {
-    const newList = [...renderedList];
-    if (newList[index].status == "0") {
-      newList[index].status = 1;
-    } else {
-      newList[index].status = 0;
-    }
-    setFetchedList(newList);
-  };
+	let renderedList = [];
 
-  const updateCheckList = async () => {
-    try {
-      const newList = [];
-      fetchedList.map((list) => {
-        return newList.push({
-          task_id: list.task_id || list.unique_id,
-          task: list.task,
-          status: list.status,
-        });
-      });
+	// if (!fetchedList.length) {
+	// 	renderedList = propertyCheckList;
+	// } else {
+	// 	renderedList = fetchedList;
+	// }
 
-      setIsSending(true);
-      const data = new FormData();
-      const token = await fetchAuthToken();
-      const fdata = JSON.stringify(newList);
-      data.append("buyer_agent_id", user.unique_id);
-      data.append("transaction_id", transaction.transaction_id);
-      data.append("task_array", fdata);
-      const response = await appApi.post(`/check_list.php`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.data.response.status == 200) {
-        Toast.show({
-          type: "success",
-          text: response.data.response.message,
-        });
-        await fetchTransactionCheckList();
-      } else {
-        Toast.show({
-          type: "warning",
-          text: response.data.response.message,
-        });
-      }
-      setIsSending(false);
-    } catch (error) {
-      setIsSending(false);
-      displayError(error);
-    }
-  };
+	const newArr = [];
+	for (let index = 0; index < propertyCheckList.length; index++) {
+		const element = propertyCheckList[index];
+		if (!fetchedList.length) {
+			newArr.push(element);
+		} else {
+			const findOldArr = fetchedList.find(
+				(val) => val.task_id == element.unique_id,
+			);
+			if (!findOldArr) {
+				const alreadyExists = renderedList.find((e) => {
+					// console.log(e.task_id + ' ======' + element.unique_id);
+					return e.task_id == element.unique_id;
+				});
+				if (!alreadyExists) {
+					renderedList.push({
+						status: element.status,
+						task: element.task,
+						task_id: element.unique_id,
+					});
+				}
+			}
+		}
+	}
 
-  const ListItem = ({ text, checked, index }) => {
-    return (
-      <TouchableOpacity onPress={() => onToggleCheckList(index)}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            paddingHorizontal: 20,
-          }}
-        >
-          <Checkbox
-            onPress={() => onToggleCheckList(index)}
-            color={colors.white}
-            uncheckedColor={colors.white}
-            status={parseInt(checked) ? "checked" : "unchecked"}
-          />
-          <Text onPress={() => onToggleCheckList(index)} style={styles.text}>
-            {text}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
+	const newOnToggleCheckList = React.useCallback(
+		(id) => {
+			let list;
+			let checked;
+			list = newProptChecklist.map((list, index) =>
+				list.id !== id
+					? list
+					: list.status === '1'
+					? { ...list, status: '0' }
+					: { ...list, status: '1' },
+			);
+			checked = newProptChecklist.filter((list, index) => list.status === '1');
+			setNewProptChecklist(list);
+			setChecklistList(list.filter((list, index) => list.status === '1'));
+		},
+		[newProptChecklist],
+	);
 
-  if (fetchingList) {
-    return (
-      <View>
-        <ActivityIndicator color={colors.white} size="large" />
-      </View>
-    );
-  }
+	const updateCheckList = async () => {
+		try {
+			const newList = [];
+			newProptChecklist.map((list) => {
+				return newList.push({
+					task_id: list.task_id || list.unique_id,
+					task: list.task,
+					status: list.status,
+				});
+			});
 
-  return (
-    <View>
-      <View>
-        <FlatList
-          data={renderedList}
-          ListEmptyComponent={
-            <React.Fragment>
-              <Text style={{ textAlign: "center", color: "#fff" }}>
-                No check list has been added to this property{" "}
-              </Text>
-            </React.Fragment>
-          }
-          ListHeaderComponent={
-            <Text style={styles.title}>Requirement Checklist</Text>
-          }
-          keyExtractor={(v, i) => i.toString()}
-          renderItem={({ item, index }) => {
-            return (
-              <View>
-                {item.task_id || item.unique_id ? (
-                  <ListItem
-                    checked={item.status}
-                    text={item.task}
-                    index={index}
-                  />
-                ) : null}
-              </View>
-            );
-          }}
-          ListFooterComponent={
-            <View>
-              {renderedList.length > 0 ? (
-                <TouchableOpacity
-                  style={styles.btn}
-                  onPress={updateCheckList}
-                  disabled={isSending}
-                >
-                  <Text style={{ color: colors.white }}>
-                    {isSending ? "Loading..." : "Send"}
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          }
-        />
-      </View>
+			setIsSending(true);
+			const data = new FormData();
+			const token = await fetchAuthToken();
+			const fdata = JSON.stringify(newList);
+			data.append('buyer_agent_id', user.unique_id);
+			data.append('transaction_id', transaction.transaction_id);
+			data.append('task_array', fdata);
+			const response = await appApi.post(`/check_list.php`, data, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			if (response.data.response.status == 200) {
+				Toast.show({
+					type: 'success',
+					text: response.data.response.message,
+				});
+				await fetchTransactionCheckList();
+			} else {
+				Toast.show({
+					type: 'warning',
+					text: response.data.response.message,
+				});
+			}
+			setIsSending(false);
+		} catch (error) {
+			setIsSending(false);
+			displayError(error);
+		}
+	};
 
-      <View style={{ minHeight: 200 }} />
-    </View>
-  );
+	const submitChecklist = async () => {
+		try {
+			const newList = [];
+			newProptChecklist.map((list) => {
+				return newList.push({
+					task_id: list.task_id || list.unique_id,
+					task: list.task,
+					status: list.status,
+				});
+			});
+
+			setIsSending(true);
+			const data = new FormData();
+			const token = await fetchAuthToken();
+			const fdata = JSON.stringify(newList);
+			data.append('buyer_agent_id', user.unique_id);
+			data.append('transaction_id', transaction.transaction_id);
+			data.append('task_array', fdata);
+			//buyer_agent_id, transaction_id, task_array
+			const response = await appApi.post(`/check_list.php`, data, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			if (response.data.response.status == 200) {
+				Toast.show({
+					type: 'success',
+					text: response.data.response.message,
+				});
+				await fetchTransactionCheckList();
+			} else {
+				Toast.show({
+					type: 'warning',
+					text: `${response.data.response.message}`,
+				});
+				// console.log('error 000');
+			}
+			setIsSending(false);
+		} catch (error) {
+			setIsSending(false);
+			displayError(error);
+			// console.log(error);
+		}
+	};
+
+	const listDemo = [
+		{
+			comment: null,
+			date_created: '2020-12-13 21:40:43',
+			id: '2',
+			notify_who: '1',
+			property_transaction_id: '65931578',
+			status: '0',
+			task: 'Purchase & Sale Agreement',
+			unique_id: 'b0b4404cb55eeb190379d00b4da0de18',
+		},
+	];
+
+	const ListItem = ({ text, checked, index, id, ...props }) => {
+		return (
+			<TouchableOpacity {...props} onPress={() => newOnToggleCheckList(id)}>
+				<View
+					style={{
+						flexDirection: 'row',
+						alignItems: 'center',
+						marginBottom: RFValue(15),
+					}}
+				>
+					<Icon
+						name={
+							parseInt(checked) === 1
+								? 'checkbox-marked-outline'
+								: 'checkbox-blank-outline'
+						}
+						type={'MaterialCommunityIcons'}
+						style={{ color: colors.white, paddingRight: RFValue(5) }}
+					/>
+					<Text style={styles.text}>{text} </Text>
+				</View>
+			</TouchableOpacity>
+		);
+	};
+
+	// if (fetchingList) {
+	// 	return (
+	// 		<View>
+	// 			<ActivityIndicator color={colors.white} size='large' />
+	// 		</View>
+	// 	);
+	// }
+
+	useEffect(() => {
+		setLoadingList(true);
+		if (transaction) {
+			// fetchTransactionCheckList();
+			// fetchPropertyCheckList();
+
+			newFetchPropertyCheckList().then((res) => {
+				setNewProptChecklist(res);
+				setLoadingList(false);
+			});
+		}
+	}, []);
+	// console.log(transaction, '\n \n', property);
+
+	return (
+		<View
+			style={{
+				// flex: 1,
+				// padding: RFValue(20),
+				// paddingTop: RFValue(90),
+				backgroundColor: colors.bgBrown,
+			}}
+		>
+			<FlatList
+				data={newProptChecklist}
+				ListEmptyComponent={
+					loadingList ? (
+						<ActivityIndicator size={'large'} color={colors.white} />
+					) : (
+						<React.Fragment>
+							<Text style={{ ..._font.Medium, color: colors.white }}>
+								No check list has been added to this property
+							</Text>
+						</React.Fragment>
+					)
+				}
+				ListHeaderComponent={
+					<View
+						style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+					>
+						<Text style={styles.title}>Requirement Checklist</Text>
+						{/*{repairReqSelectModal}*/}
+					</View>
+				}
+				keyExtractor={(v, i) => i.toString()}
+				renderItem={({ item, index }) => {
+					return (
+						<View>
+							{item.task_id || item.unique_id ? (
+								<ListItem
+									disabled={readOnlyMode}
+									checked={item.status}
+									text={item.task}
+									index={index}
+									id={item.id}
+								/>
+							) : null}
+						</View>
+					);
+				}}
+				ListFooterComponent={
+					!readOnlyMode &&
+					!loadingList && (
+						<ButtonPrimaryBig
+							disabled={checklistList.length > 0 ? false : true}
+							containerStyle={{
+								backgroundColor:
+									checklistList.length > 0 ? colors.brown : colors.brown + '50',
+								marginVertical: RFValue(20),
+							}}
+							title={isSending ? 'Loading...' : 'Send'}
+							titleStyle={{
+								color:
+									checklistList.length > 0 ? colors.white : colors.white + '50',
+							}}
+							onPress={updateCheckList}
+							// onPress={newUpdateChecklist}
+						/>
+					)
+				}
+			/>
+		</View>
+	);
 };
 
 export default CheckList;
 
 const styles = StyleSheet.create({
-  title: {
-    color: colors.white,
-    fontSize: 36,
-    width: 250,
-    paddingLeft: 30,
-  },
-  text: {
-    color: colors.white,
-  },
-  btn: {
-    backgroundColor: colors.brown,
-    alignSelf: "center",
-    paddingHorizontal: 30,
-    paddingVertical: 10,
-    borderRadius: 20,
-    elevation: 2,
-    marginVertical: 20,
-  },
+	title: { ..._font.H5, color: colors.white, marginBottom: RFValue(20) },
+	text: { ..._font.Small, color: colors.white, fontSize: RFValue(14) },
+	btn: {
+		backgroundColor: colors.brown,
+		alignSelf: 'center',
+		paddingHorizontal: RFValue(30),
+		paddingVertical: RFValue(10),
+		borderRadius: RFValue(20),
+		elevation: RFValue(2),
+		marginVertical: RFValue(20),
+	},
 });

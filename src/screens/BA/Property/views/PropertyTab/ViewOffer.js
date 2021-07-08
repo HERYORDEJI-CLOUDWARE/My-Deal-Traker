@@ -1,5 +1,5 @@
 import { Picker, Toast, Icon } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
 	StyleSheet,
 	TextInput,
@@ -12,6 +12,7 @@ import { Input } from 'react-native-elements';
 import colors from '../../../../../constants/colors';
 import { RFValue } from 'react-native-responsive-fontsize';
 import _font from '../../../../../styles/fontStyles';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 // import DateTimePicker from "@react-native-community/datetimepicker";
 import moment from 'moment';
@@ -31,10 +32,16 @@ import LogoPage from '../../../../../components/LogoPage';
 import DatePicker from '../../../../../components/DatePicker';
 import ButtonPrimaryBig from '../../../../../components/ButtonPrimaryBig';
 
-const MakePropertyOffer = ({ navigation, route }) => {
+const ViewPropertyOffer = () => {
+	const navigation = useNavigation();
+	const route = useRoute();
+
 	const [date, setDate] = useState(new Date());
 
-	const { property, theTransaction } = route.params;
+	const { property, theTransaction } = route?.params ?? {
+		property: undefined,
+		theTransaction: undefined,
+	};
 
 	const [docUpload, setDocUpload] = useState([]);
 
@@ -68,7 +75,7 @@ const MakePropertyOffer = ({ navigation, route }) => {
 		},
 	});
 
-	// console.log(theTransaction)
+	console.log(theTransaction);
 
 	const submitMakeOffer = async () => {
 		try {
@@ -139,6 +146,32 @@ const MakePropertyOffer = ({ navigation, route }) => {
 		setFieldValue('multipleDocs', [...docs]);
 	};
 
+	const getOfferDetails = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const data = new FormData();
+			const response = appApi.get(
+				`/display_offer_per_transaction.php?transaction_id=635ba00bc68d2f38f4f9afd221111ad5`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			return response;
+		} catch (e) {
+			console.log(e);
+		}
+	};
+
+	useEffect(() => {
+		getOfferDetails().then((res) => {
+			const response = res.data;
+			console.log(property);
+			console.log('-/---', res);
+		});
+	});
+
 	return (
 		<LogoPage>
 			<View
@@ -154,7 +187,7 @@ const MakePropertyOffer = ({ navigation, route }) => {
 						color: colors.white,
 					}}
 				>
-					Submit An Offer
+					Offer Details
 				</Text>
 				{/*<TouchableOpacity style={{}} onPress={() => setShowModal(true)}>*/}
 				{/*	<Entypo*/}
@@ -167,18 +200,11 @@ const MakePropertyOffer = ({ navigation, route }) => {
 
 			<View style={{ paddingVertical: RFValue(20) }}>
 				<View style={{ marginBottom: RFValue(20) }}>
-					<Text style={styles.title}>Your Legal Name</Text>
+					<Text style={styles.title}>Name of Agent</Text>
 					<TextInput
+						editable={false}
 						style={{
 							...styles.containerStyle,
-							..._font.Medium,
-							height: RFValue(50),
-							padding: 0,
-							margin: 0,
-							borderWidth: 0,
-							justifyContent: 'center',
-							flex: 1,
-							paddingHorizontal: RFValue(10),
 						}}
 						// placeholder='Enter your Legal Name'
 						placeholderTextColor={colors.lightGrey}
@@ -191,16 +217,9 @@ const MakePropertyOffer = ({ navigation, route }) => {
 				<View style={{ paddingBottom: 20 }}>
 					<Text style={styles.title}>Name of Buyer</Text>
 					<TextInput
+						editable={false}
 						style={{
 							...styles.containerStyle,
-							..._font.Medium,
-							height: RFValue(50),
-							padding: 0,
-							margin: 0,
-							borderWidth: 0,
-							justifyContent: 'center',
-							flex: 1,
-							paddingHorizontal: RFValue(10),
 						}}
 						// placeholder='Enter Name of Buyer'
 						placeholderTextColor={colors.lightGrey}
@@ -212,16 +231,9 @@ const MakePropertyOffer = ({ navigation, route }) => {
 				<View style={{ paddingBottom: 20 }}>
 					<Text style={styles.title}>Purchase Price</Text>
 					<TextInput
+						editable={false}
 						style={{
 							...styles.containerStyle,
-							..._font.Medium,
-							height: RFValue(50),
-							padding: 0,
-							margin: 0,
-							borderWidth: 0,
-							justifyContent: 'center',
-							flex: 1,
-							paddingHorizontal: RFValue(10),
 						}}
 						// placeholder='Enter amount you are offering to pay'
 						placeholderTextColor={colors.lightGrey}
@@ -234,16 +246,9 @@ const MakePropertyOffer = ({ navigation, route }) => {
 				<View style={{ paddingBottom: 20 }}>
 					<Text style={styles.title}>Notes (optional)</Text>
 					<TextInput
+						editable={false}
 						style={{
 							...styles.containerStyle,
-							..._font.Medium,
-							height: RFValue(50),
-							padding: 0,
-							margin: 0,
-							borderWidth: 0,
-							justifyContent: 'center',
-							flex: 1,
-							paddingHorizontal: RFValue(10),
 						}}
 						// placeholder='Optional Notes'
 						placeholderTextColor={colors.lightGrey}
@@ -252,16 +257,22 @@ const MakePropertyOffer = ({ navigation, route }) => {
 					/>
 				</View>
 
-				<View>
-					<DatePicker
-						text='Closing Date'
-						date={values.closingDate}
-						setDate={(currentDate) => setFieldValue('closingDate', currentDate)}
+				<View style={{ paddingBottom: 20 }}>
+					<Text style={styles.title}>Closing Date</Text>
+					<TextInput
+						editable={false}
+						style={{
+							...styles.containerStyle,
+						}}
+						// placeholder='Optional Notes'
+						placeholderTextColor={colors.lightGrey}
+						value={values.notes}
+						onChangeText={handleChange('notes')}
 					/>
 				</View>
 
 				<View style={{ marginBottom: RFValue(20) }}>
-					<Text style={styles.title}>Upload Purchase Agreement Doc</Text>
+					<Text style={styles.title}>Purchase Agreement Doc</Text>
 					{docUpload.map((d, ind) => {
 						return (
 							d.type !== 'cancel' && (
@@ -305,39 +316,6 @@ const MakePropertyOffer = ({ navigation, route }) => {
 						);
 					})}
 				</View>
-
-				<ButtonPrimaryBig
-					title={'Add Document'}
-					onPress={selectDoc}
-					containerStyle={{
-						backgroundColor: colors.fair,
-						width: RFValue(200),
-						height: RFValue(40),
-						alignSelf: 'center',
-					}}
-				/>
-
-				{/*<ButtonPrimaryBig*/}
-				{/*	title={'Document'}*/}
-				{/*	onPress={cls}*/}
-				{/*	// onPress={selectDoc}*/}
-				{/*	containerStyle={{*/}
-				{/*		backgroundColor: colors.fair,*/}
-				{/*		width: RFValue(200),*/}
-				{/*		height: RFValue(40),*/}
-				{/*		alignSelf: 'center',*/}
-				{/*	}}*/}
-				{/*/>*/}
-				<ButtonPrimaryBig
-					title={isLoading ? 'Submitting...' : 'Submit'}
-					onPress={handleSubmit}
-					containerStyle={{
-						backgroundColor: !values.closingDate
-							? colors.fair + '50'
-							: colors.brown,
-						marginVertical: RFValue(20),
-					}}
-				/>
 			</View>
 			<ReactNativeModal
 				isVisible={showModal}
@@ -392,7 +370,7 @@ const MakePropertyOffer = ({ navigation, route }) => {
 	);
 };
 
-export default MakePropertyOffer;
+export default ViewPropertyOffer;
 
 const styles = StyleSheet.create({
 	label: {
@@ -400,21 +378,27 @@ const styles = StyleSheet.create({
 	},
 	title: { ..._font.Medium, color: colors.black },
 	containerStyle: {
-		height: RFValue(50),
-		backgroundColor: '#FFFFFF',
-		margin: 0,
-		padding: 0,
-	},
-
-	textInput: {
 		..._font.Medium,
-		backgroundColor: '#FFFFFF',
-		height: RFValue(50),
+
+		color: '#FFFFFF',
+		// height: RFValue(50),
 		padding: 0,
 		margin: 0,
 		borderWidth: 0,
 		justifyContent: 'center',
 		flex: 1,
-		paddingHorizontal: RFValue(10),
+		// paddingHorizontal: RFValue(10),
+	},
+
+	textInput: {
+		..._font.Medium,
+		backgroundColor: '#FFFFFF',
+		// height: RFValue(50),
+		padding: 0,
+		margin: 0,
+		borderWidth: 0,
+		justifyContent: 'center',
+		flex: 1,
+		// paddingHorizontal: RFValue(10),
 	},
 });

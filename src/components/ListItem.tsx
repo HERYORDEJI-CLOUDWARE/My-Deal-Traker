@@ -1,43 +1,40 @@
-import { Card, Text } from "native-base";
-import React from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
-import colors from "../constants/colors";
+import { Card, Text } from 'native-base';
+import React from 'react';
+import { Dimensions, StyleSheet, View } from 'react-native';
+import colors from '../constants/colors';
+import { RFValue } from 'react-native-responsive-fontsize';
+import _font from '../styles/fontStyles';
 
-const {width} = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
 const ListItem = ({ title, value }) => (
-  <View
-    style={{
-      flexWrap: "wrap",
-      marginHorizontal: 10,
-      paddingVertical: 10
-    }}
-  >
-    <View style={{ width: width - 25, backgroundColor: colors.bgBrown }}>
-      <Text style={styles.listTitle}>{title} </Text>
-    </View>
-    <Text style={styles.listValue}>{value}</Text>
-  </View>
+	<View
+		style={{
+			flexWrap: 'wrap',
+			marginBottom: RFValue(10),
+		}}
+	>
+		<View style={styles.listTitleWrapper}>
+			<Text style={styles.listTitle}>{title}</Text>
+		</View>
+		<Text style={styles.listValue}>{value}</Text>
+	</View>
 );
 
 export default ListItem;
 
 const styles = StyleSheet.create({
-  listTitle: {
-    padding: 10,
-    paddingVertical:0,
-    fontSize: 20,
-    color: colors.black,
-    textAlign: "left",
-    fontWeight:'bold'
-    
-  },
-  listValue: {
-    padding: 10,
-    paddingVertical:0,
-    fontSize: 20,
-    color: colors.white,
-    textAlign: "left",
-    width: width * 0.8
-  },
+	listTitleWrapper: {},
+	listTitle: {
+		..._font.Small,
+		// paddingBottom: RFValue(10),
+		fontSize: RFValue(14),
+		color: colors.black,
+	},
+	listValue: {
+		..._font.Medium,
+		color: colors.white,
+		// paddingBottom: RFValue(10),
+		fontSize: RFValue(14),
+	},
 });

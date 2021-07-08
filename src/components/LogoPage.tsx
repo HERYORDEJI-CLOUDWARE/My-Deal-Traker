@@ -10,7 +10,15 @@ import _font from '../styles/fontStyles';
 import * as NB from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 
-const LogoPage = ({ children, notShow, title, dontShow }) => {
+const LogoPage = ({
+	children,
+	notShow,
+	title,
+	dontShow = true,
+	containerStyle,
+	bottomRightComponent,
+	fab,
+}) => {
 	const {
 		state: { user, subStatus },
 		logout,
@@ -21,7 +29,7 @@ const LogoPage = ({ children, notShow, title, dontShow }) => {
 	const navigation = useNavigation();
 
 	return (
-		<Container style={styles.container}>
+		<Container style={[styles.container, containerStyle]}>
 			{!dontShow ? (
 				<CustomHeader
 					title={title}
@@ -52,15 +60,20 @@ const LogoPage = ({ children, notShow, title, dontShow }) => {
 			>
 				<React.Fragment>{children}</React.Fragment>
 			</Content>
-			{/* Logout button */}
-			<RN.Pressable style={styles.logoutButtonWrapper} onPress={logout}>
-				<NB.Icon
-					name={'logout'}
-					type={'MaterialCommunityIcons'}
-					style={styles.logoutButtonIcon}
-				/>
-				<RN.Text style={styles.logoutButtonTitle}>Log out</RN.Text>
-			</RN.Pressable>
+			<RN.View style={styles.bottomWrapper}>
+				{/* Logout button */}
+				<RN.Pressable style={styles.logoutButtonWrapper} onPress={logout}>
+					<NB.Icon
+						name={'logout'}
+						type={'MaterialCommunityIcons'}
+						style={styles.logoutButtonIcon}
+					/>
+					<RN.Text style={styles.logoutButtonTitle}>Log out</RN.Text>
+				</RN.Pressable>
+
+				{fab && fab()}
+				{bottomRightComponent}
+			</RN.View>
 		</Container>
 	);
 };
@@ -83,5 +96,10 @@ const styles = RN.StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		marginVertical: RFValue(10),
+	},
+	bottomWrapper: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
 	},
 });

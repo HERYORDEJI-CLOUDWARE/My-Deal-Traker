@@ -22,6 +22,8 @@ import DealProgress from '../screens/BA/DealProgress/DealProgress';
 import Notification from '../screens/BA/Notification/NotificationPage';
 import Settings from '../screens/BA/Settings/Settings';
 import LogoPage from './LogoPage';
+import { RFValue } from 'react-native-responsive-fontsize';
+import _font from '../styles/fontStyles';
 
 const { width } = Dimensions.get('window');
 
@@ -106,7 +108,7 @@ const BuyAgentFooter = ({
 						<FontAwesome
 							name='search'
 							color={selected === 'details' ? colors.bgBrown : colors.white}
-							size={25}
+							size={RFValue(15)}
 						/>
 						<Text
 							style={{
@@ -131,7 +133,7 @@ const BuyAgentFooter = ({
               style={{ width: 30, height: 30, backgroundColor: selected === "progress" ? colors.bgBrown : colors.white }}
             /> */}
 						<Feather
-							size={25}
+							size={RFValue(15)}
 							name='trending-up'
 							color={selected === 'progress' ? colors.bgBrown : colors.white}
 						/>
@@ -156,7 +158,7 @@ const BuyAgentFooter = ({
 						<FontAwesome
 							name='bell'
 							color={selected === 'notif' ? colors.bgBrown : colors.white}
-							size={25}
+							size={RFValue(15)}
 						/>
 						<Text
 							style={{
@@ -184,8 +186,10 @@ export default BuyAgentFooter;
 
 const styles = StyleSheet.create({
 	titles: {
-		fontSize: 11,
+		..._font.Medium,
 		color: colors.white,
+		fontSize: RFValue(10),
+		paddingTop: RFValue(5),
 	},
 	btn: {},
 });

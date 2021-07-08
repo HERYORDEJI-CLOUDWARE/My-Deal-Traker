@@ -73,7 +73,7 @@ const SLFooterTabs = ({ navigation, property }) => {
 							source={require('../../../../assets/img/progress.png')}
 							style={{ width: 30, height: 30 }}
 						/>
-						<Text style={styles.titles}>Deal Progress</Text>
+						<Text style={styles.titles}>Deal Progress..</Text>
 					</TouchableOpacity>
 					{/* <TouchableOpacity
             style={styles.btn}

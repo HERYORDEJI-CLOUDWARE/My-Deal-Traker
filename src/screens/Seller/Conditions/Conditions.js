@@ -30,7 +30,7 @@ const Conditions = ({ notAgent }) => {
 	const rendered = () => {
 		switch (view) {
 			case 'financing':
-				return <Financing transaction={transaction} />;
+				return <Financing transaction={transaction} property={property} />;
 			case 'inspection':
 				return <Inspection transaction={transaction} property={property} />;
 			case 'appraisal':

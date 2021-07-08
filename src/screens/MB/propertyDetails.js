@@ -45,13 +45,13 @@ const MortgageBrokerPropertyDetials = ({ navigation, route }) => {
 				},
 			})
 			.then((res) => {
-				console.log(res.data.response.data);
+				// console.log(res.data.response.data);
 				const data = res.data.response.data;
 				properties.current = data;
 				setLoading(false);
 			})
 			.catch((err) => {
-				console.log(err);
+				// console.log(err);
 			});
 	};
 

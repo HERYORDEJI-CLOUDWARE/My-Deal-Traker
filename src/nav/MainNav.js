@@ -45,7 +45,7 @@ import ListingChecklist from '../screens/SA/Listing/ListingChecklist';
 import PropertyInfo from '../screens/BA/Property/views/PropertyTab/PropertyInfo';
 import MakePropertyOffer from '../screens/BA/Property/views/PropertyTab/MakeOffer';
 // TODO File does not exist
-// import BaChecklist from "../screens/BA/Property/views/conditions/BaChecklist";
+import BaChecklist from '../screens/BA/Conditions/CheckList';
 import ListingLawyer from '../screens/SA/Listing/ListingLawyer';
 // TODO File does not exist
 // import CounterOffer from "../screens/SA/Notification/CounterOffer";
@@ -91,6 +91,11 @@ import MortgageTransactionDetails from '../screens/MB/mortgageTransactionDetails
 import MortgageBrokerPropertyDetials from '../screens/MB/propertyDetails';
 import MortgageFinancing from '../screens/MB/mortgageFinancing';
 import _font from '../styles/fontStyles';
+import ViewPropertyOffer from '../screens/BA/Property/views/PropertyTab/ViewOffer';
+import BuyerCheckList from '../screens/BA/Conditions/BuyerCheckList';
+import Conditions from '../screens/BA/Conditions/Conditions';
+import SellerCheckList from '../screens/SA/SellerCheckList';
+import SellerConditions from '../screens/Seller/Conditions/Conditions';
 
 const Stack = createStackNavigator();
 
@@ -99,7 +104,7 @@ const SellingAgentStack = () => {
 		state: { user },
 	} = useContext(Context);
 	return (
-		<Stack.Navigator initialRouteName={'saHomepage'}>
+		<Stack.Navigator initialRouteName={'saHomepage'} headerMode={'none'}>
 			<Stack.Screen
 				name='saHomepage'
 				component={SAHomepage}
@@ -124,7 +129,7 @@ const SellingAgentStack = () => {
 				options={{
 					headerShown: false,
 					title: '',
-					headerBackTitle: 'Back',
+					// headerBackTitle: 'Back',
 				}}
 			/>
 			{/* TODO no route name*/}
@@ -445,6 +450,17 @@ const BuyerStack = () => {
 					headerBackTitleStyle: { color: colors.white },
 				}}
 			/>
+			<Stack.Screen
+				name='buyerChecklist'
+				component={BuyerCheckList}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
+					headerStyle: { backgroundColor: colors.bgBrown },
+					headerBackTitleStyle: { color: colors.white },
+				}}
+			/>
 		</Stack.Navigator>
 	);
 };
@@ -488,6 +504,17 @@ const SellerStack = () => {
 					headerStyle: { backgroundColor: colors.bgBrown },
 					headerBackTitleStyle: { color: colors.white },
 					headerTitle: 'Search',
+				}}
+			/>
+			<Stack.Screen
+				name='sellerConditions'
+				component={SellerConditions}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
+					headerStyle: { backgroundColor: colors.bgBrown },
+					headerBackTitleStyle: { color: colors.white },
 				}}
 			/>
 		</Stack.Navigator>
@@ -719,6 +746,7 @@ const BuyingAgentStack = () => {
 					headerBackTitleStyle: { color: colors.white },
 				}}
 			/>
+
 			<Stack.Screen
 				name='baMakeOffer'
 				component={MakePropertyOffer}
@@ -730,17 +758,28 @@ const BuyingAgentStack = () => {
 					headerBackTitleStyle: { color: colors.white },
 				}}
 			/>
-			{/*<Stack.Screen*/}
-			{/*  name="baConditions"*/}
-			{/*  component={BaChecklist}*/}
-			{/*  options={{*/}
-			{/*    headerShown: false,*/}
-			{/*    title: "",*/}
-			{/*    headerBackTitle: "Back",*/}
-			{/*    headerStyle: { backgroundColor: colors.bgBrown },*/}
-			{/*    headerBackTitleStyle: { color: colors.white },*/}
-			{/*  }}*/}
-			{/*/>*/}
+			<Stack.Screen
+				name='baViewOffer'
+				component={ViewPropertyOffer}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
+					headerStyle: { backgroundColor: colors.bgBrown },
+					headerBackTitleStyle: { color: colors.white },
+				}}
+			/>
+			<Stack.Screen
+				name='baConditions'
+				component={Conditions}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
+					headerStyle: { backgroundColor: colors.bgBrown },
+					headerBackTitleStyle: { color: colors.white },
+				}}
+			/>
 			<Stack.Screen
 				name='notificationScreen'
 				component={NotificationPage}

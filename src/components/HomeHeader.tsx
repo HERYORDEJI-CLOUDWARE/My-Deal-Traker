@@ -47,7 +47,7 @@ const HomeHeader = ({
 
 	const submitSearch = async () => {
 		const token = await fetchAuthToken();
-		// console.log(token)
+		// // console.log(token)
 
 		const data = new FormData();
 		data.append('keyword', text);
@@ -62,13 +62,13 @@ const HomeHeader = ({
 				},
 			)
 			.then((res) => {
-				// console.log(token);
-				console.log(res.data.response.data);
+				// // console.log(token);
+				// console.log(res.data.response.data);
 				const response = res.data.response.data;
 				setSearch(response);
 			})
 			.catch((err) => {
-				console.log(err);
+				// console.log(err);
 			});
 	};
 
@@ -110,7 +110,7 @@ const HomeHeader = ({
 
 					{user ? (
 						<Text style={styles.remaining}>
-							Available listing:{' '}
+							Available listing: {subStatus?.total_remaining_listings}/
 							{subStatus?.total_allowed_listings_in_active_plans}
 						</Text>
 					) : null}
@@ -184,7 +184,7 @@ const styles = RN.StyleSheet.create({
 	loggedInAsText: {
 		..._font.Medium,
 		color: colors.white,
-		fontFamily: 'pop-light',
+		// fontFamily: 'pop-light',
 	},
 	loggedInAsButton: {
 		backgroundColor: 'black',

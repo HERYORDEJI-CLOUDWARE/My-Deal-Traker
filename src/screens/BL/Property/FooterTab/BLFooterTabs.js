@@ -63,7 +63,7 @@ const BLFooterTabs = ({ navigation, property }) => {
 						onPress={() => setSelected('detail')}
 					>
 						<FontAwesome name='search' color={colors.white} size={25} />
-						<Text style={styles.titles}>Listing</Text>
+						<Text style={styles.titles}>Listing..</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={styles.btn}

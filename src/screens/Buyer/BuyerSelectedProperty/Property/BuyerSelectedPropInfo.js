@@ -47,7 +47,7 @@ const BuyerSelectedPropInfo = ({ property, transaction, navigation }) => {
 
 			<TouchableOpacity
 				activeOpacity={0.9}
-				onPress={() => navigate('buyerConditions', { transaction, property })}
+				onPress={() => navigate('buyerChecklist', { transaction, property })}
 				style={styles.box}
 			>
 				<Text style={styles.boxTitle}>Conditions</Text>

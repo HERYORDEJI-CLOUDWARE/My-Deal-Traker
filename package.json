@@ -42,6 +42,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "native-base": "^2.15.2",
+    "numbro": "^2.3.2",
     "prop-types": "^15.7.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",

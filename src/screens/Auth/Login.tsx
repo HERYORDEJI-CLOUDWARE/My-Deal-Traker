@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as RN from 'react-native';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -81,7 +81,7 @@ const Login = ({ navigation }) => {
 			data.append('password', values.password);
 			data.append('role', values.signInAs);
 
-			console.log('...', data);
+			// console.log('...', data);
 
 			const res = await userLogin(data, values.signInAs);
 
@@ -92,19 +92,26 @@ const Login = ({ navigation }) => {
 		}
 	};
 
+	useEffect(() => {
+		onNewLogin();
+	}, []);
+
 	const onNewLogin = async () => {
 		try {
 			setIsLoading(true);
 			const data = new FormData();
+			// data.append('email', 'ismabadmus@gmail.com');
+			// data.append('password', '1234567890');
+			// data.append('role', 4);
 			data.append('email', 'heryordejy.cloudware@gmail.com');
 			data.append('password', 'Yusuf1996');
-			data.append('role', 1);
+			data.append('role', 2);
 
 			// data.append('email', values.email);
 			// 			data.append('password', values.password);
 			// 			data.append('role', values.signInAs);
 			//
-			console.log('...', data);
+			// console.log('...', data);
 
 			const res = await userLogin(data, values.signInAs);
 

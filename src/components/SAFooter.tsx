@@ -19,13 +19,17 @@ import colors from '../constants/colors';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import DealProgress from '../screens/BA/DealProgress/DealProgress';
 // TODO File does not exist
-// import Notification from "../screens/SA/Notification/SANotificationPage";
+import Notification from '../screens/SA/Notification/NotificationPage';
 import Settings from '../screens/BA/Settings/Settings';
 import PropertyView from '../screens/SA/Property/PropertyView';
+import { RFValue } from 'react-native-responsive-fontsize';
+import _font from './../styles/fontStyles';
 
 const { width } = Dimensions.get('window');
 
-const SellingAgentFooter = ({ property, navigation }) => {
+const SellingAgentFooter = ({ property, navigation, transaction, route }) => {
+	console.log(property);
+
 	const [selected, setSelected] = useState('details');
 	let shown = <PropertyView property={property} navigation={navigation} />;
 
@@ -65,7 +69,7 @@ const SellingAgentFooter = ({ property, navigation }) => {
 						<FontAwesome
 							name='search'
 							color={selected === 'details' ? colors.bgBrown : colors.white}
-							size={25}
+							size={RFValue(20)}
 						/>
 						<Text
 							style={{
@@ -86,7 +90,7 @@ const SellingAgentFooter = ({ property, navigation }) => {
 					>
 						<Feather
 							name='trending-up'
-							size={25}
+							size={RFValue(20)}
 							color={selected === 'progress' ? colors.bgBrown : colors.white}
 						/>
 						<Text
@@ -109,7 +113,7 @@ const SellingAgentFooter = ({ property, navigation }) => {
 						<FontAwesome
 							name='bell'
 							color={selected === 'notif' ? colors.bgBrown : colors.white}
-							size={25}
+							size={RFValue(20)}
 						/>
 						<Text
 							style={{
@@ -137,8 +141,10 @@ export default SellingAgentFooter;
 
 const styles = StyleSheet.create({
 	titles: {
-		fontSize: 11,
+		..._font.Medium,
+		fontSize: RFValue(12),
 		color: colors.white,
+		marginTop: RFValue(5),
 	},
 	btn: { justifyContent: 'center', alignItems: 'center', width: width / 4 },
 });

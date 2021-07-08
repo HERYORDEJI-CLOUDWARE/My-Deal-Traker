@@ -5,7 +5,7 @@ import PropertyTab from '../../../BA/Property/PropertyTab';
 const BuyerPropertyDetails = ({ route, navigation }) => {
 	const { property, transaction } = route.params;
 	return (
-		<LogoPage dontShow={true}>
+		<LogoPage dontShow={true} containerStyle={{ paddingTop: 0 }}>
 			<PropertyTab
 				property={property}
 				transaction={transaction}

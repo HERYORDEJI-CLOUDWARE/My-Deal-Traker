@@ -26,7 +26,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import ButtonPrimaryBig from '../../../components/ButtonPrimaryBig';
 import Modal from 'react-native-modal';
 
-const Financing = ({ transaction, route }) => {
+const Financing = ({ transaction, route, property }) => {
 	const [validFile, setValidFile] = useState(false);
 	const [fileValidModal, setFileValidShow] = useState({ visible: false });
 
@@ -85,7 +85,7 @@ const Financing = ({ transaction, route }) => {
 	} = useContext(Context);
 
 	// const {transaction_id} = route.params
-	const { transaction_id } = transaction;
+	const { transaction_id } = transaction ?? property;
 
 	const [show, setShow] = useState(false);
 

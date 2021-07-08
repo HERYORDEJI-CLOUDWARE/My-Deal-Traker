@@ -15,6 +15,8 @@ const { height } = Dimensions.get('window');
 const DealProgress = ({ transaction, isLoading }) => {
 	const navigation = useNavigation();
 
+	console.log('\n\n', transaction, '\n\n', transaction.show_interest_status);
+
 	if (isLoading) {
 		return (
 			<LogoPage dontShow={false}>
@@ -61,13 +63,13 @@ const DealProgress = ({ transaction, isLoading }) => {
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Interested Purchaser</Text>
 							<Text style={styles.status}>
-								{transaction.show_interest_status != '0' ? 'Completed' : ''}{' '}
+								{transaction.show_interest_status != '0' ? 'Completed' : ''}
 							</Text>
 						</View>
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Show Request</Text>
 							<Text style={styles.status}>
-								{transaction.show_property_status != '0'
+								{transaction?.show_property_status != '0'
 									? 'Completed'
 									: 'Not completed'}
 							</Text>

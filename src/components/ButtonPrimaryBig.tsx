@@ -6,17 +6,22 @@ import _colors from '../constants/colors';
 
 interface Props {
 	title: string;
+	titleStyle?: RN.TextStyle;
 	containerStyle?: RN.ViewStyle;
 	onPress: () => void;
+	disabled?: boolean;
 }
 
 export default function ButtonPrimaryBig(props: Props) {
 	return (
 		<RN.Pressable
+			disabled={props.disabled}
 			style={{ ...styles.container, ...props.containerStyle }}
 			{...props}
 		>
-			<RN.Text style={styles.title}>{props.title}</RN.Text>
+			<RN.Text style={{ ...styles.title, ...props.titleStyle }}>
+				{props.title}
+			</RN.Text>
 		</RN.Pressable>
 	);
 }

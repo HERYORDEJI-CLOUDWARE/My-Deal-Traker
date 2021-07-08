@@ -26,13 +26,13 @@
 // };
 
 // purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
-//   console.log("purchaseUpdatedListener", purchase);
+//   // console.log("purchaseUpdatedListener", purchase);
 //   if (purchase.purchaseStateAndroid === 1 && !purchase.isAcknowledgedAndroid) {
 //     try {
 //       const ackResult = await acknowledgePurchaseAndroid(
 //         purchase.purchaseToken
 //       );
-//       console.log("ackResult", ackResult);
+//       // console.log("ackResult", ackResult);
 //     } catch (ackErr) {
 //       console.warn("ackErr", ackErr);
 //     }
@@ -40,30 +40,30 @@
 //   purchaseConfirmed();
 //   setReceipt(purchase.transactionReceipt);
 //   purchaseErrorSubscription = purchaseErrorListener((error) => {
-//     console.log("purchaseErrorListener", error);
+//     // console.log("purchaseErrorListener", error);
 //     // alert('purchase error', JSON.stringify(error));
 //   });
 // });
 
 // const getItems = async () => {
 //   try {
-//     console.log("itemSkus[0]", itemSkus[0]);
+//     // console.log("itemSkus[0]", itemSkus[0]);
 //     const products = await RNIap.getProducts(itemSkus);
-//     console.log("Products[0]", products[0]);
+//     // console.log("Products[0]", products[0]);
 //     setProductList(products);
 //     requestPurchase(itemSkus[0]);
 //   } catch (err) {
-//     console.log("getItems || purchase error => ", err);
+//     // console.log("getItems || purchase error => ", err);
 //   }
 // };
 
 // const getSubscriptions = async () => {
 //   try {
 //     const products = await RNIap.getSubscriptions(itemSubs);
-//     console.log("Products => ", products);
+//     // console.log("Products => ", products);
 //     setProductList(products);
 //   } catch (err) {
-//     console.log("getSubscriptions error => ", err);
+//     // console.log("getSubscriptions error => ", err);
 //   }
 // };
 
@@ -80,7 +80,7 @@
 //   try {
 //     RNIap.requestPurchase(sku);
 //   } catch (err) {
-//     console.log("requestPurchase error => ", err);
+//     // console.log("requestPurchase error => ", err);
 //   }
 // };
 
@@ -96,7 +96,7 @@
 //           (
 //             purchase
 //           ) => {
-//             console.log("purchaseUpdatedListener", purchase);
+//             // console.log("purchaseUpdatedListener", purchase);
 //             const receipt = purchase.transactionReceipt;
 //             if (receipt) {
 //               yourAPI.deliverOrDownloadFancyInAppPurchase(//unknown
