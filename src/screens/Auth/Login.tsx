@@ -100,12 +100,36 @@ const Login = ({ navigation }) => {
 		try {
 			setIsLoading(true);
 			const data = new FormData();
-			// data.append('email', 'ismabadmus@gmail.com');
-			// data.append('password', '1234567890');
+			data.append('email', 'ismabadmus@gmail.com');
+			data.append('password', '1234567890');
 			// data.append('role', 4);
-			data.append('email', 'heryordejy.cloudware@gmail.com');
-			data.append('password', 'Yusuf1996');
+			// data.append('email', 'heryordejy.cloudware@gmail.com');
+			// data.append('password', 'Yusuf1996');
 			data.append('role', 2);
+
+			const transactionFormat = {
+				'0': '29',
+				appraisal_status: '0',
+				buyer_agent_id: 'cfd18a638ec697bcfb3723deb529842b',
+				closing_status: '2', // *****
+				creation_date: '2021-07-08 10:06:45',
+				financing_status: '0',
+				id: '29',
+				inspection_status: '0', // *****
+				last_updated: '2021-07-08 10:06:45',
+				make_offer_initiation_status: '1', // *****
+				make_offer_status: '0', // *****
+				property_created_date: '2021-07-06 15:56:55',
+				property_id: '60705998',
+				property_listing_date: '07/06/2021',
+				property_status: '4', // *****
+				repairs_status: '1', // *****
+				show_interest_status: '1', // *****
+				show_property_approval_status: '0', // *****
+				show_property_status: '1', // *****
+				transaction_id: 'bd5a1aae33b2c9286e1ee123cf48397c',
+				transaction_status: '0',
+			};
 
 			// data.append('email', values.email);
 			// 			data.append('password', values.password);

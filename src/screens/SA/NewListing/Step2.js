@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
 	Text,
 	View,
@@ -71,7 +71,13 @@ const Step2 = ({ next, back, values, handleChange, setFieldValue }) => {
 	// 	.toString();
 
 	// console.log(listPrice);
-	// console.log(numbro(1000).format({ thousandSeparated: true }));
+
+	const [formatedListingPrice, setFormatedListingPrice] = React.useState('');
+
+	const onEnterPrice = (price) => {
+		handleChange('listingPrice');
+		setFormatedListingPrice(numbro(price).format({ thousandSeparated: true }));
+	};
 
 	return (
 		<Content contentContainerStyle={{ paddingBottom: RFValue(60) }}>
@@ -103,7 +109,7 @@ const Step2 = ({ next, back, values, handleChange, setFieldValue }) => {
 							color: 1 <= values.status < 4 ? colors.black : colors.fair,
 						}}
 					>
-						{STATUS_BUTTONS[values.status] || 'Select'}
+						{STATUS_BUTTONS[values.status] || ''}
 					</Text>
 				</Pressable>
 			</View>
@@ -135,7 +141,7 @@ const Step2 = ({ next, back, values, handleChange, setFieldValue }) => {
 							...styles.textInput,
 						}}
 					>
-						{LISTING_TYPE_BUTTONS[values.listingType] || 'Listing Type'}
+						{LISTING_TYPE_BUTTONS[values.listingType] || ''}
 					</Text>
 				</Pressable>
 			</View>
@@ -144,8 +150,9 @@ const Step2 = ({ next, back, values, handleChange, setFieldValue }) => {
 				label={'Listing Price'}
 				keyboardType={'number-pad'}
 				// value={`${_currency(values.listingPrice)}`}
-				// value={`${listPrice}`}
+				// value={`${formatedListingPrice}`}
 				onChangeText={handleChange('listingPrice')}
+				// onChangeText={(text) => onEnterPrice(text)}
 			/>
 
 			<InputBar
@@ -186,7 +193,7 @@ const Step2 = ({ next, back, values, handleChange, setFieldValue }) => {
 							...styles.textInput,
 						}}
 					>
-						{OCCUPANCY_BUTTONS[values.occupancy] || 'Occupancy'}
+						{OCCUPANCY_BUTTONS[values.occupancy] || ''}
 					</Text>
 				</TouchableOpacity>
 			</View>
@@ -218,7 +225,7 @@ const Step2 = ({ next, back, values, handleChange, setFieldValue }) => {
 							...styles.textInput,
 						}}
 					>
-						{values.possession || 'Possession'}
+						{values.possession || ''}
 					</Text>
 				</TouchableOpacity>
 			</View>

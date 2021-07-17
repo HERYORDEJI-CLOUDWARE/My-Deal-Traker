@@ -29,8 +29,8 @@ const Conditions = ({ notAgent }) => {
 
 	const rendered = () => {
 		switch (view) {
-			case 'financing':
-				return <Financing transaction={transaction} property={property} />;
+			// case 'financing':
+			// 	return <Financing transaction={transaction} property={property} />;
 			case 'inspection':
 				return <Inspection transaction={transaction} property={property} />;
 			case 'appraisal':
@@ -96,7 +96,7 @@ const Conditions = ({ notAgent }) => {
 				<View style={{ backgroundColor: colors.white }}>
 					{!notAgent ? (
 						<React.Fragment>
-							<TouchableOpacity
+							{/* <TouchableOpacity
 								style={styles.dropdownTextWrapper}
 								onPress={() => {
 									setView('financing');
@@ -104,7 +104,7 @@ const Conditions = ({ notAgent }) => {
 								}}
 							>
 								<Text style={styles.dropdownText}>Financing</Text>
-							</TouchableOpacity>
+							</TouchableOpacity> */}
 							<TouchableOpacity
 								style={styles.dropdownTextWrapper}
 								onPress={() => {

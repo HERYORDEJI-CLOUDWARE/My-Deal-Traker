@@ -1,101 +1,140 @@
-import { Text } from 'native-base';
+import { Icon } from 'native-base';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import colors from '../../../constants/colors';
+import LogoPage from '../../../components/LogoPage';
+import { RFValue } from 'react-native-responsive-fontsize';
+import _font from '../../../styles/fontStyles';
 
-const SLDealProgress = () => {
+const SLDealProgress = ({ transaction, isLoading }) => {
 	return (
-		<View style={{ flex: 1 }}>
-			<View style={{ paddingLeft: 34 }}>
+		<LogoPage style={{ flex: 1 }}>
+			<View style={{}}>
 				<Text style={styles.title}>DEAL PROGRESS</Text>
 				<Text style={{ color: colors.lightGrey }}>
 					Process tracker for your current deal
 				</Text>
 			</View>
 
-			<View style={{ marginTop: 40 }} />
-
-			<View style={{ paddingLeft: 10 }}>
-				<View style={{ paddingHorizontal: 20 }}>
+			<View style={{ marginTop: RFValue(20) }}>
+				{/*Property*/}
+				<View style={{ marginBottom: RFValue(20) }}>
 					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 						<View style={styles.doneCircle} />
 						<Text style={styles.titleText}>Property</Text>
 					</View>
-
 					<View
 						style={{
-							borderLeftWidth: 1,
-							paddingLeft: 28,
-							marginLeft: 16,
-							marginTop: 10,
+							borderLeftWidth: RFValue(1),
+							paddingLeft: RFValue(20),
+							marginLeft: RFValue(10),
+							marginTop: RFValue(0),
 							borderLeftColor: colors.doneCircle,
 						}}
 					>
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Interested Purchaser</Text>
-							<Text style={styles.status}>Completed</Text>
+							<Text style={styles.status}>
+								{transaction?.show_interest_status != '0' ? 'Completed' : ''}
+							</Text>
 						</View>
+
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Show Request</Text>
-							<Text style={styles.status}>Completed</Text>
+							<Text style={styles.status}>
+								{transaction?.show_property_status != '0'
+									? 'Completed'
+									: 'Not completed'}
+							</Text>
 						</View>
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Make an offer</Text>
-							<Text style={styles.status}>Approved</Text>
+							<Text style={styles.status}>
+								{transaction?.make_offer_initiation_status != '0'
+									? 'Completed'
+									: 'Not completed'}
+							</Text>
 						</View>
 					</View>
 				</View>
 
-				<View style={{ marginTop: 20 }} />
-
-				<View style={{ paddingHorizontal: 20 }}>
+				{/*Condition*/}
+				<View style={{ marginBottom: RFValue(20) }}>
 					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 						<View style={styles.inProgressCircle} />
 						<Text style={styles.titleText}>Condition</Text>
 						<View style={{ flex: 1, alignSelf: 'flex-end' }}>
-							<Text style={{ ...styles.status }}>2 days left</Text>
+							{/* <Text style={{ ...styles.status }}>2 days left</Text> */}
 						</View>
 					</View>
 
 					<View
 						style={{
-							borderLeftWidth: 1,
-							paddingLeft: 28,
-							marginLeft: 16,
-							marginTop: 10,
+							borderLeftWidth: RFValue(1),
+							paddingLeft: RFValue(20),
+							marginLeft: RFValue(10),
+							marginTop: RFValue(0),
 							borderLeftColor: colors.doneCircle,
 						}}
 					>
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Financing</Text>
-							<Text style={{ ...styles.status, color: colors.lightGrey }}>
-								Pending
+							<Text style={{ ...styles.status }}>
+								{transaction?.financing_status != '0'
+									? 'Completed'
+									: 'Not completed'}
 							</Text>
 						</View>
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Inspection</Text>
+							<Text style={{ ...styles.status }}>
+								{transaction?.inspection_status != '0'
+									? 'Completed'
+									: 'Not completed'}
+							</Text>
 						</View>
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Appraisal</Text>
+							<Text style={{ ...styles.status }}>
+								{transaction?.appraisal_status != '0'
+									? 'Completed'
+									: 'Not completed'}
+							</Text>
 						</View>
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Repairs</Text>
+							<Text style={{ ...styles.status }}>
+								{transaction?.repairs_status != '0'
+									? 'Completed'
+									: 'Not completed'}
+							</Text>
 						</View>
 					</View>
 				</View>
 
-				<View style={{ paddingHorizontal: 20 }}>
+				<View style={{ marginBottom: RFValue(20) }}>
 					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 						<View style={styles.notDoneCircle} />
 						<Text style={styles.titleText}>Closing</Text>
+						<Text
+							style={{
+								...styles.titleText,
+								color: colors.lightGrey,
+								marginHorizontal: RFValue(10),
+							}}
+						>
+							{transaction?.closing_status != '0'
+								? 'Completed'
+								: 'Not completed'}
+						</Text>
 					</View>
 
 					<View
 						style={{
-							borderLeftWidth: 1,
-							paddingLeft: 28,
-							marginLeft: 16,
-							marginTop: 10,
+							borderLeftWidth: RFValue(1),
+							paddingLeft: RFValue(20),
+							marginLeft: RFValue(10),
+							marginTop: RFValue(0),
 							borderLeftColor: colors.doneCircle,
 						}}
 					>
@@ -108,7 +147,8 @@ const SLDealProgress = () => {
 					</View>
 				</View>
 
-				<View style={{ paddingHorizontal: 20 }}>
+				{/*Closing*/}
+				<View style={{ marginBottom: RFValue(20) }}>
 					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 						<View style={styles.notDoneCircle} />
 						<Text style={styles.titleText}>Closing</Text>
@@ -116,10 +156,10 @@ const SLDealProgress = () => {
 
 					<View
 						style={{
-							borderLeftWidth: 1,
-							paddingLeft: 28,
-							marginLeft: 16,
-							marginTop: 10,
+							borderLeftWidth: RFValue(1),
+							paddingLeft: RFValue(20),
+							marginLeft: RFValue(10),
+							marginTop: RFValue(0),
 							borderLeftColor: colors.doneCircle,
 						}}
 					>
@@ -127,49 +167,63 @@ const SLDealProgress = () => {
 					</View>
 				</View>
 			</View>
-		</View>
+		</LogoPage>
 	);
 };
 
 export default SLDealProgress;
 
 const styles = StyleSheet.create({
+	headerWrapper: { marginBottom: RFValue(10) },
 	title: {
+		..._font.Big,
 		color: colors.white,
-		fontSize: 30,
+		fontSize: RFValue(20),
+		lineHeight: RFValue(22),
 	},
+	subtitle: { ..._font.Small, color: colors.lightGrey, fontSize: RFValue(14) },
 	doneCircle: {
-		width: 32,
-		height: 32,
+		width: RFValue(20),
+		height: RFValue(20),
 		backgroundColor: colors.doneCircle,
-		borderRadius: 30,
+		borderRadius: RFValue(30),
+		marginRight: RFValue(10),
 	},
 	titleText: {
+		..._font.Medium,
 		color: colors.white,
-		fontSize: 24,
-		paddingLeft: 10,
+		fontSize: RFValue(18),
 	},
 	progressText: {
+		..._font.Small,
 		color: colors.lightGrey,
-		fontSize: 18,
-		paddingVertical: 5,
+		fontSize: RFValue(14),
+		paddingVertical: RFValue(5),
 	},
 	inProgressCircle: {
-		width: 32,
-		height: 32,
-		borderRadius: 30,
 		borderColor: colors.doneCircle,
-		borderWidth: 2,
+		borderWidth: RFValue(2),
+		width: RFValue(20),
+		height: RFValue(20),
+		borderRadius: RFValue(30),
+		marginRight: RFValue(10),
 	},
 	notDoneCircle: {
 		backgroundColor: colors.lightGrey,
-		width: 32,
-		height: 32,
-		borderRadius: 30,
+		width: RFValue(20),
+		height: RFValue(20),
+		borderRadius: RFValue(30),
+		marginRight: RFValue(10),
 	},
 	action_status: {
 		flexDirection: 'row',
 		alignItems: 'center',
+		justifyContent: 'space-between',
 	},
-	status: { color: colors.white, flex: 1, textAlign: 'right' },
+	status: {
+		..._font.Small,
+		fontSize: RFValue(14),
+		paddingVertical: RFValue(5),
+		color: colors.white,
+	},
 });

@@ -7,6 +7,7 @@ import {
 	Text,
 	View,
 } from 'react-native';
+import * as RN from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomInput from '../../../components/CustomInput';
 import HomeHeader from '../../../components/HomeHeader';
@@ -70,29 +71,32 @@ const Homepage = ({ navigation }) => {
 		}
 	};
 
-	const ListEmpty = () => (
+	const ListEmpty = () => {
+		if (isFetching) {
+			return (
+				<React.Fragment>
+					<LogoPage dontShow={true}>
+						<RN.ActivityIndicator size='large' color={colors.white} />
+					</LogoPage>
+				</React.Fragment>
+			);
+		}
 		<React.Fragment>
-			<View
-				style={{
-					justifyContent: 'center',
-					alignItems: 'center',
-					paddingVertical: 25,
-				}}
-			>
-				<Image
+			<RN.View style={styles.listEmptyWrapper}>
+				<RN.Image
 					source={require('../../../assets/img/no_deals.png')}
-					style={{ width: 261, height: 137, resizeMode: 'stretch' }}
+					style={styles.listEmptyImage}
 				/>
-			</View>
+			</RN.View>
 
-			<View style={{ marginTop: 20 }}>
-				<Text style={styles.noresult}>
-					You have no recent search/activities.
-				</Text>
-				<Text style={styles.noresult}>Search for property to start deal</Text>
-			</View>
-		</React.Fragment>
-	);
+			<RN.Text style={styles.noresult}>
+				You have no recent search/activities
+			</RN.Text>
+			<RN.Text style={styles.noresult}>
+				Search for property to start deal
+			</RN.Text>
+		</React.Fragment>;
+	};
 
 	useEffect(() => {
 		getRandomProperties().then((res) => {
@@ -104,76 +108,54 @@ const Homepage = ({ navigation }) => {
 		});
 	}, []);
 
-	if (isFetching) {
-		return (
-			<LogoPage dontShow={true}>
-				<React.Fragment>
-					<HomeHeader
-						search={search}
-						setSearch={setSearch}
-						searchScreen='searchScreen'
-					/>
-				</React.Fragment>
-				<ActivityIndicator color={colors.white} />
-			</LogoPage>
-		);
-	}
-
 	return (
-		<LogoPage
-			style={{ backgroundColor: colors.bgBrown, flex: 1 }}
-			dontShow={true}
-		>
-			<>
-				<FlatList
-					data={
-						usersProperty.length > 0
-							? usersProperty
-									.filter(function (element, index, array) {
-										return index % 2 !== 0;
-									})
-									.reverse()
-							: randomProptList
-					}
-					ListHeaderComponent={
-						<React.Fragment>
-							<HomeHeader
-								search={search}
-								setSearch={setSearch}
-								searchScreen='searchScreen'
+		<LogoPage dontShow={true}>
+			<FlatList
+				data={
+					usersProperty.length > 0
+						? usersProperty
+								.filter(function (element, index, array) {
+									return index % 2 !== 0;
+								})
+								.reverse()
+						: randomProptList
+				}
+				ListHeaderComponent={
+					<React.Fragment>
+						<HomeHeader
+							search={search}
+							setSearch={setSearch}
+							searchScreen='searchScreen'
+							searchItemViewScreen={'selectedPropertyScreen'}
+						/>
+					</React.Fragment>
+				}
+				ListEmptyComponent={ListEmpty()}
+				keyExtractor={(item, index) => index.toString()}
+				renderItem={({ item }) => {
+					const shared = {
+						property: item.property_details ?? item,
+						transaction: item.transaction_details ?? item,
+					};
+					return (
+						<View>
+							<ListingCard
+								item={item.property_details}
+								// item={shared}
+								view={'selectedPropertyScreen'}
+								listNo={
+									item?.property_details?.listing_number ?? item?.listing_number
+								}
+								status={formatStatus(
+									item?.property_details?.status ?? item?.status,
+								)}
+								city={item?.property_details?.city ?? item?.city}
+								dad={item?.property_details?.date_created ?? item?.date_created}
 							/>
-						</React.Fragment>
-					}
-					ListEmptyComponent={<ListEmpty />}
-					keyExtractor={(item, index) => index.toString()}
-					renderItem={({ item }) => {
-						const shared = {
-							property: item.property_details ?? item,
-							transaction: item.transaction_details ?? item,
-						};
-						return (
-							<View>
-								<ListingCard
-									item={item.property_details}
-									// item={shared}
-									view={'selectedPropertyScreen'}
-									listNo={
-										item?.property_details?.listing_number ??
-										item?.listing_number
-									}
-									status={formatStatus(
-										item?.property_details?.status ?? item?.status,
-									)}
-									city={item?.property_details?.city ?? item?.city}
-									dad={
-										item?.property_details?.date_created ?? item?.date_created
-									}
-								/>
-							</View>
-						);
-					}}
-				/>
-			</>
+						</View>
+					);
+				}}
+			/>
 		</LogoPage>
 	);
 };
@@ -187,5 +169,15 @@ const styles = StyleSheet.create({
 		fontFamily: 'pop-reg',
 		opacity: 0.9,
 		color: colors.white,
+	},
+	listEmptyWrapper: {
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingVertical: RFValue(25),
+	},
+	listEmptyImage: {
+		width: RFValue(261),
+		height: RFValue(137),
+		resizeMode: 'stretch',
 	},
 });

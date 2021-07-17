@@ -48,6 +48,7 @@ const PropertyDetails = ({ move, property, navigation }) => {
 			}
 		} catch (error) {}
 	};
+	console.log(propertyInfo);
 
 	if (isLoading) {
 		return <ActivityIndicator color={colors.white} size='large' />;
@@ -65,6 +66,11 @@ const PropertyDetails = ({ move, property, navigation }) => {
 						value={propertyInfo.property_address}
 					/>
 					<ListItem
+						title='Property Price:'
+						value={propertyInfo?.property_price}
+					/>
+					<ListItem title='Possession' value={propertyInfo.possession} />
+					<ListItem
 						title='Property Details'
 						value={propertyInfo.property_details}
 					/>
@@ -77,7 +83,6 @@ const PropertyDetails = ({ move, property, navigation }) => {
 						value={propertyInfo.major_nearest_town}
 					/>
 					<ListItem title='Occupancy' value={propertyInfo.occupancy} />
-					<ListItem title='Possession' value={propertyInfo.possession} />
 				</View>
 			</ScrollView>
 		</SafeAreaView>

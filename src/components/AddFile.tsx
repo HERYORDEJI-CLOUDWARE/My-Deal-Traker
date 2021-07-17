@@ -7,6 +7,7 @@ import {
 	StyleSheet,
 	Pressable,
 	ScrollView,
+	Alert,
 } from 'react-native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -17,12 +18,22 @@ import Modal from 'react-native-modal';
 import _font from '../styles/fontStyles';
 import colors from '../constants/colors';
 import { Textarea, Toast, Fab } from 'native-base';
-import { fileUploadCategory } from './../utils/misc';
+import {
+	displayError,
+	fetchAuthToken,
+	fileUploadCategory,
+} from './../utils/misc';
+import appApi from '../api/appApi';
+
+import { Context as UserContext } from '../context/UserContext';
 
 interface Props {
 	fileCategory: [];
 	onAddFile: (e: string, file: []) => void;
 	toggleAddFileModal: (e: boolean) => void;
+	transaction: {};
+	setIsUploading: (e: boolean) => void;
+	setAddResponse: (e: boolean) => void;
 }
 
 export default function AddFile(props: Props) {
@@ -33,18 +44,34 @@ export default function AddFile(props: Props) {
 	const [validFile, setValidFile] = useState(false);
 	const [showCategory, setShowCategory] = useState(false);
 	const [fileCategory, setFileCategory] = useState(undefined);
+	const [allCategory, setAllCategory] = useState([]);
 	const [fileValidModal, setFileValidModal] = useState({ visible: false });
+	const [fileDataType, setFileDataType] = useState(undefined);
+
+	const {
+		state: { user },
+	} = React.useContext(UserContext);
 
 	const validateDocument = (fileName) => {
-		if (
-			fileName.substr(-3) === 'png' ||
-			fileName.substr(-3) === 'jpg' ||
-			fileName.substr(-3) === 'jpeg' ||
-			(fileName.substr(-3) === 'pdf') === true
-		) {
+		let type = fileName.substr(-3);
+		if (type == 'pdf') {
+			setFileDataType('application/pdf');
+			setValidFile(true);
+			setFileValidModal({ visible: false });
+		} else if (type == 'png') {
+			setFileDataType('image/png');
+			setValidFile(true);
+			setFileValidModal({ visible: false });
+		} else if (type == 'jpg') {
+			setFileDataType('image/jpeg');
+			setValidFile(true);
+			setFileValidModal({ visible: false });
+		} else if (type == 'jpeg') {
+			setFileDataType('image/jpeg');
 			setValidFile(true);
 			setFileValidModal({ visible: false });
 		} else {
+			setFileDataType(undefined);
 			setValidFile(false);
 			setFileValidModal({ visible: true });
 			setFile({});
@@ -56,6 +83,61 @@ export default function AddFile(props: Props) {
 	const onSelectCategory = (category) => {
 		setFileCategory(category);
 		toggleCategoryModal(false);
+	};
+
+	const submitDocuments = async () => {
+		try {
+			// Alert.alert('Wait... Submitting file');
+			props.setIsUploading(true);
+			const token = await fetchAuthToken();
+			const data = new FormData();
+			data.append('user_id', user.unique_id);
+			data.append('transaction_id', '9967a45923e62242f8e8e9c0fb700559');
+			// data.append('transaction_id', props.transaction.transaction_id);
+			data.append('document_category', fileCategory?.category_id);
+			data.append('comment', text);
+			data.append('role', user.role);
+			data.append('file', {
+				name: file.name,
+				type: `${fileDataType}`,
+				// type: 'application/octet-stream',
+				uri: file.uri,
+			});
+			/* 
+			Parameters: user_id, transaction_id, document_category, comment, role(Role of the logged in user), file(The file object)
+			*/
+
+			const response = await appApi.post(`/upload_document.php`, data, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			console.log('response==', response);
+			props.setAddResponse(true);
+			// props.setIsUploading(false);
+			// setText('');
+			// setFile();
+			// fetchUploads();
+		} catch (error) {
+			// props.setIsUploading(false);
+			props.setAddResponse(false);
+			displayError(error);
+			console.log('error..err', error);
+		}
+	};
+
+	const getAllDocCategory = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const response = await appApi.get('/fetch_document_categories.php', {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			return response;
+		} catch (error) {
+			displayError(error);
+		}
 	};
 
 	const renderFileValidModal = () => (
@@ -114,19 +196,32 @@ export default function AddFile(props: Props) {
 					paddingTop: RFValue(20),
 				}}
 			>
-				{fileUploadCategory.map((file, index) => (
+				{allCategory.map((file, index) => (
 					<Pressable
 						key={index.toString()}
-						onPress={() => onSelectCategory(file.title)}
+						onPress={() => onSelectCategory(file)}
 						style={{
 							marginHorizontal: RFValue(10),
 							marginBottom: RFValue(20),
 							padding: RFValue(10),
 							borderWidth: RFValue(1),
 							borderBottomColor: '#EEE',
+							// backgroundColor: file.allowed_roles.includes(user.role)
+							// 	? '#EEE'
+							// 	: '#FFF',
 						}}
+						disabled={file.allowed_roles.includes(user.role) ? false : true}
 					>
-						<Text style={{ ..._font.Medium }}>{file.title}</Text>
+						<Text
+							style={{
+								..._font.Medium,
+								color: file.allowed_roles.includes(user.role)
+									? colors.black
+									: '#EEE',
+							}}
+						>
+							{file?.category_name}
+						</Text>
 					</Pressable>
 				))}
 			</ScrollView>
@@ -155,6 +250,13 @@ export default function AddFile(props: Props) {
 		}
 	};
 
+	React.useEffect(() => {
+		getAllDocCategory().then((res) => {
+			// console.log(res.data.response.data);
+			setAllCategory(res.data.response.data);
+		});
+	});
+
 	return (
 		<View style={{ flex: 1 }}>
 			<View style={{}}>
@@ -178,7 +280,7 @@ export default function AddFile(props: Props) {
 						onPress={() => toggleCategoryModal(true)}
 					>
 						<TextInput
-							value={fileCategory}
+							value={fileCategory?.category_name}
 							placeholder={'Select category'}
 							// onChangeText={(text) => setText(text)}
 							placeholderTextColor={colors.fair}
@@ -275,7 +377,10 @@ export default function AddFile(props: Props) {
 			<TouchableOpacity
 				disabled={file.name ? false : true}
 				style={[styles.btn, { marginTop: RFValue(20), alignSelf: 'stretch' }]}
-				onPress={() => props.onAddFile(text, file)}
+				onPress={() => {
+					submitDocuments();
+					props.onAddFile(text, file);
+				}}
 			>
 				<Text
 					style={{

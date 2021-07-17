@@ -5,9 +5,8 @@ import * as MediaLibrary from 'expo-media-library';
 import numbro from 'numbro';
 
 export function _currency(c) {
-	let _c = c.toString();
-	return numbro(_c).formatCurrency({
-		currencySymbol: 'N',
+	// let _c = c.toString();
+	return numbro(c).formatCurrency({
 		thousandSeparated: true,
 	});
 }
@@ -116,7 +115,7 @@ export function validateEmail(email) {
 }
 
 export function numberWithCommas(x) {
-	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	return x?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 export const formatListType = (item) => {

@@ -21,8 +21,10 @@ const BuyerSelectedProperty = ({ navigation, route }) => {
 	const [selected, setSelected] = useState('prop');
 
 	const {
-		property: { property, transaction },
+		property: { property, transaction, transaction_id },
 	} = route.params;
+
+	console.log('route...', route.params.property);
 
 	let shown = <Content />;
 	// let shown;
@@ -63,7 +65,7 @@ const BuyerSelectedProperty = ({ navigation, route }) => {
 				barStyle={'light-content'}
 			/>
 			{shown}
-			<Footer>
+			{/* <Footer>
 				<FooterTab style={{ backgroundColor: colors.bgBrown }}>
 					<Button
 						active={selected === 'prop'}
@@ -111,14 +113,8 @@ const BuyerSelectedProperty = ({ navigation, route }) => {
 							Deal Progress
 						</Text>
 					</Button>
-					{/* <Button
-              active={selected === "notif"}
-              onPress={() => setSelected("notif")}
-            >
-              <Text>Notification</Text>
-            </Button> */}
 				</FooterTab>
-			</Footer>
+			</Footer> */}
 		</Container>
 	);
 };

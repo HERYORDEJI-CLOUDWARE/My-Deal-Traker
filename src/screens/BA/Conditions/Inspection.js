@@ -1,6 +1,6 @@
-import { Text, Toast } from 'native-base';
+import { Toast } from 'native-base';
 import React, { useContext, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, ActivityIndicator } from 'react-native';
 import colors from '../../../constants/colors';
 import { displayError, fetchAuthToken } from '../../../utils/misc';
 import appApi from '../../../api/appApi';
@@ -20,6 +20,8 @@ const Inspection = ({ transaction, property }) => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [ordering, setOrdering] = useState(false);
 
+	const [checkOrdered, setCheckOrdered] = useState(undefined);
+
 	const [orderMessage, setOrderMessage] = useState(undefined);
 
 	const itemsArr = [];
@@ -27,15 +29,18 @@ const Inspection = ({ transaction, property }) => {
 	const checkIfOrdered = async () => {
 		try {
 			const token = await fetchAuthToken();
-			const response = await appApi.get(
-				`/order_inspection.php??transaction_id=${transaction.transaction_id}`,
+			const data = new FormData();
+			data.append('transaction_id', transaction.transaction_id);
+			const response = await appApi.post(
+				`/get_inspection_order_by_transaction.php??`,
+				data,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
 				},
 			);
-			// console.log(response.data);
+			return response.data.response.data;
 		} catch (error) {
 			displayError(error);
 			setOrdering(false);
@@ -76,30 +81,46 @@ const Inspection = ({ transaction, property }) => {
 	};
 
 	React.useEffect(() => {
-		checkIfOrdered();
+		setIsLoading(true);
+		checkIfOrdered().then((res) => {
+			setCheckOrdered(res);
+			setIsLoading(false);
+		});
 		// setOrderMessage(response.data.response.message);
-	});
+	}, []);
 
 	return (
 		<View style={{ paddingHorizontal: 20 }}>
 			<View>
 				<Text style={styles.title}>Inspection</Text>
 			</View>
-
-			{orderMessage && (
-				<View>
-					<Text style={styles.text}>{orderMessage}</Text>
-				</View>
+			{isLoading ? (
+				<ActivityIndicator size='large' color={colors.white} />
+			) : (
+				<>
+					{orderMessage && (
+						<View>
+							<Text style={styles.text}>{orderMessage}</Text>
+						</View>
+					)}
+					<View style={{ marginTop: 30 }} />
+					{checkOrdered ? (
+						<View>
+							<Text style={styles.text}>
+								You have already ordered inspection for this property
+							</Text>
+						</View>
+					) : (
+						<ButtonPrimaryBig
+							title={ordering ? 'Loading...' : 'Order Inspection'}
+							disabled={ordering}
+							onPress={orderInspection}
+							containerStyle={{ backgroundColor: colors.white }}
+							titleStyle={{ color: '#000' }}
+						/>
+					)}
+				</>
 			)}
-
-			<View style={{ marginTop: 30 }} />
-			<ButtonPrimaryBig
-				title={ordering ? 'Loading...' : 'Order Inspection'}
-				disabled={ordering}
-				onPress={orderInspection}
-				containerStyle={{ backgroundColor: colors.white }}
-				titleStyle={{ color: '#000' }}
-			/>
 		</View>
 	);
 };

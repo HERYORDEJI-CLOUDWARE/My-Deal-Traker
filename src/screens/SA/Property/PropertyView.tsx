@@ -1,20 +1,12 @@
 import { AntDesign } from '@expo/vector-icons';
-import { Card, Text } from 'native-base';
-import React from 'react';
-import { useState } from 'react';
-import {
-	Image,
-	StyleSheet,
-	TouchableOpacity,
-	View,
-	Dimensions,
-} from 'react-native';
+import { Text } from 'native-base';
+import React, { useState } from 'react';
+import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import LogoPage from '../../../components/LogoPage';
-import PropertyHeader from '../../../components/PropertyHeader';
 import colors from '../../../constants/colors';
 import { navigate } from '../../../nav/RootNav';
 import _font from '../../../styles/fontStyles';
-import { formatStatus } from '../../../utils/misc';
+import { fetchAuthToken, formatStatus } from '../../../utils/misc';
 import SaConditions from '../SaConditions/SaConditions';
 import SaReport from '../SaReport/SaReport';
 // import PropertyDetails from "../../SA/Property/PropertyDetail";
@@ -22,19 +14,47 @@ import PropertyTab from './PropertyDetails';
 import { RFValue } from 'react-native-responsive-fontsize';
 import moment from 'moment';
 import _colors from './../../../constants/colors';
+import appApi from '../../../api/appApi';
 
 const { width } = Dimensions.get('window');
 
 const PropertyView = ({ property, navigation }) => {
 	const [currentStep, setCurrentStep] = useState(1);
 	const [view, setView] = useState('');
+	const [proptTrans, setProptTrans] = useState(null);
 
-	// console.log(property);
+	// To get property transaction
+	const getProptTrans = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const data = new FormData();
+			return await appApi.get(
+				`/get_property_transactions.php?property_transaction_id=${property.transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+		} catch (error) {}
+	};
+
+	React.useEffect(() => {
+		getProptTrans().then((res) => setProptTrans(res.data.response.data));
+	});
+
+	// ;
 
 	let rendered = <View />;
 
 	if (view === 'property') {
-		rendered = <PropertyTab property={property} navigation={navigation} />;
+		rendered = (
+			<PropertyTab
+				property={property}
+				navigation={navigation}
+				proptTrans={proptTrans}
+			/>
+		);
 	}
 
 	if (view === 'conditions') {
@@ -113,7 +133,10 @@ const PropertyView = ({ property, navigation }) => {
 					<TouchableOpacity
 						activeOpacity={0.9}
 						onPress={() => {
-							navigate('saConditions', { transaction: property });
+							navigate('saConditions', {
+								transaction: { property: 'plplplpl' },
+								proptTrans: proptTrans[0],
+							});
 							// setView("conditions");
 						}}
 						style={styles.box}
@@ -128,7 +151,9 @@ const PropertyView = ({ property, navigation }) => {
 
 					<TouchableOpacity
 						activeOpacity={0.9}
-						onPress={() => navigate('fileUpload', { transaction: property })}
+						onPress={() =>
+							navigate('fileUpload', { transaction: proptTrans[0] })
+						}
 						style={styles.box}
 					>
 						<Text style={styles.boxTitle}>Files and Upload</Text>

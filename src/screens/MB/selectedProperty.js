@@ -1,139 +1,111 @@
-import React from 'react';
-import { Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View } from 'react-native';
 import LogoPage from '../../components/LogoPage';
 import PropertyHeader from '../../components/PropertyHeader';
 import colors from '../../constants/colors';
-import { formatStatus } from '../../utils/misc';
+import { fetchAuthToken, formatStatus } from '../../utils/misc';
 import moment from 'moment';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Text } from 'react-native';
 import { navigate } from '../../nav/RootNav';
 import { Card } from 'native-base';
 import { Image } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
 import { Dimensions } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import appApi from '../../api/appApi';
+import { RFValue } from 'react-native-responsive-fontsize';
+import _font from '../../styles/fontStyles';
+import _colors from '../../constants/colors';
 
 const { width } = Dimensions.get('window');
 
 const MortgageSelectedProperty = ({
-	property,
-	transaction,
-	navigation,
+	// property,
+	// transaction,
+
 	route,
 }) => {
-	const { transaction_id, property_id } = route.params;
+	const { property, transaction } = route.params;
+	const navigation = useNavigation();
+
+	const [proptTrans, setProptTrans] = useState(null);
+
+	// To get property transaction
+	const getProptTrans = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const data = new FormData();
+			return await appApi.get(
+				`/get_property_transactions.php?property_transaction_id=${property.transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+		} catch (error) {}
+	};
+
+	useFocusEffect(
+		useCallback(() => {
+			// getApprovedOffer();
+			getProptTrans().then((res) => setProptTrans(res.data.response.data[0]));
+		}, []),
+	);
+
+	console.log(property.status);
 
 	return (
 		<LogoPage navigation={navigation}>
-			<View
-				style={{
-					flexDirection: 'row',
-					// justifyContent: "space-around",
-					alignItems: 'center',
-					paddingVertical: 20,
-					paddingHorizontal: 25,
-				}}
-			>
-				<View>
-					<Text
-						style={{
-							fontSize: 20,
-							fontFamily: 'pop-semibold',
-							color: colors.white,
-						}}
-					>
-						{/* {formatStatus(property.status)} */}
+			<View style={styles.topWrapper}>
+				<View style={styles.statusWrapper}>
+					<Text style={styles.statusKey}>Status:</Text>
+					<Text style={styles.statusValue}>
+						{formatStatus(property.status)}
 					</Text>
-					<View>
-						<Text style={{ fontSize: 18, color: colors.white }}>
-							{/* {moment(property.date_created).format("MM/DD/YYYY")} */}
-						</Text>
-					</View>
 				</View>
+				<Text style={styles.date}>
+					{moment(property?.date_created).format('MM/DD/YYYY')}
+				</Text>
 			</View>
 
-			<View style={{ paddingBottom: 25 }}></View>
+			<TouchableOpacity
+				activeOpacity={0.9}
+				onPress={() => {
+					navigate('mortgageBrokerPropertyDetials', {
+						property,
+						transaction: proptTrans,
+					});
+					// setView("property")
+				}}
+				style={styles.box}
+			>
+				<Text style={styles.boxTitle}>Property</Text>
+				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
+			</TouchableOpacity>
 
-			<View style={{ borderBottomWidth: 1, paddingBottom: 25 }}>
-				<View
-					style={{
-						alignItems: 'center',
-					}}
-				>
-					<TouchableOpacity
-						activeOpacity={0.9}
-						onPress={() => {
-							navigate('mortgageBrokerPropertyDetials', {
-								property_id,
-								transaction_id,
-							});
-							// setView("property")
-						}}
-					>
-						<Card style={styles.box}>
-							<Image source={require('../../assets/img/property.png')} />
-							<View style={{ position: 'absolute', right: 10 }}>
-								<AntDesign name='right' />
-							</View>
-						</Card>
-					</TouchableOpacity>
-				</View>
+			{/*<TouchableOpacity*/}
+			{/*	activeOpacity={0.9}*/}
+			{/*	onPress={() =>*/}
+			{/*		navigate('updateMortgageBroker', {*/}
+			{/*			transaction: proptTrans,*/}
+			{/*		})*/}
+			{/*	}*/}
+			{/*	style={styles.box}*/}
+			{/*>*/}
+			{/*	<Text style={styles.boxTitle}>Mortgage Broker</Text>*/}
+			{/*	<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />*/}
+			{/*</TouchableOpacity>*/}
 
-				<View
-					style={{
-						// flexDirection: "row",
-						// justifyContent: "space-around",
-						alignItems: 'center',
-					}}
-				>
-					<TouchableOpacity
-						activeOpacity={0.9}
-						onPress={() =>
-							navigate('updateMortgageBroker', {
-								transaction_id: transaction_id,
-								property_id: property_id,
-							})
-						}
-					>
-						<Card style={styles.box}>
-							<Text
-								style={{
-									fontSize: 20,
-									fontWeight: 'bold',
-									color: colors.lightBrown,
-								}}
-							>
-								Mortgage Broker
-							</Text>
-							<View style={{ position: 'absolute', right: 10 }}>
-								<AntDesign name='right' />
-							</View>
-						</Card>
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						activeOpacity={0.9}
-						onPress={() =>
-							navigate('fileUpload', { transaction: transaction_id })
-						}
-					>
-						<Card style={styles.box}>
-							<Text
-								style={{
-									color: colors.bgBrown,
-									fontWeight: 'bold',
-									fontSize: 20,
-								}}
-							>
-								Files and uploads
-							</Text>
-							<View style={{ position: 'absolute', right: 10 }}>
-								<AntDesign name='right' />
-							</View>
-						</Card>
-					</TouchableOpacity>
-				</View>
-			</View>
+			<TouchableOpacity
+				activeOpacity={0.9}
+				onPress={() => navigate('fileUpload', { transaction: proptTrans })}
+				style={styles.box}
+			>
+				<Text style={styles.boxTitle}>Files and Uploads</Text>
+				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
+			</TouchableOpacity>
 		</LogoPage>
 	);
 };
@@ -141,27 +113,46 @@ const MortgageSelectedProperty = ({
 export default MortgageSelectedProperty;
 
 const styles = StyleSheet.create({
+	topWrapper: { marginBottom: RFValue(20) },
 	box: {
-		width: width * 0.8,
-		padding: 15,
+		padding: RFValue(20),
+		paddingVertical: RFValue(10),
 		alignItems: 'center',
-		justifyContent: 'center',
+		backgroundColor: '#FFF',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginBottom: RFValue(20),
 	},
-	boxText: {
+	boxTitle: {
+		..._font.Big,
 		textAlign: 'center',
 		color: colors.brown,
-		fontSize: 24,
+		fontSize: RFValue(18),
 	},
 	listTitle: {
-		padding: 10,
-		fontSize: 20,
+		padding: RFValue(10),
+		fontSize: RFValue(20),
 		color: colors.lightGrey,
 		textAlign: 'left',
 	},
 	listValue: {
-		padding: 10,
-		fontSize: 20,
+		padding: RFValue(10),
+		fontSize: RFValue(20),
 		color: colors.white,
 		textAlign: 'left',
 	},
+	statusWrapper: { flexDirection: 'row' },
+	statusKey: {
+		..._font.Medium,
+		// fontSize: 20,
+		color: colors.white,
+		paddingRight: RFValue(10),
+	},
+	statusValue: {
+		..._font.Medium,
+		// fontSize: 20,
+		color: colors.white,
+		fontFamily: 'pop-semibold',
+	},
+	date: { ..._font.Medium, color: colors.white },
 });

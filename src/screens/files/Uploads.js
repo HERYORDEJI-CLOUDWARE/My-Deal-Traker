@@ -40,6 +40,8 @@ const Uploads = ({ route, navigation }) => {
 	const [text, setText] = useState('');
 	const [file, setFile] = useState();
 	const [isUploading, setIsUploading] = useState(false);
+	const [addResponse, setAddResponse] = useState(undefined);
+	const [loadingFile, setLoadingFile] = useState(true);
 	const [myUploads, setMyUploads] = useState([]);
 	const [validFile, setValidFile] = useState(false);
 	const [showAddFile, setShowAddFile] = useState(false);
@@ -49,9 +51,9 @@ const Uploads = ({ route, navigation }) => {
 		state: { user },
 	} = useContext(UserContext);
 
-	const readOnlyMode = user?.role === '1' || user?.role === '2' ? true : false;
+	// const readOnlyMode = user?.role === '1' || user?.role === '2' ? true : false;
 
-	const { transaction } = route.params;
+	const { transaction, property } = route.params;
 
 	console.log('...', transaction, '...');
 
@@ -91,10 +93,9 @@ const Uploads = ({ route, navigation }) => {
 		}
 	};
 
-	// console.log('www', getUploads());
-
 	const fetchUploads = async () => {
 		try {
+			setLoadingFile(true);
 			const token = await fetchAuthToken();
 			const response = await appApi.get(
 				`/get_document_by_transaction.php?transaction_id=${transaction.transaction_id}`,
@@ -104,9 +105,14 @@ const Uploads = ({ route, navigation }) => {
 					},
 				},
 			);
+			// `/get_document_by_transaction.php?transaction_id=9967a45923e62242f8e8e9c0fb700559`,
 			if (response.data.response.status == 200) {
-				console.log(response.data.response.data);
-				setMyUploads(response.data.response.data);
+				console.log('response.data.', response.data.response.data);
+				setMyUploads(
+					response.data.response.data.filter((file, index) =>
+						file.allowed_roles.includes(user.role),
+					),
+				);
 				Toast.show({
 					type: 'success',
 					text: response.data.response.message,
@@ -117,6 +123,7 @@ const Uploads = ({ route, navigation }) => {
 					text: response.data.response.message,
 				});
 			}
+			setLoadingFile(false);
 		} catch (error) {
 			displayError(error);
 		}
@@ -124,12 +131,12 @@ const Uploads = ({ route, navigation }) => {
 
 	const uploadFile = async () => {
 		try {
-			if (!text || !file) {
-				return Toast.show({
-					type: 'danger',
-					text: 'Select file and enter filename/info',
-				});
-			}
+			// if (!text || !file) {
+			// 	return Toast.show({
+			// 		type: 'danger',
+			// 		text: 'Select file and enter filename/info',
+			// 	});
+			// }
 			setIsUploading(true);
 			const token = await fetchAuthToken();
 			const data = new FormData();
@@ -151,7 +158,7 @@ const Uploads = ({ route, navigation }) => {
 			setIsUploading(false);
 			setText('');
 			setFile();
-			// fetchUploads();
+			fetchUploads();
 		} catch (error) {
 			setIsUploading(false);
 			displayError(error);
@@ -160,30 +167,62 @@ const Uploads = ({ route, navigation }) => {
 
 	// const cls = () => console.log(myUploads);
 
-	const submitDocuments = async () => {
-		try {
-			setIsUploading(true);
-			const token = await fetchAuthToken();
-			const data = new FormData();
-			data.append('user_id', user.unique_id);
-			data.append('transaction_id', transaction.transaction_id);
-			// data.append('document_name', text);
-			data.append('all_documents', myUploads);
-			const response = await appApi.post(`/upload_document.php`, data, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-			setIsUploading(false);
-			setText('');
-			setFile();
-			fetchUploads();
-		} catch (error) {
-			setIsUploading(false);
-			displayError(error);
-			console.log('---', error);
-		}
-	};
+	const submittingAlert = () =>
+		isUploading && (
+			<Modal
+				// swipeDirection={'down'}
+				isVisible={isUploading}
+				// onBackButtonPress={() => setFileValidShow({ visible: false })}
+			>
+				<View
+					showsVerticalScrollIndicator={false}
+					bounces={false}
+					style={{
+						// flex: 1,
+						backgroundColor: '#fff',
+						justifyContent: 'center',
+						width: '100%',
+						padding: RFValue(20),
+					}}
+				>
+					{addResponse === undefined && (
+						<Text style={styles.fileValidModalText}>Wait</Text>
+					)}
+					{addResponse === false && (
+						<Text style={styles.fileValidModalText}>Sorry</Text>
+					)}
+					{addResponse === true && (
+						<Text style={styles.fileValidModalText}>Congrats</Text>
+					)}
+					{addResponse === undefined && (
+						<Text style={styles.fileValidModalText}>Submitting file...</Text>
+					)}
+					{addResponse === false && (
+						<Text style={styles.fileValidModalText}>
+							File not submitted, please try again
+						</Text>
+					)}
+					{addResponse === true && (
+						<Text style={styles.fileValidModalText}>
+							File successfully submitted
+						</Text>
+					)}
+
+					{addResponse !== undefined && (
+						<Pressable
+							onPress={() => setIsUploading(false)}
+							style={{
+								padding: RFValue(10),
+								alignItems: 'flex-end',
+								paddingBottom: RFValue(0),
+							}}
+						>
+							<Text>Okay</Text>
+						</Pressable>
+					)}
+				</View>
+			</Modal>
+		);
 
 	const newUploadFile = async (text, file) => {
 		const newAdd = [{ document_name: text, documentInfo: file }];
@@ -237,11 +276,11 @@ const Uploads = ({ route, navigation }) => {
 		}
 	};
 
-	const SubmitDocumentsButton = !readOnlyMode && (
+	const SubmitDocumentsButton = myUploads.length > 0 && (
 		<ButtonPrimaryBig
-			title={'Submit Documents'}
+			title={'Update'}
 			onPress={() => {
-				submitDocuments();
+				uploadFile();
 				// cls();
 			}}
 			containerStyle={{
@@ -249,6 +288,7 @@ const Uploads = ({ route, navigation }) => {
 				paddingHorizontal: RFValue(20),
 				height: RFValue(40),
 				borderRadius: RFValue(5),
+				marginTop: RFValue(20),
 			}}
 			disabled={isUploading === true || myUploads.length > 0 ? false : true}
 		/>
@@ -275,6 +315,9 @@ const Uploads = ({ route, navigation }) => {
 			<AddFile
 				onAddFile={newUploadFile}
 				toggleAddFileModal={toggleAddFileModal}
+				setIsUploading={(state) => setIsUploading(state)}
+				setAddResponse={(state) => setAddResponse(state)}
+				transaction={transaction}
 			/>
 		</Modal>
 	);
@@ -296,7 +339,7 @@ const Uploads = ({ route, navigation }) => {
 		>
 			<FlatList
 				ListHeaderComponent={
-					<View style={{ marginTop: RFValue(20) }}>
+					<View style={{ marginTop: RFValue(0) }}>
 						<Text
 							style={{
 								..._font.Medium,
@@ -356,12 +399,18 @@ const Uploads = ({ route, navigation }) => {
 				}}
 				ListEmptyComponent={
 					<View style={styles.emptyListWrapper}>
-						<Text style={styles.emptyListText}>No file(s) available...</Text>
+						{loadingFile ? (
+							<ActivityIndicator size={'large'} color={colors.white} />
+						) : (
+							<Text style={styles.emptyListText}>No file(s) available...</Text>
+						)}
 					</View>
 				}
-				ListFooterComponent={SubmitDocumentsButton}
+				// ListFooterComponent={SubmitDocumentsButton}
 			/>
+			{/* {SubmitDocumentsButton} */}
 			{renderAddFileModal()}
+			{submittingAlert()}
 		</LogoPage>
 	);
 };

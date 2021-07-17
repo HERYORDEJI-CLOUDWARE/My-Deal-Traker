@@ -7,6 +7,7 @@ import {
 	View,
 	Text,
 	Pressable,
+	ActivityIndicator,
 } from 'react-native';
 import { Input } from 'react-native-elements';
 import colors from '../../../../../constants/colors';
@@ -20,6 +21,7 @@ import { AntDesign, Entypo } from '@expo/vector-icons';
 import ReactNativeModal from 'react-native-modal';
 import { useFormik } from 'formik';
 import * as DocumentPicker from 'expo-document-picker';
+import { useFocusEffect } from '@react-navigation/native';
 import {
 	_consologger,
 	displayError,
@@ -47,7 +49,11 @@ const ViewPropertyOffer = () => {
 
 	const [showModal, setShowModal] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [offerLoading, setOfferLoading] = useState(true);
 	const [downloadProgress, setDownloadProgress] = useState(0);
+
+	const [offerDetails, setOfferDetails] = useState(undefined);
+
 	const {
 		state: { user },
 	} = useContext(UserContext);
@@ -75,7 +81,7 @@ const ViewPropertyOffer = () => {
 		},
 	});
 
-	console.log(theTransaction);
+	console.log('theTransaction', theTransaction);
 
 	const submitMakeOffer = async () => {
 		try {
@@ -150,27 +156,52 @@ const ViewPropertyOffer = () => {
 		try {
 			const token = await fetchAuthToken();
 			const data = new FormData();
-			const response = appApi.get(
-				`/display_offer_per_transaction.php?transaction_id=635ba00bc68d2f38f4f9afd221111ad5`,
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
+			// data.append('transaction_id', `transaction.transaction_id`);
+			data.append('transaction_id', theTransaction.transaction_id);
+			const response = appApi.post(`/display_offer_per_transaction.php`, data, {
+				headers: {
+					Authorization: `Bearer ${token}`,
 				},
-			);
+			});
 			return response;
 		} catch (e) {
 			console.log(e);
 		}
 	};
 
+	console.log('offerDetails, ', offerDetails);
+
 	useEffect(() => {
+		setOfferLoading(true);
 		getOfferDetails().then((res) => {
-			const response = res.data;
-			console.log(property);
-			console.log('-/---', res);
+			const response = res.data.response.data['7'];
+			// setOfferDetails(response);
+			setOfferDetails(JSON.parse(response));
+			setOfferLoading(false);
 		});
-	});
+	}, []);
+
+	// useFocusEffect(
+	// 	React.useCallback(() => {
+	// 		getOfferDetails().then((res) => {
+	// 			const response = res.data;
+	// 			console.log(property);
+	// 			console.log('-/---', response);
+	// 		});
+	// 	}, []),
+	// );
+
+	// const { by_who, to_who } = offerDetails;
+	// const {
+	// 	buyer_name,
+	// 	email,
+	// 	note_given,
+	// 	docs,
+	// 	name,
+	// 	price,
+	// 	closing_date,
+	// 	current_status,
+	// } = offerDetails?.by_who;
 
 	return (
 		<LogoPage>
@@ -197,125 +228,131 @@ const ViewPropertyOffer = () => {
 				{/*	/>*/}
 				{/*</TouchableOpacity>*/}
 			</View>
-
 			<View style={{ paddingVertical: RFValue(20) }}>
-				<View style={{ marginBottom: RFValue(20) }}>
-					<Text style={styles.title}>Name of Agent</Text>
-					<TextInput
-						editable={false}
-						style={{
-							...styles.containerStyle,
-						}}
-						// placeholder='Enter your Legal Name'
-						placeholderTextColor={colors.lightGrey}
-						value={user.fullname}
-						disabled
-						// onChangeText={handleChange("legalName")}
-					/>
-				</View>
+				{offerLoading ? (
+					<ActivityIndicator size='large' color={colors.white} />
+				) : (
+					<>
+						<View style={{ marginBottom: RFValue(20) }}>
+							<Text style={styles.title}>Name of Agent</Text>
+							<TextInput
+								editable={false}
+								style={{
+									...styles.containerStyle,
+								}}
+								// placeholder='Enter your Legal Name'
+								placeholderTextColor={colors.lightGrey}
+								value={user.fullname}
+								disabled
+								// onChangeText={handleChange("legalName")}
+							/>
+						</View>
 
-				<View style={{ paddingBottom: 20 }}>
-					<Text style={styles.title}>Name of Buyer</Text>
-					<TextInput
-						editable={false}
-						style={{
-							...styles.containerStyle,
-						}}
-						// placeholder='Enter Name of Buyer'
-						placeholderTextColor={colors.lightGrey}
-						value={values.nameOfSeller}
-						onChangeText={handleChange('nameOfSeller')}
-					/>
-				</View>
+						<View style={{ paddingBottom: 20 }}>
+							<Text style={styles.title}>Name of Buyer</Text>
+							<TextInput
+								editable={false}
+								style={{
+									...styles.containerStyle,
+								}}
+								// placeholder='Enter Name of Buyer'
+								placeholderTextColor={colors.lightGrey}
+								value={offerDetails[0]?.by_who?.buyer_name}
+								onChangeText={handleChange('nameOfSeller')}
+							/>
+						</View>
 
-				<View style={{ paddingBottom: 20 }}>
-					<Text style={styles.title}>Purchase Price</Text>
-					<TextInput
-						editable={false}
-						style={{
-							...styles.containerStyle,
-						}}
-						// placeholder='Enter amount you are offering to pay'
-						placeholderTextColor={colors.lightGrey}
-						keyboardType='number-pad'
-						value={values.purchasePrice}
-						onChangeText={handleChange('purchasePrice')}
-					/>
-				</View>
+						<View style={{ paddingBottom: 20 }}>
+							<Text style={styles.title}>Purchase Price</Text>
+							<TextInput
+								editable={false}
+								style={{
+									...styles.containerStyle,
+								}}
+								// placeholder='Enter amount you are offering to pay'
+								placeholderTextColor={colors.lightGrey}
+								keyboardType='number-pad'
+								value={offerDetails[0]?.by_who?.price}
+								onChangeText={handleChange('purchasePrice')}
+							/>
+						</View>
 
-				<View style={{ paddingBottom: 20 }}>
-					<Text style={styles.title}>Notes (optional)</Text>
-					<TextInput
-						editable={false}
-						style={{
-							...styles.containerStyle,
-						}}
-						// placeholder='Optional Notes'
-						placeholderTextColor={colors.lightGrey}
-						value={values.notes}
-						onChangeText={handleChange('notes')}
-					/>
-				</View>
+						<View style={{ paddingBottom: 20 }}>
+							<Text style={styles.title}>Notes (optional)</Text>
+							<TextInput
+								editable={false}
+								style={{
+									...styles.containerStyle,
+								}}
+								// placeholder='Optional Notes'
+								placeholderTextColor={colors.lightGrey}
+								value={offerDetails[0]?.note_given}
+								onChangeText={handleChange('notes')}
+							/>
+						</View>
 
-				<View style={{ paddingBottom: 20 }}>
-					<Text style={styles.title}>Closing Date</Text>
-					<TextInput
-						editable={false}
-						style={{
-							...styles.containerStyle,
-						}}
-						// placeholder='Optional Notes'
-						placeholderTextColor={colors.lightGrey}
-						value={values.notes}
-						onChangeText={handleChange('notes')}
-					/>
-				</View>
+						<View style={{ paddingBottom: 20 }}>
+							<Text style={styles.title}>Closing Date</Text>
+							<TextInput
+								editable={false}
+								style={{
+									...styles.containerStyle,
+								}}
+								// placeholder='Optional Notes'
+								placeholderTextColor={colors.lightGrey}
+								value={offerDetails[0]?.closing_date}
+								onChangeText={handleChange('notes')}
+							/>
+						</View>
 
-				<View style={{ marginBottom: RFValue(20) }}>
-					<Text style={styles.title}>Purchase Agreement Doc</Text>
-					{docUpload.map((d, ind) => {
-						return (
-							d.type !== 'cancel' && (
-								<View
-									key={ind}
-									style={{
-										...styles.containerStyle,
-										..._font.Medium,
-										height: RFValue(50),
-										padding: 0,
-										margin: 0,
-										borderWidth: 0,
-										justifyContent: 'space-between',
-										flex: 1,
-										paddingHorizontal: RFValue(10),
-										paddingRight: RFValue(1),
-										marginBottom: RFValue(5),
-										flexDirection: 'row',
-										alignItems: 'center',
-									}}
-								>
-									<Text style={{ ..._font.Medium }}>{d.name} </Text>
-									<Pressable
-										onPress={() => deleteDoc(d.uri)}
-										style={{
-											backgroundColor: colors.lightBrown,
-											height: RFValue(48),
-											width: RFValue(50),
-											alignItems: 'center',
-											justifyContent: 'center',
-										}}
-									>
-										<Icon
-											name={'delete'}
-											type={'Feather'}
-											style={{ color: 'red', fontSize: RFValue(23) }}
-										/>
-									</Pressable>
-								</View>
-							)
-						);
-					})}
-				</View>
+						<View style={{ marginBottom: RFValue(20) }}>
+							<Text style={styles.title}>Purchase Agreement Doc</Text>
+							{offerDetails[0]?.docs.map((d, ind) => {
+								return (
+									d.type !== 'cancel' && (
+										<View
+											key={ind}
+											style={{
+												...styles.containerStyle,
+												..._font.Medium,
+												height: RFValue(50),
+												padding: 0,
+												margin: 0,
+												borderWidth: 0,
+												justifyContent: 'space-between',
+												flex: 1,
+												// paddingHorizontal: RFValue(10),
+												paddingRight: RFValue(1),
+												marginBottom: RFValue(5),
+												flexDirection: 'row',
+												alignItems: 'center',
+											}}
+										>
+											<Text style={{ ..._font.Medium, color: colors.white }}>
+												{d.toString().substr(0, 20)}
+												{'...'}
+											</Text>
+											<Pressable
+												onPress={() => {}}
+												style={{
+													backgroundColor: colors.lightBrown,
+													height: RFValue(48),
+													width: RFValue(50),
+													alignItems: 'center',
+													justifyContent: 'center',
+												}}
+											>
+												<Text style={{ ..._font.Small, color: colors.white }}>
+													View
+												</Text>
+											</Pressable>
+										</View>
+									)
+								);
+							})}
+						</View>
+					</>
+				)}
 			</View>
 			<ReactNativeModal
 				isVisible={showModal}

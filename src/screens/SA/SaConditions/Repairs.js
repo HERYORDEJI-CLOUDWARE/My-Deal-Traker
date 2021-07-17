@@ -29,7 +29,7 @@ import { FAB, Switch } from 'react-native-paper';
 import { AntDesign } from '@expo/vector-icons';
 // import AddRepair from './AddRepair';
 
-const Repairs = ({ transaction, notAgent, setView }) => {
+const Repairs = ({ transaction, notAgent, setView, proptTrans }) => {
 	const [repairs, setRepairs] = useState([]);
 
 	const [isLoading, setIsLoading] = useState(true);
@@ -46,12 +46,19 @@ const Repairs = ({ transaction, notAgent, setView }) => {
 	// 	}, []),
 	// );
 	//
+
 	useEffect(() => {
-		fetchRepairs();
+		// fetchRepairs();
+		setIsLoading(true);
+		getRepairs().then((res) => {
+			console.log(proptTrans);
+			setIsLoading(false);
+		});
 	}, []);
 
 	const [itemToUpdate, setItemToUpdate] = useState();
 	const [isUpdating, setIsUpdating] = useState(false);
+	const [getRepairsUpdate, setGetRepairsUpdate] = useState(null);
 
 	const fetchRepairs = async () => {
 		try {
@@ -74,6 +81,23 @@ const Repairs = ({ transaction, notAgent, setView }) => {
 				});
 				setIsLoading(false);
 			}
+		} catch (error) {
+			displayError(error);
+		}
+	};
+
+	const getRepairs = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const response = await appApi.get(
+				`/fetch_transaction_repair.php?transaction_id=${proptTrans[0]?.transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			return response.data.response.data;
 		} catch (error) {
 			displayError(error);
 		}

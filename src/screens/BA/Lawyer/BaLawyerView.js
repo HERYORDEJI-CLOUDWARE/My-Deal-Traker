@@ -1,7 +1,7 @@
 import { AntDesign } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { Card, Container, Toast } from 'native-base';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
 	TouchableOpacity,
@@ -19,12 +19,20 @@ import { displayError, fetchAuthToken } from '../../../utils/misc';
 import { RFValue } from 'react-native-responsive-fontsize';
 import _font from '../../../styles/fontStyles';
 import ButtonSecondaryBig from '../../../components/ButtonSecondaryBig';
+import axios from 'axios';
+import ButtonPrimaryBig from '../../../components/ButtonPrimaryBig';
+import { Context as UserContext } from '../../../context/UserContext';
 
 const BaLawyerView = ({ route, notAgent, navigation }) => {
-	const { transaction } = route.params;
+	const { transaction, property } = route.params;
+
+	const {
+		state: { user },
+	} = useContext(UserContext);
 
 	const [isLoading, setIsLoading] = useState(true);
 	const [transactionLawyer, setTransactionLawyer] = useState(null);
+	const [isRemoving, setIsRemoving] = useState(false);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -56,6 +64,50 @@ const BaLawyerView = ({ route, notAgent, navigation }) => {
 			displayError(error);
 			setIsLoading(false);
 		}
+	};
+
+	const removeLawyer = async () => {
+		// try {
+		setIsRemoving(true);
+		const token = await fetchAuthToken();
+		const data = new FormData();
+
+		data.append('transaction_id', transaction.transaction_id);
+		data.append('property_id', property.transaction_id);
+		data.append('buyer_agent_id', property.listing_agent_id);
+		data.append('phone_email', user.email);
+		/*
+			URL: delete_buyer_lawyer
+			Parameters: transaction_id, property_id, buyer_agent_id, phone_email
+			Type: POST
+			*/
+		axios
+			.post(
+				'http://mydealtracker.staging.cloudware.ng/api/delete_buyer_lawyer.php',
+				data,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			)
+			.then((res) => {
+				// console.log(res.data);
+				Toast.show({
+					type: 'success',
+					text: 'Deleted',
+				});
+				setIsRemoving(false);
+				navigation.goBack();
+			})
+			.catch((err) => {
+				// console.log(err);
+				setIsRemoving(false);
+				Toast.show({
+					type: 'danger',
+					text: err,
+				});
+			});
 	};
 
 	if (isLoading) {
@@ -110,6 +162,15 @@ const BaLawyerView = ({ route, notAgent, navigation }) => {
 					<ListItem title='Phone Number' value={transactionLawyer.phone} />
 				</View>
 			</View>
+			<ButtonPrimaryBig
+				disabled={isRemoving ? true : false}
+				title={isRemoving ? 'Removing...' : 'Remove Lawyer'}
+				containerStyle={{
+					marginVertical: RFValue(20),
+					backgroundColor: colors.brown,
+				}}
+				onPress={() => removeLawyer()}
+			/>
 		</LogoPage>
 	);
 };

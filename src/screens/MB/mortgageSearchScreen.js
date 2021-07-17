@@ -1,13 +1,19 @@
 import { AntDesign } from '@expo/vector-icons';
-import React, { useContext, useRef, useEffect } from 'react';
-import { FlatList } from 'react-native';
+import React, {
+	useContext,
+	useRef,
+	useEffect,
+	useCallback,
+	useState,
+} from 'react';
+import { ActivityIndicator, FlatList } from 'react-native';
 import { Text, View, StyleSheet } from 'react-native';
 import ListEmptyComponent from '../../components/ListEmptyComponent';
 import ListingCard from '../../components/ListingCard';
 import LogoPage from '../../components/LogoPage';
 import colors from '../../constants/colors';
 import moment from 'moment';
-import { Context } from '../../context/UserContext';
+import { Context, getSearchedProperty } from '../../context/UserContext';
 import { formatStatus } from '../../utils/misc';
 import { TouchableOpacity } from 'react-native';
 import { fetchAuthToken } from '../../utils/misc';
@@ -16,6 +22,10 @@ import {
 	widthPercentageToDP as wp,
 	heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import { useFocusEffect } from '@react-navigation/native';
+import _font from '../../styles/fontStyles';
+import { RFValue } from 'react-native-responsive-fontsize';
+import * as RN from 'react-native';
 
 const MortgageSearchScreen = ({ navigation, route }) => {
 	const {
@@ -27,6 +37,9 @@ const MortgageSearchScreen = ({ navigation, route }) => {
 	const transactionDetails = useRef({});
 	const status = useRef('');
 	const date = useRef('');
+
+	const [dataSearchResult, setSearchResult] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const getPropertyTransactions = async (transaction_id) => {
 		const token = await fetchAuthToken();
@@ -57,57 +70,85 @@ const MortgageSearchScreen = ({ navigation, route }) => {
 
 	const renderItem = ({ item }) => {
 		return (
-			<View
-				style={{
-					backgroundColor: 'white',
-					width: wp(90),
-					marginHorizontal: 20,
-					padding: 10,
-					height: hp(25),
-					marginTop: 20,
-					flexDirection: 'column',
-					justifyContent: 'space-between',
-					borderRadius: 10,
-				}}
+			<TouchableOpacity
+				onPress={() =>
+					navigation.navigate('mortgageSelectedProperty', { property: item })
+				}
+				style={styles.renderItemWrapper}
 			>
-				<Text style={styles.flastListStyle}>Address: {item.city}</Text>
-				<Text style={styles.flastListStyle}>
-					Listing Date: {moment(item.listing_date).format('MM/DD/YYYY')}
-				</Text>
-				<Text style={styles.flastListStyle}>
-					Property Type:{' '}
-					{item.property_type == '0' ? 'Commercial' : 'Residential'}
-				</Text>
-				<Text style={styles.flastListStyle}>
-					Property address: {item.property_address}
-				</Text>
-				<Text style={styles.flastListStyle}>
-					Status:{' '}
-					{item.status === '0'
-						? 'active'
-						: item.status == '1'
-						? 'offer in place'
-						: item.status == '2'
-						? 'suspended'
-						: 'sold'}
-				</Text>
-				<TouchableOpacity
-					style={{ alignItems: 'flex-end' }}
-					onPress={() => getPropertyTransactions(item.transaction_id)}
-				>
-					<Text style={styles.viewMore}>View more details</Text>
-				</TouchableOpacity>
-			</View>
+				<RN.View style={styles.renderItemItem}>
+					<Text style={styles.flatListStyle}>Listing Number:</Text>
+					<Text style={styles.flatListStyle2}>{item.listing_number}</Text>
+				</RN.View>
+
+				<RN.View style={styles.renderItemItem}>
+					<Text style={styles.flatListStyle}>Listing Date:</Text>
+					<Text style={styles.flatListStyle2}>{item.listing_date}</Text>
+				</RN.View>
+
+				<RN.View style={styles.renderItemItem}>
+					<Text style={styles.flatListStyle}>Property Type:</Text>
+					<Text style={styles.flatListStyle2}>
+						{item.property_type == '0' ? 'Commercial' : 'Residential'}
+					</Text>
+				</RN.View>
+
+				<RN.View style={styles.renderItemItem}>
+					<Text style={styles.flatListStyle}>Property address:</Text>
+					<Text style={styles.flatListStyle2}>{item.property_address}</Text>
+				</RN.View>
+
+				<RN.View style={styles.renderItemItem}>
+					<Text style={styles.flatListStyle}>Status:</Text>
+					<Text
+						style={[styles.flatListStyle2, { textTransform: 'capitalize' }]}
+					>
+						{item.status === '0'
+							? 'active'
+							: item.status == '1'
+							? 'offer in place'
+							: item.status == '2'
+							? 'suspended'
+							: 'sold'}
+					</Text>
+				</RN.View>
+
+				<View style={styles.seeMoreWrapper}>
+					<Text style={styles.seeMoreText}>See More Details</Text>
+				</View>
+			</TouchableOpacity>
 		);
 	};
 
 	const ListHeader = (
 		<>
-			<View style={{ paddingHorizontal: 34 }}>
+			<View
+				style={{
+					flexDirection: 'row',
+					alignItems: 'center',
+				}}
+			>
+				<AntDesign
+					name='arrowleft'
+					size={30}
+					onPress={() => navigation.goBack()}
+				/>
 				<Text
 					style={{
+						..._font.H4,
+						color: colors.white,
+						paddingHorizontal: RFValue(20),
+					}}
+				>
+					Search
+				</Text>
+			</View>
+			{/* <SearchInputBar /> */}
+			<View style={{ marginVertical: RFValue(10) }}>
+				<Text
+					style={{
+						..._font.Medium,
 						fontFamily: 'pop-reg',
-						fontSize: hp(3),
 						color: colors.white,
 					}}
 				>
@@ -117,43 +158,125 @@ const MortgageSearchScreen = ({ navigation, route }) => {
 		</>
 	);
 
+	useFocusEffect(
+		useCallback(() => {
+			setIsLoading(true);
+			getSearchedProperty(search).then((res) => {
+				setSearchResult(res.data.response.data);
+				setIsLoading(false);
+			});
+		}, []),
+	);
+
+	if (isLoading) {
+		return (
+			<LogoPage dontShow={true}>
+				{ListHeader}
+				<ActivityIndicator size={'large'} color={colors.white} />
+			</LogoPage>
+		);
+	}
+
 	return (
 		<LogoPage navigation={navigation}>
-			{search.current ? (
-				<FlatList
-					data={search.current}
-					renderItem={renderItem}
-					keyExtractor={(item) => item.unique_id}
-				/>
-			) : (
-				<View style={styles.noResults}>
-					<Text style={{ fontSize: hp(3), fontWeight: 'bold' }}>
-						No Results found
-					</Text>
-				</View>
-			)}
+			<FlatList
+				data={dataSearchResult}
+				renderItem={renderItem}
+				keyExtractor={(item) => item.unique_id}
+				ListHeaderComponent={ListHeader}
+				ListEmptyComponent={<ListEmptyComponent search={true} />}
+			/>
 		</LogoPage>
 	);
 };
 
-styles = StyleSheet.create({
-	flastListStyle: {
-		fontSize: hp(2),
-		color: 'black',
-		fontWeight: 'bold',
+const styles = StyleSheet.create({
+	container: {
+		backgroundColor: colors.bgBrown,
+		flex: 1,
+		paddingTop: RFValue(40),
 	},
-	viewMore: {
-		color: colors.brown,
+	contentContainer: {},
+	noresult: {
+		textAlign: 'center',
+		fontFamily: 'pop-reg',
+		fontSize: 18,
+		opacity: 0.9,
+		color: colors.white,
 	},
-	noResults: {
-		height: hp(10),
-		width: wp(70),
-		backgroundColor: 'white',
-		alignSelf: 'center',
-		justifyContent: 'center',
+
+	searchBarContainer: {
+		backgroundColor: 'transparent',
+		margin: 0,
+		padding: 0,
+		borderRadius: RFValue(50),
+		height: RFValue(50),
+		borderTopWidth: 0,
+		borderBottomWidth: 0,
+		paddingHorizontal: RFValue(20),
+		color: colors.black,
+	},
+	searchBarInput: {
+		borderRadius: RFValue(50),
+		height: RFValue(50),
+		backgroundColor: '#fff',
+		borderColor: 'transparent',
+		color: colors.black,
+	},
+	renderItemItem: {
+		flexDirection: 'row',
+		alignItems: 'flex-start',
+		flex: 1,
+		justifyContent: 'flex-start',
+	},
+	flatListStyle: {
+		..._font.Small,
+		fontSize: RFValue(14),
+		color: colors.fairGrey,
+		flex: 0.4,
+		marginRight: RFValue(5),
+	},
+	flatListStyle2: {
+		..._font.Small,
+		fontSize: RFValue(14),
+		fontFamily: 'pop-medium',
+		flex: 0.6,
+	},
+	logoutButtonTitle: { ..._font.Medium, color: colors.white },
+	logoutButtonIcon: {
+		color: colors.white,
+		fontSize: RFValue(20),
+		paddingRight: RFValue(10),
+	},
+	logoutButtonWrapper: {
+		flexDirection: 'row',
 		alignItems: 'center',
-		borderRadius: 10,
-		marginTop: 60,
+		marginVertical: RFValue(10),
+	},
+	renderItemWrapper: {
+		backgroundColor: 'white',
+		// width: wp(90),
+		// marginHorizontal: hp(3),
+		padding: RFValue(10),
+		// height: hp(25),
+		marginBottom: RFValue(20),
+		// flexDirection: 'column',
+		justifyContent: 'space-between',
+		borderRadius: RFValue(10),
+	},
+	seeMoreText: {
+		..._font.Small,
+		color: colors.brown,
+		fontFamily: 'pop-medium',
+	},
+	seeMoreWrapper: {
+		..._font.Small,
+		textAlign: 'right',
+		color: colors.brown,
+		alignSelf: 'flex-end',
+		marginTop: RFValue(5),
+		borderBottomWidth: RFValue(1),
+		borderBottomColor: colors.brown,
 	},
 });
 

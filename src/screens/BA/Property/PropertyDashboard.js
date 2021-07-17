@@ -44,9 +44,7 @@ const PropertyDashboard = ({
 	route,
 }) => {
 	const [view, setView] = useState('');
-	const [mortgageBroker, setMortgageBroker] = useState({
-		broker: undefined,
-	});
+	const [mortgageBroker, setMortgageBroker] = useState(undefined);
 	const [loadingBroker, setLoadingBroker] = React.useState(true);
 
 	// const [buyerAgentResponse, setBuyerAgentResponse] = useState([])
@@ -64,7 +62,9 @@ const PropertyDashboard = ({
 		// // console.log(transaction.transaction_id)
 		appApi
 			.get(
-				`/get_property_mortgage_broker.php?transaction_id=${transaction?.transaction_id}`,
+				`/get_property_mortgage_broker.php?transaction_id=${
+					transaction?.transaction_id ?? property?.transaction_id
+				}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -72,57 +72,57 @@ const PropertyDashboard = ({
 				},
 			)
 			.then((res) => {
-				// console.log("response is set to: ", res.data.response.data)
 				let response = res.data.response.data;
 				setMortgageBroker({
 					broker: response,
 				});
-				setLoadingBroker(false);
 				buyerAgentResponse.current = response;
+				setLoadingBroker(false);
 			})
 			.catch((err) => {
 				console.log('API conection failed');
+				setLoadingBroker(false);
 			});
 	};
 
-	console.log(mortgageBroker);
-
 	const getBroker = async () => {
 		try {
-			const endpoint = `${appApi}/get_property_mortgage_broker.php?transaction_id=${transaction.transaction_id}`;
 			const token = await fetchAuthToken();
 			const res = await appApi.get(
-				`/get_property_mortgage_broker.php?transaction_id=${transaction.transaction_id}`,
+				`/get_property_mortgage_broker.php?transaction_id=${transaction?.transaction_id}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
 				},
 			);
-			return res.data;
+			return res;
 		} catch (err) {
 			console.log('API conection failed');
 		}
 	};
 
-	useEffect(() => {
-		setMortgageBroker({ ...mortgageBroker, isLoading: true });
-		// console.log('transaction is', transaction);
-		checkBuyerAgent();
-		// getBroker().then((res) => {
-		// 	let response = res.data.response.data;
-		// 	setMortgageBroker(response);
-		// });
-	}, [transaction, buyerAgentResponse.current]);
+	// useEffect(() => {
+	// 	setLoadingBroker(true);
+	// 	getBroker().then((res) => {
+	// 		// let response = res.response.data;
+	// 		setMortgageBroker(res.data.response.data);
+	// 		setLoadingBroker(false);
+	// 		console.log('mortgageBroker..., ', res.data.response.data);
+	// 	});
+	// }, []);
 
-	// useFocusEffect(
-	// 	useCallback(() => {
-	// 		getBroker().then((res) => {
-	// 			let response = res.data.response.data;
-	// 			setMortgageBroker(response);
-	// 		});
-	// 	}, []),
-	// );
+	useFocusEffect(
+		useCallback(() => {
+			setLoadingBroker(true);
+			getBroker().then((res) => {
+				// let response = res.response.data;
+				setMortgageBroker(res.data.response.data);
+				setLoadingBroker(false);
+				// console.log('mortgageBroker..==., ', res.data.response.data);
+			});
+		}, []),
+	);
 
 	// console.log(mortgageBroker);
 
@@ -151,7 +151,7 @@ const PropertyDashboard = ({
 		rendered = <Report />;
 	}
 
-	if (isLoading) {
+	if (loadingBroker) {
 		return (
 			<LogoPage>
 				<ActivityIndicator size='large' color={colors.white} />
@@ -228,11 +228,11 @@ const PropertyDashboard = ({
 						<TouchableOpacity
 							activeOpacity={0.9}
 							onPress={() =>
-								navigate('baLawyerView', { transaction: transaction })
+								navigate('baLawyerView', { transaction: transaction, property })
 							}
 							style={styles.box}
 						>
-							<Text style={styles.boxTitle}>View Lawyer</Text>
+							<Text style={styles.boxTitle}>Lawyer</Text>
 							<AntDesign
 								name='right'
 								size={RFValue(15)}
@@ -256,46 +256,56 @@ const PropertyDashboard = ({
 							/>
 						</TouchableOpacity>
 					)}
-					{mortgageBroker.isLoading && (
-						<RN.View>
-							{mortgageBroker?.broker !== null ? (
-								<TouchableOpacity
-									activeOpacity={0.9}
-									onPress={() =>
-										navigate('viewMortgageBroker', {
-											buyerAgentResponse: buyerAgentResponse,
-										})
-									}
-									style={styles.box}
-								>
-									<Text style={styles.boxTitle}>View Mortgage Broker</Text>
-									<AntDesign
-										name='right'
-										size={RFValue(15)}
-										color={_colors.lightBrown}
-									/>
-								</TouchableOpacity>
-							) : (
-								<TouchableOpacity
-									activeOpacity={0.9}
-									onPress={() =>
-										navigate('addMortgageBroker', {
-											transaction: transaction,
-											property: property,
-										})
-									}
-									style={styles.box}
-								>
-									<Text style={styles.boxTitle}>Add Mortgage Broker</Text>
-									<AntDesign
-										name='right'
-										size={RFValue(15)}
-										color={_colors.lightBrown}
-									/>
-								</TouchableOpacity>
-							)}
-						</RN.View>
-					)}
+					<RN.View>
+						<TouchableOpacity
+							activeOpacity={0.9}
+							onPress={() =>
+								navigate('viewMortgageBroker', {
+									transaction: transaction,
+									property: property,
+								})
+							}
+							// onPress={() => {
+							// 	if (mortgageBroker !== null) {
+							// 		navigate('viewMortgageBroker', {
+							// 			buyerAgentResponse: mortgageBroker,
+							// 		});
+							// 	} else {
+							// 		navigate('addMortgageBroker', {
+							// 			transaction: transaction,
+							// 			property: property,
+							// 		});
+							// 	}
+							// }}
+							style={styles.box}
+						>
+							<Text style={styles.boxTitle}>Mortgage Broker</Text>
+							<AntDesign
+								name='right'
+								size={RFValue(15)}
+								color={_colors.lightBrown}
+							/>
+						</TouchableOpacity>
+						{/* <TouchableOpacity
+								activeOpacity={0.9}
+								onPress={() =>
+									navigate('addMortgageBroker', {
+										transaction: transaction,
+										property: property,
+									})
+								}
+								style={styles.box}
+							>
+								<Text style={styles.boxTitle}>Add Mortgage Broker</Text>
+								<AntDesign
+									name='right'
+									size={RFValue(15)}
+									color={_colors.lightBrown}
+								/>
+							</TouchableOpacity> */}
+						{/* )} */}
+					</RN.View>
+					{/* )} */}
 				</View>
 
 				<View>{rendered}</View>

@@ -66,6 +66,7 @@ const DealProgress = ({ transaction, isLoading }) => {
 								{transaction.show_interest_status != '0' ? 'Completed' : ''}
 							</Text>
 						</View>
+
 						<View style={styles.action_status}>
 							<Text style={styles.progressText}>Show Request</Text>
 							<Text style={styles.status}>

@@ -5,7 +5,7 @@ import colors from '../constants/colors';
 import _font from '../styles/fontStyles';
 import { RFValue } from 'react-native-responsive-fontsize';
 
-const ListEmptyComponent = ({ title, info }) => {
+const ListEmptyComponent = ({ title, info, search }) => {
 	return (
 		<React.Fragment>
 			{/* DISPLAY WHEN NO CONTENT FOUND */}
@@ -23,14 +23,23 @@ const ListEmptyComponent = ({ title, info }) => {
 					/>
 				</View>
 
-				<View style={{ marginTop: 20 }}>
-					<Text style={styles.noresult}>
-						{title || 'You have no recent activities.'}
-					</Text>
-					<Text style={styles.noresult}>
-						{info || 'Search for property to start deal'}{' '}
-					</Text>
-				</View>
+				{search ? (
+					<View style={{ marginTop: 20 }}>
+						<Text style={styles.noresult}>
+							Sorry! No property match the search keyword.
+						</Text>
+						<Text style={styles.noresult}>Try again with another keyword</Text>
+					</View>
+				) : (
+					<View style={{ marginTop: 20 }}>
+						<Text style={styles.noresult}>
+							{title || 'You have no recent activities.'}
+						</Text>
+						<Text style={styles.noresult}>
+							{info || 'Search for property to start deal'}{' '}
+						</Text>
+					</View>
+				)}
 			</View>
 		</React.Fragment>
 	);

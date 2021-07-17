@@ -28,26 +28,40 @@ import Modal from 'react-native-modal';
 
 const Financing = ({ transaction, route }) => {
 	const [validFile, setValidFile] = useState(undefined);
-	const [fileValidModal, setFileValidShow] = useState({ visible: false });
+	const [fileValidModal, setFileValidModal] = useState({ visible: undefined });
+	const [fileDataType, setFileDataType] = useState(undefined);
 
 	const validateDocument = (fileName) => {
-		if (
-			fileName.substr(-3) === 'png' ||
-			fileName.substr(-3) === 'jpg' ||
-			fileName.substr(-3) === 'jpeg' ||
-			(fileName.substr(-3) === 'pdf') === true
-		) {
+		let type = fileName.substr(-3);
+		if (type == 'pdf') {
+			setFileDataType('application/pdf');
 			setValidFile(true);
+			setFileValidModal({ visible: false });
+		} else if (type == 'png') {
+			setFileDataType('image/png');
+			setValidFile(true);
+			setFileValidModal({ visible: false });
+		} else if (type == 'jpg') {
+			setFileDataType('image/jpeg');
+			setValidFile(true);
+			setFileValidModal({ visible: false });
+		} else if (type == 'jpeg') {
+			setFileDataType('image/jpeg');
+			setValidFile(true);
+			setFileValidModal({ visible: false });
 		} else {
+			setFileDataType(undefined);
 			setValidFile(false);
+			setFileValidModal({ visible: true });
+			waiveFinancing({});
 		}
 	};
 
 	const renderFileValidModal = () => (
 		<Modal
 			swipeDirection={'down'}
-			isVisible={validFile === false}
-			onBackButtonPress={() => setFileValidShow({ visible: false })}
+			isVisible={fileValidModal.visible}
+			onBackButtonPress={() => setFileValidModal({ visible: undefined })}
 		>
 			<View
 				showsVerticalScrollIndicator={false}
@@ -68,6 +82,7 @@ const Financing = ({ transaction, route }) => {
 					onPress={() => {
 						setValidFile(undefined);
 						setWaiveFinancing(undefined);
+						setFileValidModal({ visible: undefined });
 					}}
 					style={{
 						padding: RFValue(10),
@@ -89,6 +104,8 @@ const Financing = ({ transaction, route }) => {
 
 	// const {transaction_id} = route.params
 	const { transaction_id } = transaction;
+
+	console.log(transaction);
 
 	const [show, setShow] = useState(false);
 
@@ -113,27 +130,51 @@ const Financing = ({ transaction, route }) => {
 		},
 	});
 
+	const [financing, setFinancing] = useState(undefined);
+	const [mortgageSource, setMortgageSource] = useState(undefined);
+	const [waiveFinancing, setWaiveFinancing] = useState(undefined);
+
+	const newSelectFinancing = (source, option, file) => {
+		setFinancing(source);
+		if (source === 'wf') {
+			setWaiveFinancing(file);
+			setMortgageSource(undefined);
+		} else {
+			setMortgageSource(option);
+			setWaiveFinancing(undefined);
+		}
+	};
+
+	console.log('transaction_id', transaction_id);
+
 	const submitFinancing = async () => {
 		try {
 			setIsAddingFinance(true);
 			const token = await fetchAuthToken();
 			const data = new FormData();
+			data.append('user_id', user.unique_id);
+			data.append('transaction_id', transaction_id);
+			data.append('role', user.role);
+			data.append('mortgage_professional_email', brokerEmail);
 			data.append(
 				'mortgage_source',
-				mUser === 'me' ? '1' : mUser === 'mb' ? '2' : '',
+				mortgageSource === 'pbd' ? '1' : mUser === 'tmp' ? '2' : 'wf',
 			);
-			data.append('mortgage_professional_email', brokerEmail);
-			if (values.attachment) {
+			if (waiveFinancing?.file) {
 				data.append(`file`, {
-					name: values.attachment.name,
-					type: 'application/octet',
-					uri: values.attachment.uri,
+					name: waiveFinancing.file.name,
+					type: `${fileDataType}`,
+					uri: waiveFinancing.file.uri,
 				});
 			}
 			// data.append("transaction_id", transaction.transaction_id);
-			data.append('transaction_id', transaction_id);
+			/*
+			/add_financing.php
+			Type: POST
+			Parameters: user_id, transaction_id, role, mortgage_professional_email(Optional),
+			 						mortgage_source(Optional), file(Optional)
+			*/
 
-			data.append('user_id', user.unique_id);
 			const response = await appApi.post('/add_financing.php', data, {
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -185,21 +226,6 @@ const Financing = ({ transaction, route }) => {
 			return;
 		}
 		setWaiveFinancing({ type: 'attachment', file: result });
-	};
-
-	const [financing, setFinancing] = useState(undefined);
-	const [mortgageSource, setMortgageSource] = useState(undefined);
-	const [waiveFinancing, setWaiveFinancing] = useState(undefined);
-
-	const newSelectFinancing = (source, option, file) => {
-		setFinancing(source);
-		if (source === 'wf') {
-			setWaiveFinancing(file);
-			setMortgageSource(undefined);
-		} else {
-			setMortgageSource(option);
-			setWaiveFinancing(undefined);
-		}
 	};
 
 	const IfMortgage = (
@@ -255,7 +281,12 @@ const Financing = ({ transaction, route }) => {
 						// placeholder='Enter your Legal Name'
 						placeholderTextColor={colors.lightGrey}
 						// value={user.fullname}
-						disabled
+						// disabled
+						value={brokerEmail}
+						onChangeText={setBrokerEmail}
+						keyboardType='email-address'
+						autoCorrect={false}
+						autoCapitalize='none'
 						// onChangeText={handleChange("legalName")}
 					/>
 				</View>
@@ -305,7 +336,7 @@ const Financing = ({ transaction, route }) => {
 							// onPress={() => setMUser('mb')}
 						/>
 						<Text style={{ color: colors.white, ...styles.text }}>
-							Waive Financing...
+							Waive Financing
 						</Text>
 					</TouchableOpacity>
 

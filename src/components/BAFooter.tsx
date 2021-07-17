@@ -63,25 +63,25 @@ const BuyAgentFooter = ({
 		);
 	}
 
-	if (selected === 'progress') {
-		shown = (
-			<DealProgress
-				navigation={navigation}
-				transaction={transaction}
-				isLoading={isLoading}
-			/>
-		);
-	}
+	// if (selected === 'progress') {
+	// 	shown = (
+	// 		<DealProgress
+	// 			navigation={navigation}
+	// 			transaction={transaction}
+	// 			isLoading={isLoading}
+	// 		/>
+	// 	);
+	// }
 
-	if (selected === 'notif') {
-		shown = (
-			<Notification
-				navigation={navigation}
-				transaction={transaction}
-				property={property}
-			/>
-		);
-	}
+	// if (selected === 'notif') {
+	// 	shown = (
+	// 		<Notification
+	// 			navigation={navigation}
+	// 			transaction={transaction}
+	// 			property={property}
+	// 		/>
+	// 	);
+	// }
 
 	if (selected === 'setting') {
 		shown = <Settings />;
@@ -90,7 +90,7 @@ const BuyAgentFooter = ({
 	return (
 		<>
 			{shown}
-			<Footer style={{ backgroundColor: '#fff' }}>
+			{/* <Footer style={{ backgroundColor: '#fff' }}>
 				<FooterTab
 					style={{
 						backgroundColor: colors.bgBrown,
@@ -128,10 +128,6 @@ const BuyAgentFooter = ({
 						vertical
 						active={selected === 'progress'}
 					>
-						{/* <Image
-              source={require("../assets/img/progress.png")}
-              style={{ width: 30, height: 30, backgroundColor: selected === "progress" ? colors.bgBrown : colors.white }}
-            /> */}
 						<Feather
 							size={RFValue(15)}
 							name='trending-up'
@@ -169,15 +165,8 @@ const BuyAgentFooter = ({
 							Notification
 						</Text>
 					</Button>
-					{/* <TouchableOpacity
-            style={styles.btn}
-            onPress={() => setSelected("setting")}
-          >
-            <Feather name="settings" color={colors.white} size={25} />
-            <Text style={styles.titles}>Settings</Text>
-          </TouchableOpacity> */}
 				</FooterTab>
-			</Footer>
+			</Footer> */}
 		</>
 	);
 };

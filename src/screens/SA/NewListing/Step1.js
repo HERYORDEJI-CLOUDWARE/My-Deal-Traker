@@ -65,7 +65,7 @@ const Step1 = ({ next, back, values, handleChange, setFieldValue }) => {
 				options: ['Cancel', 'Commercial', 'Residential'],
 				// destructiveButtonIndex: 2,
 				cancelButtonIndex: 0,
-				title: 'Select Property Type',
+				title: '',
 			},
 			(buttonIndex) => {
 				if (buttonIndex === 0) {
@@ -152,11 +152,7 @@ const Step1 = ({ next, back, values, handleChange, setFieldValue }) => {
 							onValueChange={(value) => setFieldValue('propertyType', value)}
 							mode='dropdown'
 						>
-							<Picker.Item
-								label='Select property type'
-								value=''
-								color={colors.lightGrey}
-							/>
+							<Picker.Item label='' value='' color={colors.lightGrey} />
 							<Picker.Item label='Commercial' value='0' />
 							<Picker.Item label='Residential' value='1' />
 						</Picker>
@@ -181,7 +177,7 @@ const Step1 = ({ next, back, values, handleChange, setFieldValue }) => {
 							? 'Commercial'
 							: values.propertyType == '1'
 							? 'Residential'
-							: 'Select property type'}
+							: ''}
 					</Text>
 				</TouchableOpacity>
 			)}

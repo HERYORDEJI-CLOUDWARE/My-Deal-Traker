@@ -23,8 +23,9 @@ import { Context as UserContext } from '../../../context/UserContext';
 import _font from '../../../styles/fontStyles';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ButtonPrimaryBig from '../../../components/ButtonPrimaryBig';
+import moment from 'moment';
 
-const AddRepair = ({ transaction, property }) => {
+const AddRepair = ({ transaction, property, toggleShowAddRepair }) => {
 	const {
 		state: { user },
 	} = useContext(UserContext);
@@ -38,47 +39,62 @@ const AddRepair = ({ transaction, property }) => {
 	const { values, setFieldValue, handleSubmit } = useFormik({
 		initialValues: {
 			dateOrdered: '',
-			repairsNeeded: '',
+			dateNeeded: '',
+			item: '',
 			condition: '',
-			repairRecommendation: '',
-			required: false,
+			recommendation: '',
 			memo: '',
-			recommendations: [
-				{
-					item: '',
-					condition: '',
-					recommendation: '',
-					dateNeeded: '',
-				},
-			],
+			required: false,
+			repairsNeeded: '',
+			repairRecommendation: '',
 		},
 		onSubmit: (valuez) => {
 			onSubmitRepairs();
 		},
 	});
 
-	const itemsArr = [];
-	const rpArr = [];
-	values.recommendations.map((i) => {
-		rpArr.push(i.recommendation);
-		return itemsArr.push(i.item);
-	});
+	console.log(property.transaction_id, transaction.transaction_id);
 
 	const sendRepair = async () => {
 		try {
 			setIsLoading(true);
 			var datestr = new Date().toUTCString();
 			const data = new FormData();
-			data.append('property_transaction_id', property.transaction_id);
-			data.append('transaction_id', transaction.transaction_id);
-			data.append('repairs_needed', values.required ? 1 : 0);
-			data.append('required', values.required ? 1 : 0);
-			data.append('item', JSON.stringify(itemsArr));
-			data.append('recommended_repair', JSON.stringify(rpArr));
-			data.append('memo', values.memo);
+			/*
+		{
+			date_created: '2021-07-15 19:09:48',
+			date_ordered: '2021-07-15 18:09:48',
+			date_received: null,
+			expected_delivery_date: '2021-07-17 19:09:48',
+			id: '16',
+			item: 'Item 1 form web',
+			memo: 'Memo 1 from web',
+			property_transaction_id: '60705998',
+			recommended_repair: 'Rec 1 from web',
+			repair_id: '133bd9260062daea7851e419f5acb400',
+			required: '1',
+			status: '0',
+			transaction_id: 'bd5a1aae33b2c9286e1ee123cf48397c',
+			}
+			 */
+			data.append('date_created', datestr);
 			data.append('date_ordered', datestr);
-			data.append('expected_delivery_date', datestr);
+			data.append('expected_delivery_date', values.dateNeeded);
+			data.append('condition', values.condition);
+			data.append('item', values.item);
+			data.append('memo', values.memo);
+			data.append('property_transaction_id', property.transaction_id);
+			data.append('recommended_repair', values.recommendation);
+			data.append('required', values.required ? 1 : 0);
+			data.append('repairs_needed', values.required ? 1 : 0);
+			data.append('transaction_id', transaction.transaction_id);
 			data.append('user_id', user.unique_id);
+			/*
+			URL: repairs.php
+			Parameters: user_id, transaction_id, property_transaction_id,
+			repairs_needed(0 or 1), item, recommended_repair
+			Type: POST
+			 */
 
 			const token = await fetchAuthToken();
 			const response = await appApi.post(`/repairs.php`, data, {
@@ -87,51 +103,57 @@ const AddRepair = ({ transaction, property }) => {
 				},
 			});
 			setIsLoading(false);
-
-			if (response.data.response.status == 200) {
-				Toast.show({
-					type: 'success',
-					text: `Repairs added successfully`,
-					duration: 4000,
-				});
-			} else {
-				Toast.show({
-					type: 'warning',
-					text: response.data.response.message,
-					duration: 4000,
-				});
-			}
+			toggleShowAddRepair(false);
+			// return response;
+			console.log(response);
+			// if (response.data.response.status == 200) {
+			// 	Toast.show({
+			// 		type: 'success',
+			// 		text: `Repairs added successfully`,
+			// 		duration: 4000,
+			// 	});
+			// } else {
+			// 	Toast.show({
+			// 		type: 'warning',
+			// 		text: response.data.response.message,
+			// 		duration: 4000,
+			// 	});
+			// }
 		} catch (error) {
+			setIsLoading(false);
 			displayError(error);
+			toggleShowAddRepair(true);
 		}
 	};
+
+	console.log(values);
+	// console.log(JSON.stringify(itemsArr));
+	// console.log(JSON.stringify(rpArr));
 
 	const onSubmitRepairs = async () => {
 		try {
 			await sendRepair();
-			const newv = [
-				{
-					item: '',
-					condition: '',
-					recommendation: '',
-					dateNeeded: '',
-					memo: '',
-					required: false,
-				},
-			];
-			setFieldValue('recommendations', newv);
+			// const newv = [
+			// 	{
+			// 		item: '',
+			// 		condition: '',
+			// 		recommendation: '',
+			// 		dateNeeded: '',
+			// 		memo: '',
+			// 		required: false,
+			// 	},
+			// ];
+			// setFieldValue('recommendations', newv);
 		} catch (error) {
-			displayError(error);
+			console.log(error);
 		}
 	};
 
 	const onDateChange = (event, selectedDate, i) => {
 		const currentDate = selectedDate || date;
-		const valuez = [...values.recommendations];
-		valuez[i] = { ...valuez[i], dateNeeded: currentDate };
 		setShow(false);
 		setDate(currentDate);
-		setFieldValue('recommendations', valuez);
+		setFieldValue('dateNeeded', currentDate);
 	};
 
 	const handleInputChange = (text, index, name) => {
@@ -196,108 +218,77 @@ const AddRepair = ({ transaction, property }) => {
 			<View>
 				<Text style={styles.title}>Add Repair</Text>
 			</View>
+			{values.required && show && (
+				<RNDateTimePicker
+					testID='dateTimePicker'
+					value={values.dateNeeded || new Date()}
+					mode={'date'}
+					is24Hour={true}
+					display='default'
+					onChange={(event, selectedDate) => {
+						onDateChange(event, selectedDate);
+					}}
+				/>
+			)}
 
 			<View style={{}}>
-				{values.recommendations.map((r, i) => {
-					return (
-						<View
-							style={{
-								borderBottomWidth: RFValue(1),
-								borderBottomColor: colors.lightGrey,
-								marginBottom: RFValue(10),
-							}}
-							key={i}
-						>
-							<View
-								style={{
-									flexDirection: 'row',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-								}}
-							>
-								<Text style={{ ..._font.Big, color: colors.white }}>
-									{i + 1})
-								</Text>
-								{i + 1 !== 1 && (
-									<Pressable onPress={() => handleRemoveFields(i)}>
-										<Icon
-											name={'cancel'}
-											type={'MaterialIcons'}
-											style={{ color: 'red', fontSize: RFValue(30) }}
-										/>
-									</Pressable>
-								)}
-							</View>
-
-							{/*{show && (*/}
-							{/*	<RNDateTimePicker*/}
-							{/*		testID='dateTimePicker'*/}
-							{/*		value={r.dateNeeded || new Date()}*/}
-							{/*		mode={'date'}*/}
-							{/*		is24Hour={true}*/}
-							{/*		display='default'*/}
-							{/*		onChange={(event, selectedDate) => {*/}
-							{/*			onDateChange(event, selectedDate, i);*/}
-							{/*		}}*/}
-							{/*	/>*/}
-							{/*)}*/}
-
-							<View style={styles.textInputContainer}>
-								<Text style={styles.label}>Item</Text>
-								<View style={styles.textInputWrapper}>
-									<TextInput
-										// placeholder='Item'
-										// placeholderTextColor={'#ccc'}
-										value={r.item}
-										onChangeText={(text) => handleInputChange(text, i, 'item')}
-										style={styles.textInput}
-									/>
-								</View>
-							</View>
-
-							<View style={styles.textInputContainer}>
-								<Text style={styles.label}>Condition</Text>
-								<View style={styles.textInputWrapper}>
-									<TextInput
-										// placeholder='Conditions'
-										// placeholderTextColor={'#ccc'}
-										value={r.condition}
-										onChangeText={(text) =>
-											handleInputChange(text, i, 'condition')
-										}
-										style={styles.textInput}
-									/>
-								</View>
-							</View>
-
-							<View style={styles.textInputContainer}>
-								<Text style={styles.label}>Repair Recommendation</Text>
-								<View style={styles.textInputWrapper}>
-									<TextInput
-										// placeholder='Repair Recommendation'
-										// placeholderTextColor={'#ccc'}
-										value={r.recommendation}
-										onChangeText={(text) =>
-											handleInputChange(text, i, 'recommendation')
-										}
-										style={styles.textInput}
-									/>
-								</View>
-							</View>
-
-							{/*{values.recommendations.length > 1 && (*/}
-							{/*	<TouchableOpacity*/}
-							{/*		style={{ marginBottom: 30 }}*/}
-							{/*		onPress={() => deleteRepairItem(i)}*/}
-							{/*	>*/}
-							{/*		<Text>*/}
-							{/*			<AntDesign name='delete' /> Remove*/}
-							{/*		</Text>*/}
-							{/*	</TouchableOpacity>*/}
-							{/*)}*/}
+				<View
+					style={{
+						borderBottomWidth: RFValue(1),
+						borderBottomColor: colors.lightGrey,
+						marginBottom: RFValue(10),
+					}}
+				>
+					<View style={styles.textInputContainer}>
+						<Text style={styles.label}>Item</Text>
+						<View style={styles.textInputWrapper}>
+							<TextInput
+								// placeholder='Item'
+								// placeholderTextColor={'#ccc'}
+								value={values.item}
+								onChangeText={(text) => setFieldValue('item', text)}
+								style={styles.textInput}
+							/>
 						</View>
-					);
-				})}
+					</View>
+
+					<View style={styles.textInputContainer}>
+						<Text style={styles.label}>Condition</Text>
+						<View style={styles.textInputWrapper}>
+							<TextInput
+								// placeholder='Conditions'
+								// placeholderTextColor={'#ccc'}
+								value={values.condition}
+								onChangeText={(text) => setFieldValue('condition', text)}
+								style={styles.textInput}
+							/>
+						</View>
+					</View>
+
+					<View style={styles.textInputContainer}>
+						<Text style={styles.label}>Repair Recommendation</Text>
+						<View style={styles.textInputWrapper}>
+							<TextInput
+								// placeholder='Repair Recommendation'
+								// placeholderTextColor={'#ccc'}
+								value={values.recommendation}
+								onChangeText={(text) => setFieldValue('recommendation', text)}
+								style={styles.textInput}
+							/>
+						</View>
+					</View>
+
+					{/*{values.recommendations.length > 1 && (*/}
+					{/*	<TouchableOpacity*/}
+					{/*		style={{ marginBottom: 30 }}*/}
+					{/*		onPress={() => deleteRepairItem(i)}*/}
+					{/*	>*/}
+					{/*		<Text>*/}
+					{/*			<AntDesign name='delete' /> Remove*/}
+					{/*		</Text>*/}
+					{/*	</TouchableOpacity>*/}
+					{/*)}*/}
+				</View>
 				<View style={styles.textInputContainer}>
 					<Text style={styles.label}>Memo</Text>
 					<View style={styles.textInputWrapper}>
@@ -310,26 +301,47 @@ const AddRepair = ({ transaction, property }) => {
 						/>
 					</View>
 				</View>
+				{values.required && (
+					<View style={styles.textInputContainer}>
+						<Text style={styles.label}>Expected Delivery Date</Text>
+						<TouchableOpacity
+							onPress={() => setShow(true)}
+							style={styles.textInputWrapper}
+						>
+							<TextInput
+								// placeholder='Memo'
+								// placeholderTextColor={'#ccc'}
+								value={`${moment(values.dateNeeded).format('DD/MM/YYYY')}`}
+								// onChangeText={(text) => setFieldValue('memo', text)}
+								style={styles.textInput}
+								editable={false}
+							/>
+						</TouchableOpacity>
+					</View>
+				)}
 				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 					<Switch
 						value={values.required}
 						color={colors.white}
 						style={{ alignSelf: 'flex-start' }}
-						onValueChange={() => setFieldValue('required', !values.required)}
+						onValueChange={() => {
+							setFieldValue('required', !values.required);
+							setShow(!show);
+						}}
 					/>
 					<Text style={styles.text}>Required?</Text>
 				</View>
-				<ButtonPrimaryBig
-					title={'+ Add More'}
-					disabled={isLoading}
-					onPress={handleAddFields}
-					containerStyle={{
-						backgroundColor: colors.lightGrey,
-						marginTop: RFValue(30),
-						height: RFValue(30),
-					}}
-					titleStyle={{ color: colors.brown }}
-				/>
+				{/*<ButtonPrimaryBig*/}
+				{/*	title={'+ Add More'}*/}
+				{/*	disabled={isLoading}*/}
+				{/*	onPress={handleAddFields}*/}
+				{/*	containerStyle={{*/}
+				{/*		backgroundColor: colors.lightGrey,*/}
+				{/*		marginTop: RFValue(30),*/}
+				{/*		height: RFValue(30),*/}
+				{/*	}}*/}
+				{/*	titleStyle={{ color: colors.brown }}*/}
+				{/*/>*/}
 				<ButtonPrimaryBig
 					title={isLoading ? 'Loading...' : 'Send'}
 					disabled={isLoading}

@@ -296,6 +296,24 @@ const fetchBuyerTrans = (dispatch) => async (email) => {
 	}
 };
 
+export const getBuyerTrans = async (email) => {
+	try {
+		const token = await fetchAuthToken();
+		const response = await appApi.get(
+			`/fetch_transaction_for_buyer.php?buyer_email=${email}`,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		);
+		return response.data.response.data;
+	} catch (error) {
+		displayError(error);
+		catchError(error);
+	}
+};
+
 export const fetchRandomProperties = async () => {
 	try {
 		const token = await fetchAuthToken();
@@ -338,6 +356,64 @@ export const getSellerProperties = async (email) => {
 	} catch (err) {
 		// console.log('API conection failed');
 	}
+};
+
+export const getSearchedProperty = async (keyword) => {
+	try {
+		const token = await fetchAuthToken();
+		const data = new FormData();
+		data.append('keyword', keyword);
+		return await axios.post(
+			'https://mydealtracker.staging.cloudware.ng/api/search_property.php',
+			data,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		);
+		// .then((res) => {
+		// 	const data = res.data.response.data;
+		// 	search.current = data;
+		// 	navigation.navigate('mortgageSearchScreen', { search: search });
+		// })
+	} catch (e) {
+		displayError(e);
+	}
+};
+
+export const getPropertyTransaction = async (property_transaction_id) => {
+	try {
+		const token = await fetchAuthToken();
+		return await appApi.get(
+			`/get_property_transactions.php?property_transaction_id=${property_transaction_id}`,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		);
+		// URL: get_property_transactions
+		// Parameter: property_transaction_id
+		// Type: GET
+	} catch (e) {
+		displayError(e);
+	}
+};
+
+export const getProptTrans = async (property) => {
+	try {
+		const token = await fetchAuthToken();
+		const data = new FormData();
+		return await appApi.get(
+			`/get_property_transactions.php?property_transaction_id=${property.transaction_id}`,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		);
+	} catch (error) {}
 };
 
 export const newFetchBuyerTrans = async (email) => {

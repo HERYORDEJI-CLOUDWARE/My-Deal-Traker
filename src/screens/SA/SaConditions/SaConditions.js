@@ -17,7 +17,7 @@ import _font from './../../../styles/fontStyles';
 
 const SaConditions = ({ route, navigation }) => {
 	const [view, setView] = useState('check');
-	const { transaction } = route.params;
+	const { transaction, proptTrans } = route.params;
 
 	console.log('\n\n', transaction);
 	const [showModal, setShowModal] = useState(false);
@@ -25,15 +25,21 @@ const SaConditions = ({ route, navigation }) => {
 	const rendered = () => {
 		switch (view) {
 			case 'financing':
-				return <Financing />;
+				return <Financing proptTrans={proptTrans} />;
 			case 'appraisal':
-				return <Appraisal />;
+				return <Appraisal proptTrans={proptTrans} />;
 			case 'inspection':
-				return <Inspection transaction={transaction} />;
+				return <Inspection transaction={transaction} proptTrans={proptTrans} />;
 			case 'check':
-				return <CheckList property={transaction} />;
+				return <CheckList property={transaction} proptTrans={proptTrans} />;
 			case 'repairs':
-				return <Repairs transaction={transaction} property={transaction} />;
+				return (
+					<Repairs
+						transaction={transaction}
+						property={transaction}
+						proptTrans={proptTrans}
+					/>
+				);
 			// case "inspection":
 			//   return <Inspection transaction={transaction} />;
 			default:
@@ -42,7 +48,7 @@ const SaConditions = ({ route, navigation }) => {
 	};
 
 	// useEffect(() => {
-	// 	console.log(property, '/|', transaction);
+	console.log(proptTrans, '/|', transaction);
 	// });
 
 	return (

@@ -1,8 +1,9 @@
 import { AntDesign } from '@expo/vector-icons';
-import { Text, Toast } from 'native-base';
+import { Toast, Icon } from 'native-base';
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import {
+	Text,
 	ActivityIndicator,
 	Dimensions,
 	FlatList,
@@ -13,9 +14,11 @@ import {
 import { Input } from 'react-native-elements';
 import { Checkbox } from 'react-native-paper';
 import appApi from '../../../api/appApi';
+import ButtonPrimaryBig from '../../../components/ButtonPrimaryBig';
 import colors from '../../../constants/colors';
 import { displayError, fetchAuthToken } from '../../../utils/misc';
 import _font from './../../../styles/fontStyles';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const { width } = Dimensions.get('window');
 
@@ -43,7 +46,7 @@ const ListItem = ({ text, checked }) => {
 
 //SaConditions/SaConditions
 
-const CheckList = ({ route, property, transaction }) => {
+const CheckList = ({ route, property, transaction, proptTrans }) => {
 	// const { property } = route.params;
 
 	const [showAddNew, setShowAddNew] = useState(false);
@@ -51,19 +54,44 @@ const CheckList = ({ route, property, transaction }) => {
 	const [taskLists, setTask] = useState([]);
 	const [fetchedList, setFetchedList] = useState([]);
 	const [isFetchingList, setIsFetchingList] = useState(true);
+	const [buyersCheckedList, setBuyersCheckedList] = useState(null);
+
 	useEffect(() => {
 		fetchCheckList();
+		let fetched = fetchedList
+			.slice()
+			.reverse()
+			.filter((v, i, a) => a.findIndex((t) => t.task === v.task) === i)
+			.reverse();
+
+		newFetchPropertyCheckList().then((res) => {
+			const filteredArr = [...res, ...fetchedList].reduce((acc, current) => {
+				const x = acc.find((item) => item.task === current.task);
+				if (!x) {
+					return acc.concat([current]);
+				} else {
+					return acc;
+				}
+			}, []);
+
+			let list = [...res, ...fetchedList].filter(
+				(v, i, a) => a.findIndex((t) => t.task === v.task) === i,
+			);
+			setBuyersCheckedList(filteredArr);
+		});
 	}, []);
 
 	const addNewForm = () => {
 		setShowAddNew(!showAddNew);
 	};
 
+	console.log('proptTrans', fetchedList);
+
 	const fetchCheckList = async () => {
 		try {
 			const token = await fetchAuthToken();
 			const response = await appApi.get(
-				`/fetch_tasks.php?property_transaction_id=${property.transaction_id}`,
+				`/fetch_tasks.php?property_transaction_id=${property?.transaction_id}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -76,6 +104,25 @@ const CheckList = ({ route, property, transaction }) => {
 			displayError(error);
 			setIsFetchingList(false);
 		}
+	};
+
+	const newFetchPropertyCheckList = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const response = await appApi.get(
+				`/fetch_buyer_agent_checked_lists_for_property.php?transaction_id=${proptTrans[0].transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			// return response;
+			return JSON.parse(response.data.response.data?.task_array);
+		} catch (error) {
+			console.log(error);
+		}
+		``;
 	};
 
 	const onAddNewTask = async () => {
@@ -109,6 +156,29 @@ const CheckList = ({ route, property, transaction }) => {
 		}
 	};
 
+	const ListItem = ({ text, checked }) => {
+		return (
+			<TouchableOpacity disabled={true}>
+				<View
+					style={{
+						flexDirection: 'row',
+						alignItems: 'center',
+						marginBottom: RFValue(15),
+					}}
+				>
+					<Icon
+						name={
+							checked ? 'checkbox-marked-outline' : 'checkbox-blank-outline'
+						}
+						type={'MaterialCommunityIcons'}
+						style={{ color: colors.white, paddingRight: RFValue(5) }}
+					/>
+					<Text style={styles.text}>{text} </Text>
+				</View>
+			</TouchableOpacity>
+		);
+	};
+
 	return (
 		<View>
 			<Text style={styles.title}>Requirement Checklist</Text>
@@ -118,13 +188,27 @@ const CheckList = ({ route, property, transaction }) => {
 			) : (
 				<View>
 					<FlatList
-						data={fetchedList}
+						data={buyersCheckedList ?? fetchedList}
+						// data={}
 						keyExtractor={(item, index) => index.toString()}
 						renderItem={({ item }) => {
 							return (
-								<ListItem checked={parseInt(item.status)} text={item.task} />
+								<View>
+									{item.task_id || item.unique_id ? (
+										<ListItem
+											task_id={item.task_id}
+											checked={String(item.status) === '1'}
+											text={item.task}
+											// index={index}
+										/>
+									) : null}
+								</View>
 							);
-						}}
+						}} // renderItem={({ item }) => {
+						// 	return (
+						// 		<ListItem checked={parseInt(item.status)} text={item.task} />
+						// 	);
+						// }}
 						ListEmptyComponent={
 							<Text style={{ ..._font.Medium, color: colors.white }}>
 								No checklist for this property
@@ -165,15 +249,21 @@ const CheckList = ({ route, property, transaction }) => {
 									</TouchableOpacity>
 								) : null}
 
-								<TouchableOpacity style={styles.btn} onPress={addNewForm}>
-									<Text style={{ color: colors.brown }}>
-										{showAddNew ? (
+								<ButtonPrimaryBig
+									containerStyle={{
+										marginVertical: RFValue(20),
+										backgroundColor: colors.brown,
+										// height: RFValue(40),
+									}}
+									title={
+										showAddNew ? (
 											<AntDesign name='close' size={30} />
 										) : (
 											'Add New'
-										)}
-									</Text>
-								</TouchableOpacity>
+										)
+									}
+									onPress={addNewForm}
+								/>
 							</React.Fragment>
 						}
 					/>
@@ -189,6 +279,7 @@ const styles = StyleSheet.create({
 	title: {
 		..._font.H5,
 		color: colors.white,
+		marginBottom: RFValue(20),
 	},
 	text: { ..._font.Medium, color: colors.white },
 	btn: {

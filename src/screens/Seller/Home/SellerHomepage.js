@@ -1,5 +1,6 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { FlatList } from 'react-native';
+import * as RN from 'react-native';
 import LogoPage from '../../../components/LogoPage';
 import ListEmptyComponent from '../../../components/ListEmptyComponent';
 import HomeHeader from '../../../components/HomeHeader';
@@ -64,26 +65,38 @@ const SellerHomepage = ({ navigation }) => {
 		}, []),
 	);
 
-	if (isLoading) {
-		return (
-			<React.Fragment>
-				<LogoPage dontShow={true}>
-					<ActivityIndicator size='large' color={colors.white} />
-				</LogoPage>
-			</React.Fragment>
-		);
-	}
+	const ListEmpty = () => {
+		if (isLoading) {
+			return (
+				<React.Fragment>
+					<LogoPage dontShow={true}>
+						<RN.ActivityIndicator size='large' color={colors.white} />
+					</LogoPage>
+				</React.Fragment>
+			);
+		}
+		<React.Fragment>
+			<RN.View style={styles.listEmptyWrapper}>
+				<RN.Image
+					source={require('../../../assets/img/no_deals.png')}
+					style={styles.listEmptyImage}
+				/>
+			</RN.View>
+
+			<RN.Text style={styles.noresult}>
+				You have no recent search/activities
+			</RN.Text>
+			<RN.Text style={styles.noresult}>
+				Search for property to start deal
+			</RN.Text>
+		</React.Fragment>;
+	};
 
 	return (
 		<LogoPage dontShow={true}>
 			<FlatList
 				data={sellerProptList ?? randomProptList}
-				ListEmptyComponent={
-					<ListEmptyComponent
-						title='You currently have no property'
-						info='  '
-					/>
-				}
+				ListEmptyComponent={ListEmpty()}
 				ListHeaderComponent={
 					<React.Fragment>
 						<HomeHeader
@@ -91,6 +104,7 @@ const SellerHomepage = ({ navigation }) => {
 							setSearch={setSearch}
 							searchScreen='sellerSearch'
 							notSearching={false}
+							searchItemViewScreen={'SellerSelectedProp'}
 						/>
 					</React.Fragment>
 				}
@@ -102,40 +116,23 @@ const SellerHomepage = ({ navigation }) => {
 						transaction_id: item.transaction_details?.transaction_id ?? item,
 					};
 					return (
-						<View>
-							<TransactionListCard
-								navigation={navigation}
-								// transId={item.transaction_id}
-								dad={moment(item.creation_date).format('Do MMM, YYYY')}
-								view='SellerSelectedProp'
-								item={item}
-								listNo={
-									item?.property_details?.listing_number ?? item?.listing_number
-								}
-								status={formatStatus(
-									item?.property_details?.status ?? item?.status,
-								)}
-								city={item?.property_details?.city ?? item?.city}
-								// dad={item?.property_details?.date_created ?? item?.date_created}
-								// item={shared}
-								// view='buyerSelectedProperty'
-							/>
-							{/*<ListingCard*/}
-							{/*	navigation={navigation}*/}
-							{/*	transId={item.transaction_id}*/}
-							{/*	dad={moment(item.creation_date).format('Do MMM, YYYY')}*/}
-							{/*	view='SellerSelectedProp'*/}
-							{/*	item={shared}*/}
-							{/*	// item={item}*/}
-							{/*	city={item?.city ?? item?.city}*/}
-							{/*	listNo={*/}
-							{/*		item?.property_details?.listing_number ?? item?.listing_number*/}
-							{/*	}*/}
-							{/*	status={formatStatus(*/}
-							{/*		item?.property_details?.status ?? item?.status,*/}
-							{/*	)}*/}
-							{/*/>*/}
-						</View>
+						<TransactionListCard
+							navigation={navigation}
+							// transId={item.transaction_id}
+							dad={moment(item.creation_date).format('Do MMM, YYYY')}
+							view='SellerSelectedProp'
+							item={item}
+							listNo={
+								item?.property_details?.listing_number ?? item?.listing_number
+							}
+							status={formatStatus(
+								item?.property_details?.status ?? item?.status,
+							)}
+							city={item?.property_details?.city ?? item?.city}
+							// dad={item?.property_details?.date_created ?? item?.date_created}
+							// item={shared}
+							// view='buyerSelectedProperty'
+						/>
 					);
 				}}
 			/>

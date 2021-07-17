@@ -196,7 +196,7 @@ const Step3 = ({
 					</Text>
 				</View>
 
-				{values.notification ? (
+				{/* {values.notification ? (
 					<View>
 						<TouchableOpacity
 							style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -221,7 +221,7 @@ const Step3 = ({
 							<Text>Email </Text>
 						</TouchableOpacity>
 					</View>
-				) : null}
+				) : null} */}
 
 				<View
 					style={{

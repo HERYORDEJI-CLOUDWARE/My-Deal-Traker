@@ -9,7 +9,12 @@ import {
 import colors from '../../constants/colors';
 import LogoPage from '../../components/LogoPage';
 import appApi from '../../api/appApi';
-import { fetchAuthToken } from '../../utils/misc';
+import {
+	fetchAuthToken,
+	formatListType,
+	numberWithCommas,
+	propertyType,
+} from '../../utils/misc';
 import moment from 'moment';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -19,9 +24,10 @@ import {
 import { RFValue } from 'react-native-responsive-fontsize';
 import * as RN from 'react-native';
 import * as NB from 'native-base';
+import ListItem from '../../components/ListItem';
 
 const MortgageBrokerPropertyDetials = ({ navigation, route }) => {
-	const { property_id, transaction_id } = route.params;
+	const { property, transaction } = route.params;
 	const [loading, setLoading] = useState(true);
 	// const [properties, setProperties] = useState([])
 	const properties = useRef({});
@@ -39,11 +45,14 @@ const MortgageBrokerPropertyDetials = ({ navigation, route }) => {
 	const getPropertDetails = async () => {
 		const token = await fetchAuthToken();
 		appApi
-			.get(`/get_property_details.php?property_transaction_id=${property_id}`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
+			.get(
+				`/get_property_details.php?property_transaction_id=${property.transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
 				},
-			})
+			)
 			.then((res) => {
 				// console.log(res.data.response.data);
 				const data = res.data.response.data;
@@ -55,68 +64,90 @@ const MortgageBrokerPropertyDetials = ({ navigation, route }) => {
 			});
 	};
 
+	const checkOccupancy = (key) => {
+		switch (key) {
+			case '0':
+				return 'Owner occupied';
+			case '1':
+				return 'Tenant occupied';
+			case '2':
+				return 'Vacant';
+			default:
+				return 'Unknown';
+		}
+	};
+
 	const init = async () => {
 		await getPropertDetails();
 	};
 
+	if (loading) {
+		return (
+			<LogoPage dontShow={true}>
+				<RN.ActivityIndicator size='large' color={colors.white} />
+			</LogoPage>
+		);
+	}
 	return (
 		<LogoPage navigation={navigation}>
-			{loading ? (
-				<View style={{ marginTop: 120 }}>
-					<ActivityIndicator color='white' size='large' />
+			<>
+				<View style={{ marginBottom: RFValue(30) }}>
+					<ListItem
+						title='Transaction ID'
+						value={transaction?.transaction_id}
+					/>
+					<ListItem title='Listing Number' value={property?.listing_number} />
+					<ListItem
+						title='Property Type'
+						value={propertyType(property?.property_type)}
+					/>
+					<ListItem
+						title='Listing Date'
+						value={moment(property?.date_created).format('MM/DD/YYYY')}
+					/>
+					<ListItem
+						title='Listing Type'
+						value={formatListType(property?.listing_type)}
+					/>
+					<ListItem title='Address:' value={property?.property_address} />
+					<ListItem title='City:' value={property?.city} />
+					<ListItem title='Details' value={property?.property_details} />
+					<ListItem
+						title='Price'
+						value={numberWithCommas(property?.listing_price)}
+					/>
+					<ListItem
+						title='Major Intersection'
+						value={property?.major_intersection}
+					/>
+					<ListItem
+						title='Major Nearest Town'
+						value={property?.major_nearest_town}
+					/>
+					<ListItem
+						title='Occupancy'
+						value={checkOccupancy(property?.occupancy)}
+					/>
+					<ListItem title='Possession' value={property?.possession} />
+					{property?.possession === 'Other' ? (
+						<ListItem
+							title='Possession Date'
+							value={property?.possession_date}
+						/>
+					) : null}
+					<ListItem
+						title='Closing Date'
+						value={moment(properties.current[0].closing_date).format(
+							'MM/DD/YYYY',
+						)}
+					/>
 				</View>
-			) : (
-				<View style={styles.group}>
-					<Text style={styles.textDetails}>
-						Listing Number: {properties.current[0].listing_number}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Property Type:{' '}
-						{properties.current[0].property_type == 0
-							? 'Commercial'
-							: 'Residential'}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Listing Date:{' '}
-						{moment(properties.current[0].date_created).format('MM/DD/YYYY')}
-					</Text>
-					<Text style={styles.textDetails}>
-						Listing Type:{' '}
-						{properties.current[0].listing_type == 0 ? 'Sale' : 'Lease'}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Property Address: {properties.current[0].property_address}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Property Price: {properties.current[0].listing_price}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Possession: {properties.current[0].possession}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Property Details: {properties.current[0].property_details}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Major Intersection: {properties.current[0].major_intersection}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Major Nearest Town: {properties.current[0].major_nearest_town}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Occupancy:{' '}
-						{properties.current[0].occupancy == 0 ? 'Owner' : 'Occupied'}{' '}
-					</Text>
-					<Text style={styles.textDetails}>
-						Closing Date:{' '}
-						{moment(properties.current[0].closing_date).format('MM/DD/YYYY')}{' '}
-					</Text>
-				</View>
-			)}
+			</>
 		</LogoPage>
 	);
 };
 
-styles = StyleSheet.create({
+const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: colors.bgBrown,
@@ -128,13 +159,7 @@ styles = StyleSheet.create({
 		marginBottom: 10,
 		color: colors.white,
 	},
-	group: {
-		backgroundColor: colors.black,
-		width: wp(80),
-		justifyContent: 'center',
-		alignSelf: 'center',
-		padding: 20,
-	},
+	group: {},
 });
 
 export default MortgageBrokerPropertyDetials;

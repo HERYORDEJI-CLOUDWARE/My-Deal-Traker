@@ -29,7 +29,7 @@ import { FAB, Switch } from 'react-native-paper';
 import { AntDesign } from '@expo/vector-icons';
 import AddRepair from './AddRepair';
 
-const Repairs = ({ transaction, notAgent, setView }) => {
+const Repairs = ({ transaction, notAgent, setView, property }) => {
 	const [repairs, setRepairs] = useState([]);
 
 	const [isLoading, setIsLoading] = useState(true);
@@ -57,7 +57,7 @@ const Repairs = ({ transaction, notAgent, setView }) => {
 		try {
 			const token = await fetchAuthToken();
 			const response = await appApi.get(
-				`/fetch_transaction_repair.php?transaction_id=${transaction.transaction_id}`,
+				`/fetch_transaction_repair.php?transaction_id=${property.transaction_id}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,

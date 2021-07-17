@@ -23,6 +23,7 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import colors from '../../../../constants/colors';
 import SLPropertyView from '../SLPropertyView';
 import SLDealProgress from '../../Progress/SLDealProgress';
+import LogoPage from '../../../../components/LogoPage';
 
 const { width } = Dimensions.get('window');
 
@@ -47,9 +48,9 @@ const SLFooterTabs = ({ navigation, property }) => {
 	}
 
 	return (
-		<Container style={{ backgroundColor: colors.bgBrown }}>
+		<LogoPage>
 			<>{shown}</>
-			<Footer style={{ backgroundColor: '#fff' }}>
+			{/* <Footer style={{ backgroundColor: '#fff' }}>
 				<FooterTab
 					style={{
 						backgroundColor: colors.bgBrown,
@@ -73,25 +74,11 @@ const SLFooterTabs = ({ navigation, property }) => {
 							source={require('../../../../assets/img/progress.png')}
 							style={{ width: 30, height: 30 }}
 						/>
-						<Text style={styles.titles}>Deal Progress..</Text>
+						<Text style={styles.titles}>Deal Progress</Text>
 					</TouchableOpacity>
-					{/* <TouchableOpacity
-            style={styles.btn}
-            onPress={() => setSelected("notif")}
-          >
-            <FontAwesome name="bell" color={colors.white} size={25} />
-            <Text style={styles.titles}>Notification</Text>
-          </TouchableOpacity> */}
-					{/* <TouchableOpacity
-            style={styles.btn}
-            onPress={() => setSelected("setting")}
-          >
-            <Feather name="settings" color={colors.white} size={25} />
-            <Text style={styles.titles}>Settings</Text>
-          </TouchableOpacity> */}
 				</FooterTab>
-			</Footer>
-		</Container>
+			</Footer> */}
+		</LogoPage>
 	);
 };
 

@@ -52,7 +52,7 @@ const SellingAgentFooter = ({ property, navigation, transaction, route }) => {
 	return (
 		<>
 			{shown}
-			<Footer style={{ backgroundColor: '#fff' }}>
+			{/* <Footer style={{ backgroundColor: '#fff' }}>
 				<FooterTab
 					style={{
 						backgroundColor: colors.bgBrown,
@@ -124,15 +124,8 @@ const SellingAgentFooter = ({ property, navigation, transaction, route }) => {
 							Notification
 						</Text>
 					</Button>
-					{/* <TouchableOpacity
-            style={styles.btn}
-            onPress={() => setSelected("setting")}
-          >
-            <Feather name="settings" color={colors.white} size={25} />
-            <Text style={styles.titles}>Settings</Text>
-          </TouchableOpacity> */}
 				</FooterTab>
-			</Footer>
+			</Footer> */}
 		</>
 	);
 };

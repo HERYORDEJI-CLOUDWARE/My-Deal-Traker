@@ -29,7 +29,7 @@ import { FAB, Switch } from 'react-native-paper';
 import { AntDesign } from '@expo/vector-icons';
 import AddRepair from './AddRepair';
 
-const Repairs = ({ transaction, notAgent, setView }) => {
+const Repairs = ({ transaction, property, notAgent, setView }) => {
 	const [repairs, setRepairs] = useState([]);
 
 	const [isLoading, setIsLoading] = useState(true);
@@ -66,6 +66,7 @@ const Repairs = ({ transaction, notAgent, setView }) => {
 			);
 			if (response.data.response.status == 200) {
 				setRepairs(response.data.response.data);
+				console.log('JSON.stringify', response.data.response.data);
 				setIsLoading(false);
 			} else {
 				Toast.show({
@@ -153,7 +154,11 @@ const Repairs = ({ transaction, notAgent, setView }) => {
 			isVisible={showAddRepair}
 			onBackButtonPress={() => toggleShowAddRepair(false)}
 		>
-			<AddRepair />
+			<AddRepair
+				transaction={transaction}
+				property={property}
+				toggleShowAddRepair={toggleShowAddRepair}
+			/>
 		</ReactNativeModal>
 	);
 
@@ -193,20 +198,20 @@ const Repairs = ({ transaction, notAgent, setView }) => {
 								<View style={{ marginHorizontal: 10 }}>
 									<Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
 										<View style={{ paddingHorizontal: 15, paddingVertical: 5 }}>
-											{item.item ? (
-												<View style={styles.rowWrapper}>
-													<Text style={styles.key}>Item:</Text>
-													<Text style={styles.value}>{item.item}</Text>
-												</View>
-											) : null}
-											{item.recommended_repair ? (
-												<View style={styles.rowWrapper}>
-													<Text style={styles.key}>Recommended repair:</Text>
-													<Text style={styles.value}>
-														{item.recommended_repair}
-													</Text>
-												</View>
-											) : null}
+											{/* {item.item ? ( */}
+											<View style={styles.rowWrapper}>
+												<Text style={styles.key}>Item:</Text>
+												<Text style={styles.value}>{item?.item}</Text>
+											</View>
+											{/* ) : null} */}
+											{/* {item.recommended_repair ? ( */}
+											<View style={styles.rowWrapper}>
+												<Text style={styles.key}>Recommended repair:</Text>
+												<Text style={styles.value}>
+													{item?.recommended_repair}
+												</Text>
+											</View>
+											{/* ) : null} */}
 											<View style={styles.rowWrapper}>
 												<Text style={styles.key}>Memo:</Text>
 												<Text style={styles.value}>{item.memo}</Text>

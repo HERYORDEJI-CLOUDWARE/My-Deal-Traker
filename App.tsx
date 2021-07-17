@@ -12,8 +12,8 @@ import { LogBox } from 'react-native';
 import { setCustomText, setCustomTextInput } from 'react-native-global-props';
 import _colors from './src/constants/colors';
 
-// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-// LogBox.ignoreAllLogs(); //Ignore all log notifications
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 export default function App() {
 	const [loaded] = useFonts({

@@ -23,8 +23,6 @@ const PropertyListingCard = ({
 	dad,
 	item,
 }) => {
-	console.log('i t e m--', item);
-
 	return (
 		<TouchableOpacity
 			onPress={() =>

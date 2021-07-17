@@ -97,50 +97,45 @@ const Notes = ({ transaction, notAgent, setView }) => {
 		}
 	};
 
-	if (isLoading) {
-		return (
-			<Container style={{ backgroundColor: colors.bgBrown }}>
-				<ActivityIndicator size={'large'} color={colors.white} />
-			</Container>
-		);
-	}
-
 	return (
 		<View>
+			<View
+				style={{
+					marginVertical: RFValue(20),
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+				}}
+			>
+				<Text style={{ ..._font.H5, color: colors.white }}>Notes</Text>
+			</View>
+
 			<View style={{ flex: 1, paddingBottom: RFValue(100) }}>
-				<FlatList
-					data={transNotes}
-					keyExtractor={(d, i) => i.toString()}
-					ListEmptyComponent={
-						<View>
-							<Text style={{ ..._font.Medium, color: colors.white }}>
-								No notes available
-							</Text>
-						</View>
-					}
-					ListHeaderComponent={
-						<View
-							style={{
-								marginVertical: RFValue(20),
-								flexDirection: 'row',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-							}}
-						>
-							<Text style={{ ..._font.H5, color: colors.white }}>Notes</Text>
-						</View>
-					}
-					renderItem={({ item }) => (
-						<View style={styles.noteItemWrapper}>
-							<Text style={{ ..._font.Medium, fontSize: RFValue(14) }}>
-								{item.note}
-							</Text>
-							<Text style={{ ..._font.Small, fontSize: RFValue(12) }}>
-								{moment(item.date_created).format('ddd D MMMM, YYYY  hh:mmA')}
-							</Text>
-						</View>
-					)}
-				/>
+				{isLoading ? (
+					<ActivityIndicator size={'large'} color={colors.white} />
+				) : (
+					<FlatList
+						data={transNotes}
+						keyExtractor={(d, i) => i.toString()}
+						ListEmptyComponent={
+							<View>
+								<Text style={{ ..._font.Medium, color: colors.white }}>
+									No notes available
+								</Text>
+							</View>
+						}
+						renderItem={({ item }) => (
+							<View style={styles.noteItemWrapper}>
+								<Text style={{ ..._font.Medium, fontSize: RFValue(14) }}>
+									{item.note}
+								</Text>
+								<Text style={{ ..._font.Small, fontSize: RFValue(12) }}>
+									{moment(item.date_created).format('ddd D MMMM, YYYY  hh:mmA')}
+								</Text>
+							</View>
+						)}
+					/>
+				)}
 				<ReactNativeModal
 					isVisible={showAddNote}
 					onBackdropPress={() => {

@@ -72,9 +72,9 @@ const SAHomepage = ({ navigation }) => {
 			<HomeHeader
 				search={search}
 				setSearch={setSearch}
-				searchScreen={'saSearchScreen'}
+				searchScreen='searchScreen'
+				searchItemViewScreen={'saSelected'}
 				text='Your listings'
-				subStatus={subStatus}
 			/>
 		</React.Fragment>
 	);

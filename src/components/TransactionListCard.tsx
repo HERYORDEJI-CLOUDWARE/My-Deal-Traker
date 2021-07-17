@@ -25,50 +25,54 @@ const TransactionListCard = ({
 }) => {
 	return (
 		<TouchableOpacity
+			style={{
+				flex: 1,
+				elevation: RFValue(3),
+				backgroundColor: colors.white,
+				padding: RFValue(20),
+				borderRadius: RFValue(10),
+				marginBottom: RFValue(20),
+				overflow: 'hidden',
+			}}
 			onPress={() =>
+				// console.log('viewListing', item)
 				navigation.navigate(view || 'viewListing', { property: item })
 			}
 		>
-			<Card containerStyle={styles.card}>
-				{/*<View style={styles.innerCircle} />*/}
-				{/*<View style={styles.upperCircle} />*/}
-				<View style={{ overflow: 'hidden' }}>
-					{listNo ? (
-						<View style={styles.rowWrapper}>
-							<Text style={styles.key}>Listing Number : </Text>
-							<Text style={styles.value}>{listNo}</Text>
-						</View>
-					) : null}
-
-					{transId ? (
-						<View style={styles.rowWrapper}>
-							<Text style={styles.key}>Transaction ID : </Text>
-							<Text style={styles.value}>{transId}</Text>
-						</View>
-					) : null}
-
-					<View style={styles.rowWrapper}>
-						<Text style={styles.key}>Status: </Text>
-						<Text style={styles.value}>
-							{status == '0' ? 'Inactive' : 'Active'}
-						</Text>
-					</View>
-
-					{city ? (
-						<View style={styles.rowWrapper}>
-							<Text style={styles.key}>City: </Text>
-							<Text style={styles.value}>{city}</Text>
-						</View>
-					) : null}
-
-					<View style={styles.rowWrapper}>
-						<Text style={styles.key}>Date Added: </Text>
-						<Text style={styles.value}>{dad}</Text>
-					</View>
-
-					<Text style={styles.seeMore}>See more details</Text>
+			{listNo ? (
+				<View style={styles.rowWrapper}>
+					<Text style={styles.key}>Listing Number : </Text>
+					<Text style={styles.value}>{listNo}</Text>
 				</View>
-			</Card>
+			) : null}
+
+			{transId ? (
+				<View style={styles.rowWrapper}>
+					<Text style={styles.key}>Transaction ID : </Text>
+					<Text style={styles.value}>{transId}</Text>
+				</View>
+			) : null}
+
+			<View style={styles.rowWrapper}>
+				<Text style={styles.key}>Status: </Text>
+				<Text style={styles.value}>
+					{status == '0' ? 'Inactive' : 'Active'}
+				</Text>
+			</View>
+
+			{city ? (
+				<View style={styles.rowWrapper}>
+					<Text style={styles.key}>City: </Text>
+					<Text style={styles.value}>{city}</Text>
+				</View>
+			) : null}
+
+			<View style={styles.rowWrapper}>
+				<Text style={styles.key}>Date Added: </Text>
+				<Text style={styles.value}>{dad}</Text>
+			</View>
+
+			<Text style={styles.seeMore}>See more details</Text>
 		</TouchableOpacity>
 	);
 };

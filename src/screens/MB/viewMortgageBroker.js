@@ -25,10 +25,10 @@ const ViewMortgageBroker = ({ route, navigation }) => {
 		const token = await fetchAuthToken();
 		const data = new FormData();
 
-		data.append('transaction_id', buyerAgentResponse.current.transaction_id);
-		data.append('property_id', buyerAgentResponse.current.property_id);
-		data.append('buyer_agent_id', buyerAgentResponse.current.buyer_agent_id);
-		data.append('phone_email', buyerAgentResponse.current.email);
+		data.append('transaction_id', buyerAgentResponse.transaction_id);
+		data.append('property_id', buyerAgentResponse.property_id);
+		data.append('buyer_agent_id', buyerAgentResponse.buyer_agent_id);
+		data.append('phone_email', buyerAgentResponse.email);
 
 		// console.log(token);
 
@@ -66,26 +66,22 @@ const ViewMortgageBroker = ({ route, navigation }) => {
 					Mortgage Broker Details
 				</Text>
 			</View>
-			{buyerAgentResponse.current !== null ? (
+			{buyerAgentResponse !== null ? (
 				<View style={styles.container}>
 					<View style={styles.rowWrapper}>
 						<Text style={styles.key}>Name:</Text>
 						<Text style={styles.value}>
-							{buyerAgentResponse?.current?.first_name}{' '}
-							{buyerAgentResponse?.current?.last_name}
+							{buyerAgentResponse?.first_name}
+							{buyerAgentResponse?.last_name}
 						</Text>
 					</View>
 					<View style={styles.rowWrapper}>
 						<Text style={styles.key}>Email:</Text>
-						<Text style={styles.value}>
-							{buyerAgentResponse?.current?.email}
-						</Text>
+						<Text style={styles.value}>{buyerAgentResponse?.email}</Text>
 					</View>
 					<View style={styles.rowWrapper}>
 						<Text style={styles.key}>Phone:</Text>
-						<Text style={styles.value}>
-							{buyerAgentResponse?.current?.phone}
-						</Text>
+						<Text style={styles.value}>{buyerAgentResponse?.phone}</Text>
 					</View>
 				</View>
 			) : (
@@ -95,7 +91,7 @@ const ViewMortgageBroker = ({ route, navigation }) => {
 					</Text>
 				</View>
 			)}
-			{buyerAgentResponse.current !== null ? (
+			{buyerAgentResponse !== null ? (
 				<ButtonPrimaryBig
 					title={'Remove'}
 					onPress={removeBroker}

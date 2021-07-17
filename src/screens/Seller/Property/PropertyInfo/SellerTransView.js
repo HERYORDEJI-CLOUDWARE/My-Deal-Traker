@@ -8,6 +8,7 @@ import {
 	TouchableOpacity,
 	View,
 	Dimensions,
+	ActivityIndicator,
 } from 'react-native';
 import LogoPage from '../../../../components/LogoPage';
 import PropertyHeader from '../../../../components/PropertyHeader';
@@ -19,10 +20,29 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import moment from 'moment';
 import _colors from '../../../../constants/colors';
 import _font from '../../../../styles/fontStyles';
+import { useFocusEffect } from '@react-navigation/native';
+import { getPropertyTransaction } from '../../../../context/UserContext';
 
 const { width } = Dimensions.get('window');
 
 const SellerPropertyView = ({ property, navigation }) => {
+	const [proptTrans, setProptTrans] = React.useState([]);
+	const [isLoadingTrans, setIsLoadingTrans] = React.useState(true);
+
+	useFocusEffect(
+		React.useCallback(() => {
+			let transaction_id =
+				property?.transaction_id ?? transaction?.transaction_id;
+			setIsLoadingTrans(true);
+			getPropertyTransaction(transaction_id).then((res) => {
+				setProptTrans(res.data.response.data[0]);
+				setIsLoadingTrans(false);
+			});
+		}, []),
+	);
+
+	console.log(proptTrans);
+
 	let rendered = <View property={property} />;
 
 	return (
@@ -39,47 +59,62 @@ const SellerPropertyView = ({ property, navigation }) => {
 				</Text>
 			</View>
 
-			<TouchableOpacity
-				activeOpacity={0.9}
-				onPress={() => {
-					navigate('sellerPropertyDetails', {
-						property,
-					});
-				}}
-				style={styles.box}
-			>
-				<Text style={styles.boxTitle}>Property</Text>
-				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
-			</TouchableOpacity>
+			{isLoadingTrans ? (
+				<View>
+					<ActivityIndicator size={'large'} color={colors.white} />
+				</View>
+			) : (
+				<View>
+					<TouchableOpacity
+						activeOpacity={0.9}
+						onPress={() => {
+							navigate('sellerPropertyDetails', {
+								property,
+								transaction: proptTrans,
+							});
+						}}
+						style={styles.box}
+					>
+						<Text style={styles.boxTitle}>Property</Text>
+						<AntDesign
+							name='right'
+							size={RFValue(15)}
+							color={_colors.lightBrown}
+						/>
+					</TouchableOpacity>
 
-			<TouchableOpacity
+					{/* <TouchableOpacity
 				activeOpacity={0.9}
 				onPress={() => navigate('sellerConditions', { property })}
 				style={styles.box}
 			>
 				<Text style={styles.boxTitle}>Conditions</Text>
 				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
-			</TouchableOpacity>
+			</TouchableOpacity> */}
 
-			<TouchableOpacity
+					{/* <TouchableOpacity
 				activeOpacity={0.9}
-				onPress={() =>
-					navigate('buyerLawyerView', { transaction: transaction })
-				}
+				onPress={() => navigate('listingLawyer', { property })}
 				style={styles.box}
 			>
 				<Text style={styles.boxTitle}>Closing</Text>
 				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
-			</TouchableOpacity>
+			</TouchableOpacity> */}
 
-			<TouchableOpacity
-				activeOpacity={0.9}
-				onPress={() => navigate('fileUpload', { transaction: transaction })}
-				style={styles.box}
-			>
-				<Text style={styles.boxTitle}>Files and Uploads</Text>
-				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
-			</TouchableOpacity>
+					<TouchableOpacity
+						activeOpacity={0.9}
+						onPress={() => navigate('fileUpload', { transaction: proptTrans })}
+						style={styles.box}
+					>
+						<Text style={styles.boxTitle}>Files and Uploads</Text>
+						<AntDesign
+							name='right'
+							size={RFValue(15)}
+							color={_colors.lightBrown}
+						/>
+					</TouchableOpacity>
+				</View>
+			)}
 		</LogoPage>
 	);
 };

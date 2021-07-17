@@ -16,7 +16,7 @@ export interface State {}
 export default function InputBar(props: Props) {
 	return (
 		<RN.View style={styles.textInputContainer}>
-			<RN.Text style={styles.label}>{props.label}</RN.Text>
+			{props.label && <RN.Text style={styles.label}>{props.label}</RN.Text>}
 			<RN.View style={styles.textInputWrapper}>
 				<RN.TextInput
 					{...props}

@@ -6,8 +6,8 @@ import {
 	Footer,
 	FooterTab,
 	Button,
-	Text,
 } from 'native-base';
+import { Text } from 'react-native';
 import DealProgress from '../../BA/DealProgress/DealProgress';
 import colors from '../../../constants/colors';
 import { Feather } from '@expo/vector-icons';
@@ -22,18 +22,18 @@ const SellerSelectedProp = ({ route, navigation }) => {
 	const [selected, setSelected] = useState('trans');
 
 	let Shown = <Content />;
-	if (selected === 'progress') {
-		Shown = <DealProgress transaction={property} />;
-	}
+	// if (selected === 'progress') {
+	// 	Shown = <DealProgress transaction={property} />;
+	// }
 
 	if (selected === 'trans') {
 		Shown = <SellerPropertyView property={property} navigation={navigation} />;
 	}
 
 	return (
-		<React.Fragment>
-			<Content>{Shown}</Content>
-			<Footer>
+		<>
+			{Shown}
+			{/* <Footer>
 				<FooterTab>
 					<Button
 						onPress={() => setSelected('trans')}
@@ -80,8 +80,8 @@ const SellerSelectedProp = ({ route, navigation }) => {
 						</Text>
 					</Button>
 				</FooterTab>
-			</Footer>
-		</React.Fragment>
+			</Footer> */}
+		</>
 	);
 };
 

@@ -68,6 +68,8 @@ const SaPropertyInfo = ({ notShow, route, navigation }) => {
 		}
 	};
 
+	console.log(propertyInfo);
+
 	if (isLoading) {
 		return (
 			<LogoPage notShow={notShow} navigation={navigation}>
@@ -85,12 +87,26 @@ const SaPropertyInfo = ({ notShow, route, navigation }) => {
 			<ScrollView>
 				<View>
 					<ListItem title='Listing #' value={propertyInfo.listing_number} />
-					<ListItem title='Property Type' value={propertyInfo.property_type} />
+					<ListItem
+						title='Property Type'
+						value={
+							propertyInfo.property_type == '1' ? 'Residential' : 'Commercial'
+						}
+					/>
 					<ListItem title='Listing Date' value={propertyInfo.listing_date} />
+					<ListItem
+						title='Listing Type'
+						value={propertyInfo.listing_type == '0' ? 'Sale' : 'Lease'}
+					/>
 					<ListItem
 						title='Property Address:'
 						value={propertyInfo.property_address}
 					/>
+					<ListItem
+						title='Property Price:'
+						value={propertyInfo?.listing_price}
+					/>
+					<ListItem title='Possession' value={propertyInfo.possession} />
 					<ListItem
 						title='Property Details'
 						value={propertyInfo.property_details}
@@ -104,7 +120,7 @@ const SaPropertyInfo = ({ notShow, route, navigation }) => {
 						value={propertyInfo.major_nearest_town}
 					/>
 					<ListItem title='Occupancy' value={propertyInfo.occupancy} />
-					<ListItem title='Possession' value={propertyInfo.possession} />
+					<ListItem title='Closing Date' value={propertyInfo.closing_date} />
 				</View>
 
 				<View style={{ marginVertical: 30 }} />

@@ -8,6 +8,7 @@ import colors from '../../../constants/colors';
 import {
 	Context as UserContext,
 	fetchRandomProperties,
+	getBuyerTrans,
 	getRandomProperties,
 	newFetchBuyerTrans,
 } from '../../../context/UserContext';
@@ -25,6 +26,7 @@ import ButtonSecondaryBig from '../../../components/ButtonSecondaryBig';
 const BuyerHomepage = ({ navigation }) => {
 	const [search, setSearch] = useState('');
 	const [newProptList, setNewProptList] = useState([]);
+	const [randomProptList, setRandomProptList] = useState([]);
 
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -36,13 +38,19 @@ const BuyerHomepage = ({ navigation }) => {
 
 	useFocusEffect(
 		useCallback(() => {
-			init().then((res) => {});
+			setIsLoading(true);
+			getBuyerTrans(user.email).then((res) => {
+				setNewProptList(res);
+				setIsLoading(false);
+			});
+			// init().then((res) => {});
 			getRandomProperties().then((res) => {
 				let resp = res;
 				let response = resp['response'];
 				let data = response['data'];
 				let { properties } = JSON.parse(data);
-				setNewProptList(properties);
+				setRandomProptList(properties);
+				setIsLoading(false);
 			});
 			// getRandomProperties().then((res) =>
 			// 	// console.log(Object.keys(res.response.data).map((p, index) => p)),
@@ -55,46 +63,48 @@ const BuyerHomepage = ({ navigation }) => {
 		setIsLoading(false);
 	};
 
-	if (isLoading) {
+	const ListEmpty = () => {
+		if (isLoading) {
+			return (
+				<React.Fragment>
+					<LogoPage dontShow={true}>
+						<RN.ActivityIndicator size='large' color={colors.white} />
+					</LogoPage>
+				</React.Fragment>
+			);
+		}
 		return (
 			<React.Fragment>
-				<LogoPage dontShow={true}>
-					<RN.ActivityIndicator size='large' color={colors.white} />
-				</LogoPage>
+				<RN.View style={styles.listEmptyWrapper}>
+					<RN.Image
+						source={require('../../../assets/img/no_deals.png')}
+						style={styles.listEmptyImage}
+					/>
+				</RN.View>
+
+				<RN.Text style={styles.noresult}>
+					You have no recent search/activities
+				</RN.Text>
+				<RN.Text style={styles.noresult}>
+					Search for property to start deal
+				</RN.Text>
 			</React.Fragment>
 		);
-	}
-
-	const ListEmpty = (
-		<React.Fragment>
-			<RN.View style={styles.listEmptyWrapper}>
-				<RN.Image
-					source={require('../../../assets/img/no_deals.png')}
-					style={styles.listEmptyImage}
-				/>
-			</RN.View>
-
-			<RN.Text style={styles.noresult}>
-				You have no recent search/activities
-			</RN.Text>
-			<RN.Text style={styles.noresult}>
-				Search for property to start deal
-			</RN.Text>
-		</React.Fragment>
-	);
+	};
 
 	return (
 		<LogoPage dontShow={true}>
 			<RN.FlatList
-				data={buyerTrans ?? newProptList}
+				data={newProptList ?? randomProptList}
 				// data={buyerTrans}
-				ListEmptyComponent={ListEmpty}
+				ListEmptyComponent={ListEmpty()}
 				ListHeaderComponent={
 					<React.Fragment>
 						<HomeHeader
 							search={search}
 							setSearch={setSearch}
 							searchScreen='buyerSearchScreen'
+							searchItemViewScreen={'buyerSelectedProperty'}
 						/>
 					</React.Fragment>
 				}
@@ -112,13 +122,19 @@ const BuyerHomepage = ({ navigation }) => {
 								listNo={
 									item?.property_details?.listing_number ?? item?.listing_number
 								}
+								transId={
+									item?.property_details?.transaction_id ?? item?.transaction_id
+								}
+								type={
+									item?.property_details?.property_type ?? item?.property_type
+								}
 								status={formatStatus(
 									item?.property_details?.status ?? item?.status,
 								)}
 								city={item?.property_details?.city ?? item?.city}
 								dad={item?.property_details?.date_created ?? item?.date_created}
 								item={shared}
-								view='buyerSelectedProperty'
+								view={'buyerSelectedProperty'}
 							/>
 						</RN.View>
 					);

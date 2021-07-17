@@ -24,6 +24,7 @@ import * as NB from 'native-base';
 import * as RN from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import _font from '../styles/fontStyles';
+import SearchInputBar from './SearchBar';
 
 const HomeHeader = ({
 	search,
@@ -31,6 +32,7 @@ const HomeHeader = ({
 	searchScreen,
 	text,
 	notSearching,
+	searchItemViewScreen,
 	// subStatus,
 }) => {
 	const {
@@ -111,7 +113,7 @@ const HomeHeader = ({
 					{user ? (
 						<Text style={styles.remaining}>
 							Available listing: {subStatus?.total_remaining_listings}/
-							{subStatus?.total_allowed_listings_in_active_plans}
+							{subStatus?.total_allowed_listings}
 						</Text>
 					) : null}
 				</RN.View>
@@ -124,15 +126,17 @@ const HomeHeader = ({
 
 			{!notSearching && (
 				<View style={styles.searchbarWrapper}>
-					<SearchBar
+					<SearchInputBar
 						placeholder={'Search address or listing number'}
-						value={search}
-						onChangeText={setSearch}
-						autoCapitalize='none'
-						style={styles.searchBarContainer}
-						inputStyle={styles.searchBarInput}
+						// value={search}
+						// onChangeText={setSearch}
+						// containerStyle={styles.searchBarContainer}
+						// inputStyle={styles.searchBarInput}
 						// lightTheme={true}
-						onSubmitEditing={onSubmitSearch}
+						// onSubmitSearch={onSubmitSearch}
+						searchScreen={searchScreen ?? 'searchScreen'}
+						searchItemViewScreen={searchItemViewScreen}
+
 						// platform={'default'}
 						// searchIcon={false}
 					/>

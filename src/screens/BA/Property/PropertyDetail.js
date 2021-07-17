@@ -69,7 +69,10 @@ const PropertyDetails = ({
 			const token = await fetchAuthToken();
 			const data = new FormData();
 			data.append('buyer_agent_id', user.unique_id);
-			data.append('property_transaction_id', property.transaction_id);
+			data.append(
+				'property_transaction_id',
+				property?.transaction_id ?? transaction?.transaction_id,
+			);
 			const response = await appApi.post(
 				`/fetch_transaction_with_id.php`,
 				data,
@@ -98,10 +101,16 @@ const PropertyDetails = ({
 			const token = await fetchAuthToken();
 			const data = new FormData();
 			data.append('user_id', user.unique_id);
-			data.append('property_transaction_id', property.transaction_id);
-			data.append('requesting_agent_realtor', property.realtor);
-			data.append('transaction_id', transaction.transaction_id);
-			data.append('branch', property.list_branch);
+			data.append(
+				'property_transaction_id',
+				property?.transaction_id ?? transaction?.transaction_id,
+			);
+			data.append(
+				'requesting_agent_realtor',
+				property?.realtor ?? transaction?.realtor,
+			);
+			data.append('transaction_id', transaction?.transaction_id);
+			data.append('branch', property?.list_branch ?? transaction?.list_branch);
 			const response = await appApi.post(`/submit_show_request.php`, data, {
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -154,39 +163,40 @@ const PropertyDetails = ({
 			{/*    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />*/}
 			{/*  }*/}
 			{/*>*/}
-			<View style={{ marginBottom: RFValue(30), marginTop: RFValue(20) }}>
-				<ListItem title='Listing #' value={property.listing_number} />
-				<ListItem title='Type' value={propertyType(property.property_type)} />
+			<View style={{ marginBottom: RFValue(30) }}>
+				<ListItem title='Transaction ID' value={transaction?.transaction_id} />
+				<ListItem title='Listing #' value={property?.listing_number} />
+				<ListItem title='Type' value={propertyType(property?.property_type)} />
 				<ListItem
 					title='Listing Date'
-					value={moment(property.date_created).format('MM/DD/YYYY')}
+					value={moment(property?.date_created).format('MM/DD/YYYY')}
 				/>
 				<ListItem
 					title='Listing Type'
-					// value={formatListType(property.listing_type)}
+					value={formatListType(property?.listing_type)}
 				/>
-				<ListItem title='Address:' value={property.property_address} />
-				<ListItem title='City:' value={property.city} />
-				<ListItem title='Details' value={property.property_details} />
+				<ListItem title='Address:' value={property?.property_address} />
+				<ListItem title='City:' value={property?.city} />
+				<ListItem title='Details' value={property?.property_details} />
 				<ListItem
 					title='Price'
-					value={numberWithCommas(property.listing_price)}
+					value={numberWithCommas(property?.listing_price)}
 				/>
 				<ListItem
 					title='Major Intersection'
-					value={property.major_intersection}
+					value={property?.major_intersection}
 				/>
 				<ListItem
 					title='Major Nearest Town'
-					value={property.major_nearest_town}
+					value={property?.major_nearest_town}
 				/>
 				<ListItem
 					title='Occupancy'
-					value={checkOccupancy(property.occupancy)}
+					value={checkOccupancy(property?.occupancy)}
 				/>
-				<ListItem title='Possession' value={property.possession} />
-				{property.possession === 'Other' ? (
-					<ListItem title='Possession Date' value={property.possession_date} />
+				<ListItem title='Possession' value={property?.possession} />
+				{property?.possession === 'Other' ? (
+					<ListItem title='Possession Date' value={property?.possession_date} />
 				) : null}
 			</View>
 
@@ -242,7 +252,10 @@ const PropertyDetails = ({
 									disabled={requestingShow}
 									title={'View Offer'}
 									onPress={() =>
-										navigate('baViewOffer', { property, theTransaction })
+										navigate('baViewOffer', {
+											property,
+											theTransaction: transaction,
+										})
 									}
 								/>
 							)}

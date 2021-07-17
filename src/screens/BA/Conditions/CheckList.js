@@ -24,6 +24,7 @@ import Financing from './Financing';
 import Inspection from './Inspection';
 import Appraisal from './Appraisal';
 import Repairs from './Repairs';
+import { any } from 'prop-types';
 
 const CheckList = ({ repairReqSelectModal, route }) => {
 	const [fetchedList, setFetchedList] = useState([]);
@@ -33,11 +34,14 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 	const [newProptChecklist, setNewProptChecklist] = useState(undefined);
 	const [checklistList, setChecklistList] = useState([]);
 	const [loadingList, setLoadingList] = useState(false);
+	const [anyCheck, setAnyCheck] = useState(false);
 	const {
 		state: { user },
 	} = useContext(UserContext);
 
 	const { transaction, property } = route.params;
+
+	console.log('transaction', transaction.transaction_id);
 
 	const readOnlyMode = user?.role === '1' || user?.role === '2' ? true : false;
 
@@ -78,6 +82,7 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 			catchError(error);
 		}
 	};
+	console.log('newProptChecklist', newProptChecklist);
 
 	// const fetchPropertyCheckList = async () => {
 	// 	try {
@@ -104,19 +109,19 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 		try {
 			const token = await fetchAuthToken();
 			const response = await appApi.get(
-				`/fetch_tasks.php?property_transaction_id=${property.transaction_id}`,
+				`/fetch_buyer_agent_checked_lists_for_property.php?transaction_id=${transaction.transaction_id}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
 				},
 			);
-			if (response.data.response.status === 200) {
-				return response.data.response.data;
-			}
+			// return response;
+			return JSON.parse(response.data.response.data?.task_array);
 		} catch (error) {
-			return error;
+			// displayError(error);
 		}
+		``;
 	};
 
 	let renderedList = [];
@@ -154,37 +159,38 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 
 	const newOnToggleCheckList = React.useCallback(
 		(id) => {
-			let list;
-			let checked;
-			list = newProptChecklist.map((list, index) =>
-				list.id !== id
+			setAnyCheck(true);
+			let list = newProptChecklist.map((list, index) =>
+				list.task_id !== id
 					? list
-					: list.status === '1'
+					: list.status == '1'
 					? { ...list, status: '0' }
 					: { ...list, status: '1' },
 			);
-			checked = newProptChecklist.filter((list, index) => list.status === '1');
+			// let checked = newProptChecklist.filter(
+			// 	(list, index) => list.status == '1',
+			// );
 			setNewProptChecklist(list);
-			setChecklistList(list.filter((list, index) => list.status === '1'));
+			setChecklistList(list.filter((list, index) => list.status == '1'));
 		},
 		[newProptChecklist],
 	);
 
 	const updateCheckList = async () => {
 		try {
-			const newList = [];
-			newProptChecklist.map((list) => {
-				return newList.push({
-					task_id: list.task_id || list.unique_id,
-					task: list.task,
-					status: list.status,
-				});
-			});
+			// const newList = [];
+			// newProptChecklist.map((list) => {
+			// 	return newList.push({
+			// 		task_id: list.task_id || list.unique_id,
+			// 		task: list.task,
+			// 		status: list.status,
+			// 	});
+			// });
 
 			setIsSending(true);
 			const data = new FormData();
 			const token = await fetchAuthToken();
-			const fdata = JSON.stringify(newList);
+			const fdata = JSON.stringify(newProptChecklist);
 			data.append('buyer_agent_id', user.unique_id);
 			data.append('transaction_id', transaction.transaction_id);
 			data.append('task_array', fdata);
@@ -270,9 +276,13 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 		},
 	];
 
-	const ListItem = ({ text, checked, index, id, ...props }) => {
+	const ListItem = ({ text, checked, index, task_id, ...props }) => {
 		return (
-			<TouchableOpacity {...props} onPress={() => newOnToggleCheckList(id)}>
+			<TouchableOpacity
+				{...props}
+				// onPress={() => console.log(task_id)}
+				onPress={() => newOnToggleCheckList(task_id)}
+			>
 				<View
 					style={{
 						flexDirection: 'row',
@@ -282,12 +292,14 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 				>
 					<Icon
 						name={
-							parseInt(checked) === 1
-								? 'checkbox-marked-outline'
-								: 'checkbox-blank-outline'
+							checked ? 'checkbox-marked-outline' : 'checkbox-blank-outline'
 						}
 						type={'MaterialCommunityIcons'}
-						style={{ color: colors.white, paddingRight: RFValue(5) }}
+						style={{
+							color: colors.white,
+							paddingRight: RFValue(5),
+							fontSize: RFValue(20),
+						}}
 					/>
 					<Text style={styles.text}>{text} </Text>
 				</View>
@@ -308,10 +320,11 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 		if (transaction) {
 			// fetchTransactionCheckList();
 			// fetchPropertyCheckList();
-
 			newFetchPropertyCheckList().then((res) => {
 				setNewProptChecklist(res);
+				setChecklistList(res?.filter((list, index) => list.status == '1'));
 				setLoadingList(false);
+				console.log('res', res);
 			});
 		}
 	}, []);
@@ -348,16 +361,16 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 					</View>
 				}
 				keyExtractor={(v, i) => i.toString()}
-				renderItem={({ item, index }) => {
+				renderItem={({ item }) => {
 					return (
 						<View>
 							{item.task_id || item.unique_id ? (
 								<ListItem
+									task_id={item.task_id}
 									disabled={readOnlyMode}
-									checked={item.status}
+									checked={item.status == '1' ? true : false}
 									text={item.task}
-									index={index}
-									id={item.id}
+									// index={index}
 								/>
 							) : null}
 						</View>
@@ -367,16 +380,14 @@ const CheckList = ({ repairReqSelectModal, route }) => {
 					!readOnlyMode &&
 					!loadingList && (
 						<ButtonPrimaryBig
-							disabled={checklistList.length > 0 ? false : true}
+							disabled={!anyCheck}
 							containerStyle={{
-								backgroundColor:
-									checklistList.length > 0 ? colors.brown : colors.brown + '50',
+								backgroundColor: anyCheck ? colors.brown : colors.brown + '50',
 								marginVertical: RFValue(20),
 							}}
 							title={isSending ? 'Loading...' : 'Send'}
 							titleStyle={{
-								color:
-									checklistList.length > 0 ? colors.white : colors.white + '50',
+								color: anyCheck ? colors.white : colors.white + '50',
 							}}
 							onPress={updateCheckList}
 							// onPress={newUpdateChecklist}

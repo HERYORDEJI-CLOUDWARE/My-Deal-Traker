@@ -54,6 +54,7 @@ import BaCounterOffer from '../screens/BA/Notification/CounterOffer';
 import SaPropertyInfo from '../screens/SA/Property/views/PropertyTab/PropertyInfo';
 import SLPropertyInfo from '../screens/SL/Property/Views/SLPropertyInfo';
 import SLClosing from '../screens/SL/closing/SLClosing';
+import SLClosingDealForm from '../screens/SL/closing/CloseDealForm';
 import SLChecklist from '../screens/SL/conditions/SLChecklist';
 import BaLawyerView from '../screens/BA/Lawyer/BaLawyerView';
 import BaAddLawyer from '../screens/BA/Lawyer/BaAddLawyer';
@@ -96,6 +97,8 @@ import BuyerCheckList from '../screens/BA/Conditions/BuyerCheckList';
 import Conditions from '../screens/BA/Conditions/Conditions';
 import SellerCheckList from '../screens/SA/SellerCheckList';
 import SellerConditions from '../screens/Seller/Conditions/Conditions';
+import CheckMB from '../screens/MB/CheckMB';
+import CloseDealForm from '../screens/BL/closing/CloseDealForm';
 
 const Stack = createStackNavigator();
 
@@ -115,7 +118,8 @@ const SellingAgentStack = () => {
 				}}
 			/>
 			<Stack.Screen
-				name='saSearchScreen'
+				name='searchScreen'
+				// name='saSearchScreen'
 				component={SaSearchResult}
 				options={{
 					headerShown: false,
@@ -254,13 +258,22 @@ const SellingAgentStack = () => {
 					headerTitleStyle: { color: colors.white },
 				}}
 			/>
+			{/* <Stack.Screen
+				name='searchScreen'
+				component={SearchResult}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
+				}}
+			/> */}
 		</Stack.Navigator>
 	);
 };
 
 const SellersLawyer = () => {
 	return (
-		<Stack.Navigator>
+		<Stack.Navigator headerMode={null}>
 			<Stack.Screen
 				name='lawyerHome'
 				component={SLHome}
@@ -277,16 +290,7 @@ const SellersLawyer = () => {
 					headerBackTitle: 'Back',
 				}}
 			/>
-			<Stack.Screen
-				name='SLSelectedProperty'
-				component={SLSelectedProperty}
-				options={{
-					headerTitle: '',
-					headerBackTitle: 'Back',
-					headerStyle: { backgroundColor: colors.bgBrown },
-					headerShown: false,
-				}}
-			/>
+			<Stack.Screen name='SLSelectedProperty' component={SLSelectedProperty} />
 			<Stack.Screen
 				name='SLPropertyInfo'
 				component={SLPropertyInfo}
@@ -299,7 +303,8 @@ const SellersLawyer = () => {
 			/>
 			<Stack.Screen
 				name='slClosing'
-				component={SLClosing}
+				component={SLClosingDealForm}
+				// component={SLClosing}
 				options={{
 					headerTitle: '',
 					headerStyle: { backgroundColor: colors.bgBrown },
@@ -311,7 +316,6 @@ const SellersLawyer = () => {
 				name='slChecklist'
 				component={SLChecklist}
 				options={{
-					headerTitle: '',
 					headerStyle: { backgroundColor: colors.bgBrown },
 					headerBackTitle: 'Back',
 					headerShown: false,
@@ -337,6 +341,15 @@ const SellersLawyer = () => {
 					headerShown: false,
 				}}
 			/>
+			<Stack.Screen
+				name='searchScreen'
+				component={SearchResult}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
+				}}
+			/>
 		</Stack.Navigator>
 	);
 };
@@ -355,7 +368,8 @@ const BuyerStack = () => {
 			/>
 			<Stack.Screen
 				name='buyerSearchScreen'
-				component={MortgageSearchScreen}
+				component={BuyerSearchScreen}
+				// component={MortgageSearchScreen}
 				options={{
 					headerShown: false,
 					title: (
@@ -461,6 +475,15 @@ const BuyerStack = () => {
 					headerBackTitleStyle: { color: colors.white },
 				}}
 			/>
+			<Stack.Screen
+				name='searchScreen'
+				component={SearchResult}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
+				}}
+			/>
 		</Stack.Navigator>
 	);
 };
@@ -517,6 +540,37 @@ const SellerStack = () => {
 					headerBackTitleStyle: { color: colors.white },
 				}}
 			/>
+			<Stack.Screen
+				name='listingLawyer'
+				component={ListingLawyer}
+				options={{
+					headerShown: false,
+					title: (
+						<Text
+							style={{
+								color: colors.white,
+								fontSize: 20,
+								fontFamily: 'pop-semibold',
+								paddingHorizontal: 20,
+							}}
+						>
+							Lawyer
+						</Text>
+					),
+					headerBackTitle: 'Back',
+					headerStyle: { backgroundColor: colors.bgBrown },
+					headerBackTitleStyle: { color: colors.white },
+				}}
+			/>
+			<Stack.Screen
+				name='searchScreen'
+				component={SearchResult}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
+				}}
+			/>
 		</Stack.Navigator>
 	);
 };
@@ -563,7 +617,8 @@ const BuyersLawyer = ({ navigation }) => {
 			/>
 			<Stack.Screen
 				name='blClosingScreen'
-				component={BLClosing}
+				component={CloseDealForm}
+				// component={BLClosing}
 				options={{
 					headerTitle: '',
 					headerStyle: { backgroundColor: colors.bgBrown },
@@ -598,6 +653,15 @@ const BuyersLawyer = ({ navigation }) => {
 							onPress={() => navigation.goBack()}
 						/>
 					),
+				}}
+			/>
+			<Stack.Screen
+				name='searchScreen'
+				component={SearchResult}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
 				}}
 			/>
 		</Stack.Navigator>
@@ -659,7 +723,7 @@ const MortgageBrokerStack = ({ navigation }) => {
 				}}
 			/>
 			<Stack.Screen
-				name='buyerSelectedProperty'
+				name='mortgageSelectedProperty'
 				component={MortgageSelectedProperty}
 				options={{
 					title: '',
@@ -697,6 +761,15 @@ const MortgageBrokerStack = ({ navigation }) => {
 					headerBackTitle: 'Back',
 					headerStyle: { backgroundColor: colors.bgBrown },
 					headerShown: false,
+				}}
+			/>
+			<Stack.Screen
+				name='searchScreen'
+				component={SearchResult}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
 				}}
 			/>
 		</Stack.Navigator>
@@ -835,6 +908,15 @@ const BuyingAgentStack = () => {
 					headerTitleStyle: { color: colors.white },
 				}}
 			/>
+			{/* <Stack.Screen
+				name='searchScreen'
+				component={SearchResult}
+				options={{
+					headerShown: false,
+					title: '',
+					headerBackTitle: 'Back',
+				}}
+			/> */}
 		</Stack.Navigator>
 	);
 };
@@ -951,7 +1033,8 @@ const TopLevelStack = () => (
 		/>
 		<Stack.Screen
 			name='viewMortgageBroker'
-			component={ViewMortgageBroker}
+			component={CheckMB}
+			// component={ViewMortgageBroker}
 			options={{
 				headerShown: false,
 				// headerTitle: "Files & Uploads",
@@ -973,6 +1056,15 @@ const TopLevelStack = () => (
 			component={PlanUpgrade}
 			options={{
 				headerShown: false,
+			}}
+		/>
+		<Stack.Screen
+			name='searchScreen'
+			component={SearchResult}
+			options={{
+				headerShown: false,
+				title: '',
+				headerBackTitle: 'Back',
 			}}
 		/>
 	</Stack.Navigator>

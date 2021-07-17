@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 import LogoPage from '../../../../components/LogoPage';
 import PropertyHeader from '../../../../components/PropertyHeader';
 import colors from '../../../../constants/colors';
@@ -13,66 +13,84 @@ import { Dimensions } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import _font from '../../../../styles/fontStyles';
 import _colors from '../../../../constants/colors';
+import { useFocusEffect } from '@react-navigation/native';
+import { getPropertyTransaction } from '../../../../context/UserContext';
 
 const { width } = Dimensions.get('window');
 
 const BuyerSelectedPropInfo = ({ property, transaction, navigation }) => {
+	const [proptTrans, setProptTrans] = React.useState([]);
+	const [isLoadingTrans, setIsLoadingTrans] = React.useState(true);
+
+	useFocusEffect(
+		React.useCallback(() => {
+			let transaction_id =
+				property?.transaction_id ?? transaction?.transaction_id;
+			setIsLoadingTrans(true);
+			getPropertyTransaction(transaction_id).then((res) => {
+				setProptTrans(res.data.response.data);
+				setIsLoadingTrans(false);
+			});
+		}, []),
+	);
+
 	return (
 		<LogoPage dontShow={true}>
 			<View style={styles.topWrapper}>
 				<View style={styles.statusWrapper}>
 					<Text style={styles.statusKey}>Status:</Text>
 					<Text style={styles.statusValue}>
-						{formatStatus(property.status)}
+						{formatStatus(transaction?.status)}
 					</Text>
 				</View>
 				<Text style={styles.date}>
-					{moment(property.date_created).format('MM/DD/YYYY')}
+					{moment(transaction?.date_created).format('MM/DD/YYYY')}
 				</Text>
 			</View>
+			{/*{isLoadingTrans?*/}
+			{/*<View>*/}
 
-			<TouchableOpacity
-				activeOpacity={0.9}
-				onPress={() =>
-					navigate('buyerPropertyDetails', {
-						property,
-						transaction,
-					})
-				}
-				style={styles.box}
-			>
-				<Text style={styles.boxTitle}>Property</Text>
-				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
-			</TouchableOpacity>
+			{isLoadingTrans ? (
+				<View>
+					<ActivityIndicator size={'large'} color={colors.white} />
+				</View>
+			) : (
+				<View>
+					<TouchableOpacity
+						activeOpacity={0.9}
+						onPress={() =>
+							navigate('buyerPropertyDetails', {
+								property: property.transaction_id ? property : transaction,
+								transaction: proptTrans,
+							})
+						}
+						style={styles.box}
+					>
+						<Text style={styles.boxTitle}>Property</Text>
+						<AntDesign
+							name='right'
+							size={RFValue(15)}
+							color={_colors.lightBrown}
+						/>
+					</TouchableOpacity>
 
-			<TouchableOpacity
-				activeOpacity={0.9}
-				onPress={() => navigate('buyerChecklist', { transaction, property })}
-				style={styles.box}
-			>
-				<Text style={styles.boxTitle}>Conditions</Text>
-				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
-			</TouchableOpacity>
-
-			<TouchableOpacity
-				activeOpacity={0.9}
-				onPress={() =>
-					navigate('buyerLawyerView', { transaction: transaction })
-				}
-				style={styles.box}
-			>
-				<Text style={styles.boxTitle}>Closing</Text>
-				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
-			</TouchableOpacity>
-
-			<TouchableOpacity
-				activeOpacity={0.9}
-				onPress={() => navigate('fileUpload', { transaction: transaction })}
-				style={styles.box}
-			>
-				<Text style={styles.boxTitle}>Files and Uploads</Text>
-				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
-			</TouchableOpacity>
+					<TouchableOpacity
+						activeOpacity={0.9}
+						// onPress={() => console.log('transaction:', transaction)}
+						onPress={() => navigate('fileUpload', { transaction: proptTrans })}
+						style={styles.box}
+					>
+						<Text style={styles.boxTitle}>Files and Uploads</Text>
+						<AntDesign
+							name='right'
+							size={RFValue(15)}
+							color={_colors.lightBrown}
+						/>
+					</TouchableOpacity>
+				</View>
+			)}
+			{/*</View> */}
+			{/*} */}
 		</LogoPage>
 	);
 };
@@ -123,3 +141,27 @@ const styles = StyleSheet.create({
 	},
 	date: { ..._font.Medium, color: colors.white },
 });
+
+{
+	/* <TouchableOpacity
+				activeOpacity={0.9}
+				onPress={() => navigate('buyerChecklist', { transaction, property })}
+				style={styles.box}
+			>
+				<Text style={styles.boxTitle}>Conditions</Text>
+				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
+			</TouchableOpacity> */
+}
+
+{
+	/* <TouchableOpacity
+				activeOpacity={0.9}
+				onPress={() =>
+					navigate('buyerLawyerView', { transaction: transaction })
+				}
+				style={styles.box}
+			>
+				<Text style={styles.boxTitle}>Closing</Text>
+				<AntDesign name='right' size={RFValue(15)} color={_colors.lightBrown} />
+			</TouchableOpacity> */
+}

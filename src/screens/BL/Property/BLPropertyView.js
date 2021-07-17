@@ -1,249 +1,259 @@
-import { AntDesign } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
-import { Card, Text, Toast } from "native-base";
-import React, { useCallback, useState } from "react";
-import { ActivityIndicator } from "react-native";
+import { AntDesign } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { Card, Toast } from 'native-base';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 import {
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Dimensions,
-  ScrollView,
-} from "react-native";
-import appApi from "../../../api/appApi";
-import LogoPage from "../../../components/LogoPage";
-import PropertyHeader from "../../../components/PropertyHeader";
-import colors from "../../../constants/colors";
-import { navigate } from "../../../nav/RootNav";
-import { displayError, fetchAuthToken, formatStatus } from "../../../utils/misc";
-import SLClosing from "../closing/BLClosing";
-import SLPropertyDetails from "./BLPropertyDetail";
+	Image,
+	StyleSheet,
+	TouchableOpacity,
+	View,
+	Dimensions,
+	ScrollView,
+	Text,
+} from 'react-native';
+import appApi from '../../../api/appApi';
+import LogoPage from '../../../components/LogoPage';
+import PropertyHeader from '../../../components/PropertyHeader';
+import colors from '../../../constants/colors';
+import { navigate } from '../../../nav/RootNav';
+import {
+	displayError,
+	fetchAuthToken,
+	formatStatus,
+} from '../../../utils/misc';
+import SLClosing from '../closing/BLClosing';
+import SLPropertyDetails from './BLPropertyDetail';
+import { RFValue } from 'react-native-responsive-fontsize';
+import _font from '../../../styles/fontStyles';
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
 const BLPropertyView = ({ property, navigation }) => {
-  const [view, setView] = useState("property");
-  const [theApproved, setTheApproved] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+	const [view, setView] = useState('property');
+	const [theApproved, setTheApproved] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [theTransaction, setTheTransaction] = useState('');
 
-  const [theTransaction, setTheTransaction] = useState("");
+	const [proptTrans, setProptTrans] = useState(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      getApprovedOffer();
-    }, [])
-  );
+	// To get property transaction
+	const getProptTrans = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const data = new FormData();
+			return await appApi.get(
+				`/get_property_transactions.php?property_transaction_id=${property.transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+		} catch (error) {}
+	};
 
-  const getApprovedOffer = async () => {
-    try {
-      const token = await fetchAuthToken();
-      const response = await appApi.get(
-        `/get_property_approved_offer.php?property_id=${property.transaction_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.data.response.status == 200) {
-        setTheApproved(response.data.response.data);
-        fetchTransaction(response.data.response.data.transaction_id);
-      } else {
-        Toast.show({
-          type: "warning",
-          text: response.data.response.message,
-        });
-      }
-      setIsLoading(false);
-    } catch (error) {
-      displayError(error);
-    }
-  };
+	useFocusEffect(
+		useCallback(() => {
+			getApprovedOffer();
+			getProptTrans().then((res) => setProptTrans(res.data.response.data[0]));
+		}, []),
+	);
 
-  const fetchTransaction = async (id) => {
-    try {
-      const token = await fetchAuthToken();
-      const response = await appApi.get(
-        `/get_transaction_details.php?transaction_id=${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.data.response.status == 200) {
-        setTheTransaction(response.data.response.data);
-        setIsLoading(false);
-      } else {
-        Toast.show({
-          type: "warning",
-          text: response.data.response.message,
-        });
-      }
-      setIsLoading(false);
-    } catch (error) {
-      displayError(error);
-    }
-  };
+	const getApprovedOffer = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const response = await appApi.get(
+				`/get_property_approved_offer.php?property_id=${property.transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			if (response.data.response.status == 200) {
+				setTheApproved(response.data.response.data);
+				fetchTransaction(response.data.response.data.transaction_id);
+			} else {
+				Toast.show({
+					type: 'warning',
+					text: response.data.response.message,
+				});
+			}
+			setIsLoading(false);
+		} catch (error) {
+			displayError(error);
+		}
+	};
 
-  const HeaderButtons = () => (
-    <React.Fragment>
-      <View style={{ borderBottomWidth: 0, paddingBottom: 25 }}>
-        <View style={{ alignItems: "center" }}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => navigate("blPropertyInfo", { property })}
-          >
-            <Card style={styles.box}>
-              <Image source={require("../../../assets/img/property.png")} />
-            </Card>
-          </TouchableOpacity>
+	const fetchTransaction = async (id) => {
+		try {
+			const token = await fetchAuthToken();
+			const response = await appApi.get(
+				`/get_transaction_details.php?transaction_id=${id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			if (response.data.response.status == 200) {
+				setTheTransaction(response.data.response.data);
+				setIsLoading(false);
+			} else {
+				Toast.show({
+					type: 'warning',
+					text: response.data.response.message,
+				});
+			}
+			setIsLoading(false);
+		} catch (error) {
+			displayError(error);
+		}
+	};
 
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => {
-              setView("conditions");
-            }}
-          >
-            <Card style={styles.box}>
-              <Image source={require("../../../assets/img/conditions.png")} />
-            </Card>
-          </TouchableOpacity>
-        </View>
+	const HeaderButtons = () => (
+		<React.Fragment>
+			<View style={{}}>
+				<TouchableOpacity
+					activeOpacity={0.9}
+					onPress={() => navigate('blPropertyInfo', { property })}
+					style={styles.box}
+				>
+					<Text style={styles.boxTitle}>Property</Text>
+					<AntDesign
+						name='right'
+						size={RFValue(15)}
+						color={colors.lightBrown}
+					/>
+				</TouchableOpacity>
+				{theApproved && (
+					<>
+						<TouchableOpacity
+							activeOpacity={0.9}
+							onPress={() => {
+								navigate('blClosingScreen', {
+									property,
+									transaction: proptTrans,
+								});
+							}}
+							style={styles.box}
+						>
+							<Text style={styles.boxTitle}>Closing</Text>
+							<AntDesign
+								name='right'
+								size={RFValue(15)}
+								color={colors.lightBrown}
+							/>
+						</TouchableOpacity>
 
-        <View
-          style={{
-            // flexDirection: "row",
-            // justifyContent: "space-around",
-            alignItems: "center",
-          }}
-        >
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => {
-              navigate("blClosingScreen", { property });
-            }}
-          >
-            <Card style={styles.box}>
-              <Image source={require("../../../assets/img/closing.png")} />
-              <View style={{ position: "absolute", right: 10 }}>
-                <AntDesign name="right" />
-              </View>
-            </Card>
-          </TouchableOpacity>
+						<TouchableOpacity
+							activeOpacity={0.9}
+							onPress={() => {
+								navigate('fileUpload', { transaction: theTransaction });
+							}}
+							style={styles.box}
+						>
+							<Text style={styles.boxTitle}>Files & Uploads</Text>
+							<AntDesign
+								name='right'
+								size={RFValue(15)}
+								color={colors.lightBrown}
+							/>
+						</TouchableOpacity>
+					</>
+				)}
+			</View>
+		</React.Fragment>
+	);
 
-          {/* <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => setView("report")}
-          >
-            <Card style={styles.box}>
-              <Image source={require("../../../assets/img/report.png")} />
-              <View style={{ position: "absolute", right: 10 }}>
-                <AntDesign name="right" />
-              </View>
-            </Card>
-          </TouchableOpacity> */}
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => {
-              navigate("fileUpload", { transaction: theTransaction });
-            }}
-          >
-            <Card style={styles.box}>
-              <Text
-                style={{
-                  color: colors.bgBrown,
-                  fontWeight: "bold",
-                  fontSize: 20,
-                }}
-              >
-                Files and uploads
-              </Text>
-              <View style={{ position: "absolute", right: 10 }}>
-                <AntDesign name="right" />
-              </View>
-            </Card>
-          </TouchableOpacity>
-        </View>
+	if (isLoading) {
+		return (
+			<LogoPage navigation={navigation}>
+				<ActivityIndicator color={colors.white} size='large' />
+			</LogoPage>
+		);
+	}
 
-        <View style={{ marginTop: 35 }} />
-      </View>
-    </React.Fragment>
-  );
+	// if (!theApproved) {
+	// 	return (
+	// 		<LogoPage navigation={navigation}>
+	// 			<View
+	// 				style={{
+	// 					alignItems: 'center',
+	// 				}}
+	// 			>
+	// 				<AntDesign name='warning' size={100} color={colors.white} />
+	// 				<Text
+	// 					style={{
+	// 						textAlign: 'center',
+	// 						paddingHorizontal: 50,
+	// 						color: colors.white,
+	// 					}}
+	// 				>
+	// 					No approved transaction for this property at the moment
+	// 				</Text>
+	// 			</View>
+	// 		</LogoPage>
+	// 	);
+	// }
 
-
-  if (isLoading) {
-    return (
-      <LogoPage navigation={navigation}>
-        <ActivityIndicator color={colors.white} size="large" />
-      </LogoPage>
-    );
-  }
-
-  if (!theApproved) {
-    return (
-      <LogoPage navigation={navigation}>
-        <View
-          style={{
-            alignItems: "center",
-          }}
-        >
-          <AntDesign name="warning" size={100} color={colors.white} />
-          <Text
-            style={{
-              textAlign: "center",
-              paddingHorizontal: 50,
-              color: colors.white,
-            }}
-          >
-            No approved transaction for this property at the moment
-          </Text>
-        </View>
-      </LogoPage>
-    );
-  }
-
-
-  return (
-    <ScrollView style={{ flex: 1 }}>
-      <View style={{marginVertical: 10}} />
-      <PropertyHeader
-        transactionID={property.transaction_id}
-        status={formatStatus(property.status)}
-        date={property.date_created}
-        navigation={navigation}
-      />
-      <View style={{marginVertical: 30}} />
-      <HeaderButtons />
-    </ScrollView>
-  );
+	return (
+		<ScrollView style={{ flex: 1 }}>
+			<PropertyHeader
+				transactionID={property.transaction_id}
+				status={formatStatus(property.status)}
+				date={property.date_created}
+				navigation={navigation}
+			/>
+			<HeaderButtons />
+		</ScrollView>
+	);
 };
 
 export default BLPropertyView;
 
 const styles = StyleSheet.create({
-  box: {
-    width: width * 0.8,
-    padding: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  boxText: {
-    textAlign: "center",
-    color: colors.brown,
-    fontSize: 24,
-  },
-  listTitle: {
-    padding: 10,
-    fontSize: 20,
-    color: colors.lightGrey,
-    textAlign: "left",
-  },
-  listValue: {
-    padding: 10,
-    fontSize: 20,
-    color: colors.white,
-    textAlign: "left",
-  },
+	topWrapper: { marginBottom: RFValue(20) },
+	box: {
+		padding: RFValue(20),
+		paddingVertical: RFValue(10),
+		alignItems: 'center',
+		backgroundColor: '#FFF',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginBottom: RFValue(20),
+	},
+	boxTitle: {
+		..._font.Big,
+		textAlign: 'center',
+		color: colors.brown,
+		fontSize: RFValue(18),
+	},
+	listTitle: {
+		padding: RFValue(10),
+		fontSize: RFValue(20),
+		color: colors.lightGrey,
+		textAlign: 'left',
+	},
+	listValue: {
+		padding: RFValue(10),
+		fontSize: RFValue(20),
+		color: colors.white,
+		textAlign: 'left',
+	},
+	statusWrapper: { flexDirection: 'row' },
+	statusKey: {
+		..._font.Medium,
+		// fontSize: 20,
+		color: colors.white,
+		paddingRight: RFValue(10),
+	},
+	statusValue: {
+		..._font.Medium,
+		// fontSize: 20,
+		color: colors.white,
+		fontFamily: 'pop-semibold',
+	},
+	date: { ..._font.Medium, color: colors.white },
 });

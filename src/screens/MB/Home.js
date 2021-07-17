@@ -9,7 +9,7 @@ import LogoPage from '../../components/LogoPage';
 import colors from '../../constants/colors';
 import { Context as UserContext } from '../../context/UserContext';
 import { displayError, fetchAuthToken, formatStatus } from '../../utils/misc';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import { TextInput } from 'react-native';
 import axios from 'axios';
@@ -21,13 +21,16 @@ import {
 import _font from '../../styles/fontStyles';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SearchBar } from 'react-native-elements';
+import SearchInputBar from '../../components/SearchBar';
 
-const BuyerHomepage = ({ navigation }) => {
+const MortgageBrokerHomepage = ({ navigation }) => {
 	const [randomProperties, setRandomProperties] = useState({});
 
 	const [isLoading, setIsLoading] = useState(true);
 	const search = useRef({});
 	const mortgageBrokerProperty = useRef({});
+
+	const [mortgageProptList, setMortgageProptList] = useState(undefined);
 
 	const [searchValue, setSearchValue] = useState('');
 
@@ -36,12 +39,6 @@ const BuyerHomepage = ({ navigation }) => {
 		fetchBuyerTrans,
 		logout,
 	} = useContext(UserContext);
-
-	useFocusEffect(
-		useCallback(() => {
-			init();
-		}, []),
-	);
 
 	const submitSearch = async () => {
 		const token = await fetchAuthToken();
@@ -88,9 +85,9 @@ const BuyerHomepage = ({ navigation }) => {
 
 	const getMortgageBrokerProperty = async (transaction_id) => {
 		const token = await fetchAuthToken();
-		axios
+		appApi
 			.get(
-				`https://mydealtracker.staging.cloudware.ng/api/get_mortgage_broker_property_transactions.php?phone_email=${user.email}&property_id=${transaction_id}`,
+				`/get_mortgage_broker_property_transactions.php?phone_email=${user.email}&property_id=${transaction_id}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -99,37 +96,47 @@ const BuyerHomepage = ({ navigation }) => {
 			)
 			.then((res) => {
 				const data = res.data.response.data;
-				// console.log(res.data);
-				mortgageBrokerProperty.current = data;
 				// search.current = data
-				navigation.navigate('mortgageSearchScreen', {
-					search: mortgageBrokerProperty,
-				});
+				// navigation.navigate('mortgageSearchScreen', {
+				// 	search: mortgageBrokerProperty,
+				// });
 			})
 			.catch((err) => {
 				// console.log(err);
 			});
 	};
 
-	const init = async () => {
-		await fetchBuyerTrans(user.email);
-		await FetchRandomProperties();
-		setIsLoading(false);
+	const getBrokersProperty = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const response = await appApi.get(
+				`fetch_mortgage_broker_properties.php?phone_email=${user.email}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			return response;
+		} catch (e) {
+			displayError(e);
+		}
 	};
 
-	if (isLoading) {
-		return (
-			<React.Fragment>
-				<LogoPage dontShow={true}>
-					<ActivityIndicator size='large' color={colors.white} />
-				</LogoPage>
-			</React.Fragment>
-		);
-	}
+	// const init = async () => {
+	// 	await fetchBuyerTrans(user.email);
+	// 	await FetchRandomProperties();
+	// 	setIsLoading(false);
+	// };
 
 	const renderItem = ({ item }) => {
 		return (
-			<View style={styles.renderItemWrapper}>
+			<TouchableOpacity
+				onPress={() =>
+					navigation.navigate('mortgageSelectedProperty', { property: item })
+				}
+				style={styles.renderItemWrapper}
+			>
 				<RN.View style={styles.renderItemItem}>
 					<Text style={styles.flatListStyle}>Listing Number:</Text>
 					<Text style={styles.flatListStyle2}>{item.listing_number}</Text>
@@ -167,13 +174,10 @@ const BuyerHomepage = ({ navigation }) => {
 					</Text>
 				</RN.View>
 
-				<RN.Pressable
-					style={styles.seeMoreWrapper}
-					onPress={() => getMortgageBrokerProperty(item.transaction_id)}
-				>
+				<View style={styles.seeMoreWrapper}>
 					<Text style={styles.seeMoreText}>See More Details</Text>
-				</RN.Pressable>
-			</View>
+				</View>
+			</TouchableOpacity>
 		);
 	};
 
@@ -201,55 +205,63 @@ const BuyerHomepage = ({ navigation }) => {
 		</React.Fragment>
 	);
 
+	useFocusEffect(
+		useCallback(() => {
+			setIsLoading(true);
+			// fetchBuyerTrans(user.email);
+			// FetchRandomProperties();
+			// getMortgageBrokerProperty();
+			getBrokersProperty().then((res) => {
+				setMortgageProptList(res.data.response.data);
+				setIsLoading(false);
+			});
+		}, []),
+	);
+
+	if (isLoading) {
+		return (
+			<LogoPage dontShow={true}>
+				<React.Fragment>
+					<HomeHeader
+						search={search}
+						// setSearch={setSearch}
+						// searchScreen={'BLSelectedProperty'}
+						searchScreen={'mortgageSearchScreen'}
+					/>
+				</React.Fragment>
+				<ActivityIndicator color={colors.white} />
+			</LogoPage>
+		);
+	}
+
 	return (
-		<NB.Container style={styles.container}>
-			<RN.View>
-				<SearchBar
-					placeholder={'Search for properties by ID or name'}
-					placeholderTextColor={'grey'}
-					// value={search}
-					autoCapitalize='none'
-					containerStyle={styles.searchBarContainer}
-					inputContainerStyle={styles.searchBarInput}
-					lightTheme={true}
-					onSubmitEditing={submitSearch}
-					platform={'default'}
-					searchIcon={false}
-					onChangeText={(text) => setSearchValue(text)}
-					clearIcon={false}
-				/>
-			</RN.View>
-			{randomProperties.length < 1 ? (
-				<View style={{ marginTop: 200 }}>
-					<ActivityIndicator size='large' color='white' />
-				</View>
-			) : (
-				<RN.FlatList
-					bounces={false}
-					bouncesZoom={false}
-					showsVerticalScrollIndicator={false}
-					// data={[]}
-					data={randomProperties}
-					renderItem={renderItem}
-					keyExtractor={(item) => item.unique_id}
-					contentContainerStyle={styles.contentContainer}
-					// ListEmptyComponent={() => <RN.Text>Yusuf</RN.Text>}
-				/>
-			)}
+		<LogoPage>
+			<RN.FlatList
+				bounces={false}
+				bouncesZoom={false}
+				showsVerticalScrollIndicator={false}
+				data={mortgageProptList}
+				renderItem={renderItem}
+				keyExtractor={(item, index) => index.toString()}
+				contentContainerStyle={styles.contentContainer}
+				ListEmptyComponent={ListEmpty}
+				ListHeaderComponent={
+					<React.Fragment>
+						<HomeHeader
+							search={search}
+							// setSearch={setSearch}
+							// searchScreen={'BLSelectedProperty'}
+							searchScreen={'mortgageSearchScreen'}
+						/>
+					</React.Fragment>
+				}
+			/>
 			{/* Logout button */}
-			<RN.Pressable style={styles.logoutButtonWrapper} onPress={logout}>
-				<NB.Icon
-					name={'logout'}
-					type={'MaterialCommunityIcons'}
-					style={styles.logoutButtonIcon}
-				/>
-				<RN.Text style={styles.logoutButtonTitle}>Log out</RN.Text>
-			</RN.Pressable>
-		</NB.Container>
+		</LogoPage>
 	);
 };
 
-export default BuyerHomepage;
+export default MortgageBrokerHomepage;
 
 const styles = StyleSheet.create({
 	container: {
@@ -257,7 +269,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		paddingTop: RFValue(40),
 	},
-	contentContainer: { paddingTop: RFValue(20), paddingHorizontal: RFValue(20) },
+	contentContainer: {},
 	noresult: {
 		textAlign: 'center',
 		fontFamily: 'pop-reg',
@@ -292,15 +304,15 @@ const styles = StyleSheet.create({
 	},
 	flatListStyle: {
 		..._font.Small,
-		// fontSize: RFValue(14),
-		color: colors.fair,
-		flex: 0.3,
+		fontSize: RFValue(14),
+		color: colors.fairGrey,
+		flex: 0.4,
+		marginRight: RFValue(5),
 	},
 	flatListStyle2: {
 		..._font.Small,
+		fontSize: RFValue(14),
 		fontFamily: 'pop-medium',
-		// fontSize: RFValue(14),
-		textAlign: 'left',
 		flex: 0.6,
 	},
 	logoutButtonTitle: { ..._font.Medium, color: colors.white },
@@ -330,5 +342,13 @@ const styles = StyleSheet.create({
 		color: colors.brown,
 		fontFamily: 'pop-medium',
 	},
-	seeMoreWrapper: { alignItems: 'flex-end' },
+	seeMoreWrapper: {
+		..._font.Small,
+		textAlign: 'right',
+		color: colors.brown,
+		alignSelf: 'flex-end',
+		marginTop: RFValue(5),
+		borderBottomWidth: RFValue(1),
+		borderBottomColor: colors.brown,
+	},
 });

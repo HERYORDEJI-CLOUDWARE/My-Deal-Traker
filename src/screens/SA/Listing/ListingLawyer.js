@@ -1,7 +1,7 @@
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { Card, Container, Toast } from 'native-base';
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
 	TouchableOpacity,
@@ -20,11 +20,18 @@ import { displayError, fetchAuthToken } from '../../../utils/misc';
 import { RFValue } from 'react-native-responsive-fontsize';
 import _font from '../../../styles/fontStyles';
 import { useNavigation } from '@react-navigation/native';
+import { Context as UserContext } from '../../../context/UserContext';
+import axios from 'axios';
 
 const ListingLawyer = ({ route, navigation }) => {
 	const { property } = route.params;
 
+	const {
+		state: { user },
+	} = useContext(UserContext);
+
 	const [isLoading, setIsLoading] = useState(true);
+	const [isRemoving, setIsRemoving] = useState(false);
 	const [propertyLawyer, setPropertyLawyer] = useState(null);
 
 	useFocusEffect(
@@ -57,6 +64,62 @@ const ListingLawyer = ({ route, navigation }) => {
 			displayError(error);
 			setIsLoading(false);
 		}
+	};
+
+	console.log('user', user);
+	console.log('property', property);
+
+	const removeLawyer = async () => {
+		// try {
+		setIsRemoving(true);
+		const token = await fetchAuthToken();
+		const data = new FormData();
+
+		data.append('property_id', property.transaction_id);
+		data.append('seller_agent_id', property.listing_agent_id);
+		data.append('phone_email', user.email);
+		/*
+			URL: delete_seller_lawyer
+			Parameters: property_id, seller_agent_id, phone_email
+			Type: POST
+			*/
+		// 	const response = await appApi.post('/delete_seller_lawyer.php', data, {
+		// 		headers: {
+		// 			Authorization: `Bearer ${token}`,
+		// 		},
+		// 	});
+		// 	return response;
+		// } catch (error) {
+		// 	displayError(error);
+		// }
+		//
+		axios
+			.post(
+				'http://mydealtracker.staging.cloudware.ng/api/delete_seller_lawyer.php',
+				data,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			)
+			.then((res) => {
+				// console.log(res.data);
+				Toast.show({
+					type: 'success',
+					text: 'Deleted',
+				});
+				setIsRemoving(false);
+				navigation.goBack();
+			})
+			.catch((err) => {
+				// console.log(err);
+				setIsRemoving(false);
+				Toast.show({
+					type: 'danger',
+					text: err,
+				});
+			});
 	};
 
 	if (isLoading) {
@@ -109,6 +172,15 @@ const ListingLawyer = ({ route, navigation }) => {
 				<ListItem title='Email' value={propertyLawyer.email} />
 				<ListItem title='Phone Number' value={propertyLawyer.phone} />
 			</View>
+			<ButtonPrimaryBig
+				disabled={isRemoving ? true : false}
+				title={isRemoving ? 'Removing...' : 'Remove Lawyer'}
+				containerStyle={{
+					marginVertical: RFValue(20),
+					backgroundColor: colors.brown,
+				}}
+				onPress={() => removeLawyer()}
+			/>
 		</LogoPage>
 	);
 };

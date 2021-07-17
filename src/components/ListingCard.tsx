@@ -32,6 +32,7 @@ const ListingCard = ({
 	status,
 	city,
 	dad,
+	type,
 	item,
 	transId,
 	property_id,
@@ -39,58 +40,68 @@ const ListingCard = ({
 }: Props) => {
 	const navigation = useNavigation();
 
+	const onPress = () => {
+		navigation.navigate(view, {
+			property: item,
+			transaction_id: item?.transaction_id,
+			property_id: property_id,
+		});
+	};
+
+	// console.log('item', item);
+
 	return (
 		<TouchableOpacity
-			onPress={() => {
-				navigation.navigate(view || 'viewListing', {
-					property: item,
-					transaction_id: item.transaction_id,
-					property_id: property_id,
-				});
-				console.log('i t e m+++', property_id);
-			}}
+			onPress={onPress}
 			activeOpacity={0.8}
-			style={{}}
+			style={{
+				flex: 1,
+				elevation: RFValue(3),
+				backgroundColor: colors.white,
+				padding: RFValue(20),
+				borderRadius: RFValue(10),
+				marginBottom: RFValue(20),
+				overflow: 'hidden',
+			}}
 		>
-			<Card containerStyle={styles.card}>
-				{/*<View style={styles.innerCircle} />*/}
-				{/*<View style={styles.upperCircle} />*/}
-				{/*<View style={styles.upperCircle} />*/}
-				{/*<View style={styles.upperCircle} />*/}
-				<View style={{ overflow: 'hidden' }}>
-					{listNo ? (
-						<View style={styles.rowWrapper}>
-							<Text style={styles.key}>Listing Number:</Text>
-							<Text style={styles.value}>{listNo}</Text>
-						</View>
-					) : null}
-					{transId ? (
-						<View style={styles.rowWrapper}>
-							<Text style={styles.key}>Transaction ID : </Text>
-							<Text style={styles.value}>{transId}</Text>
-						</View>
-					) : null}
+			{transId ? (
+				<View style={styles.rowWrapper}>
+					<Text style={styles.key}>Transaction ID : </Text>
+					<Text style={styles.value}>{transId}</Text>
+				</View>
+			) : null}
+			{listNo ? (
+				<View style={styles.rowWrapper}>
+					<Text style={styles.key}>Listing Number:</Text>
+					<Text style={styles.value}>{listNo}</Text>
+				</View>
+			) : null}
 
-					<View style={styles.rowWrapper}>
-						<Text style={styles.key}>Status:</Text>
-						<Text style={styles.value}>{status}</Text>
-					</View>
+			<View style={styles.rowWrapper}>
+				<Text style={styles.key}>Type: </Text>
+				<Text style={styles.value}>
+					{type === '0' ? 'Commercial' : 'Residential'}
+				</Text>
+			</View>
 
-					{city ? (
-						<View style={styles.rowWrapper}>
-							<Text style={styles.key}>City: </Text>
-							<Text style={styles.value}>{city}</Text>
-						</View>
-					) : null}
+			<View style={styles.rowWrapper}>
+				<Text style={styles.key}>Status:</Text>
+				<Text style={styles.value}>{status}</Text>
+			</View>
 
-					<View style={styles.rowWrapper}>
+			{city ? (
+				<View style={styles.rowWrapper}>
+					<Text style={styles.key}>City: </Text>
+					<Text style={styles.value}>{city}</Text>
+				</View>
+			) : null}
+
+			{/* <View style={styles.rowWrapper}>
 						<Text style={styles.key}>Date Added: </Text>
 						<Text style={styles.value}>{dad}</Text>
-					</View>
+					</View> */}
 
-					<Text style={styles.seeMore}>See more details</Text>
-				</View>
-			</Card>
+			<Text style={styles.seeMore}>See more details</Text>
 		</TouchableOpacity>
 	);
 };
@@ -101,12 +112,12 @@ const styles = StyleSheet.create({
 	card: {
 		// width: width * 0.8,
 		// alignSelf: 'center',
-		padding: RFValue(20),
-		marginBottom: RFValue(20),
-		borderRadius: RFValue(10),
-		overflow: 'hidden',
-		elevation: 3,
-		margin: 0,
+		// padding: RFValue(20),
+		// marginBottom: RFValue(20),
+		// borderRadius: RFValue(10),
+		// overflow: 'hidden',
+		// elevation: 3,
+		// margin: 0,
 	},
 	innerCircle: {
 		width: RFValue(70),
