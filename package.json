@@ -50,6 +50,8 @@
     "react-native-country-picker-modal": "^2.0.0",
     "react-native-dropdown-picker": "^5.1.19",
     "react-native-elements": "^3.3.0",
+    "react-native-file-viewer": "^2.1.4",
+    "react-native-fs": "^2.18.0",
     "react-native-gesture-handler": "~1.8.0",
     "react-native-global-props": "^1.1.5",
     "react-native-iap": "^5.2.14",

@@ -35,6 +35,7 @@ import ButtonPrimaryBig from '../../components/ButtonPrimaryBig';
 import axios from 'axios';
 import Modal from 'react-native-modal';
 import AddFile from '../../components/AddFile';
+import FileViewer from './FileViewer';
 
 const Uploads = ({ route, navigation }) => {
 	const [text, setText] = useState('');
@@ -322,6 +323,28 @@ const Uploads = ({ route, navigation }) => {
 		</Modal>
 	);
 
+	const [fileViewer, showFileViewer] = useState(false);
+	const [fileUri, setFileUri] = useState(null);
+
+	const onViewFile = (uri) => {
+		setFileUri(uri);
+		showFileViewer(true);
+	};
+
+	const renderFileViewer = () => (
+		<Modal
+			visible={fileViewer}
+			onDismiss={() => showFileViewer(false)}
+			onRequestClose={() => showFileViewer(false)}
+			animationType={'fade'}
+			// transparent={false}
+			backgroundColor={colors.lightBrown}
+			statusBarTranslucent={true}
+		>
+			<FileViewer uri={fileUri} showFileViewer={showFileViewer} />
+		</Modal>
+	);
+
 	return (
 		<LogoPage
 			dontShow={true}
@@ -359,9 +382,10 @@ const Uploads = ({ route, navigation }) => {
 					return (
 						<View>
 							<TouchableOpacity
+								// onPress={() => onViewFile(item.image_url)}
 								onPress={async () => {
-									// Linking.openURL( "http://mydealtrackerweb.staging.cloudware.ng/" + item.image_url);
-									await WebBrowser.openBrowserAsync(item.image_url);
+									await Linking.openURL(item.image_url);
+									// await WebBrowser.openBrowserAsync(item.image_url);
 								}}
 								style={{
 									borderWidth: RFValue(0.5),
@@ -411,6 +435,7 @@ const Uploads = ({ route, navigation }) => {
 			{/* {SubmitDocumentsButton} */}
 			{renderAddFileModal()}
 			{submittingAlert()}
+			{renderFileViewer()}
 		</LogoPage>
 	);
 };

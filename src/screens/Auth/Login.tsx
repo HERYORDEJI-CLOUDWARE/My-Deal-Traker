@@ -38,113 +38,109 @@ const Login = ({ navigation }) => {
 			},
 		});
 
-	const renderBottomToast = () => {
-		return <Toast title={<Text>Yusuf</Text>} />;
-	};
-
-	const hotUser = {
-		_parts: [
-			['email', 'heryordejy.cloudware@gmail.com'],
-			['password', 'Yusuf1996'],
-			['role', 1],
-		],
-	};
-
-	const hotUser2 = [
-		['email', 'heryordejy.cloudware@gmail.com'],
-		['password', 'Yusuf1996'],
-		['role', 1],
-	];
-
-	const shortCut = () => userLogin(hotUser, 'Buyer');
-
 	const onLogin = async () => {
 		try {
 			if (!values.signInAs) {
 				return Toast.show({
 					type: 'danger',
 					text: 'Please select what to sign in as',
-					textStyle: { ..._font.Medium, color: '#FFF', fontSize: RFValue(12) },
 				});
 			}
 			if (!values.email || !values.password) {
 				return Toast.show({
 					type: 'danger',
 					text: 'Please enter your email and password',
-					textStyle: { ..._font.Medium, color: '#FFF', fontSize: RFValue(12) },
 				});
 			}
 			setIsLoading(true);
 			const data = new FormData();
-
 			data.append('email', values.email);
 			data.append('password', values.password);
 			data.append('role', values.signInAs);
 
-			// console.log('...', data);
+			console.log(data);
 
 			const res = await userLogin(data, values.signInAs);
 
 			setIsLoading(false);
+
+			// return
+			// if (val.signInAs === "Buyer's Agent") {
+			//   navigation.navigate("baStack");
+			// }
+
+			// if (val.signInAs === "Seller's Agent") {
+			//   navigation.navigate("saStack");
+			// }
+
+			// if (val.signInAs === "Seller's Lawyer") {
+			//   navigation.navigate("slStack");
+			// }
+
+			// if (val.signInAs === "Buyer's Lawyer") {
+			//   navigation.navigate("blStack");
+			// }
 		} catch (error) {
 			setIsLoading(false);
 			displayError(error);
 		}
 	};
 
-	useEffect(() => {
-		onNewLogin();
-	}, []);
+	// useEffect(() => {
+	// 	onNewLogin();
+	// }, []);
 
-	const onNewLogin = async () => {
-		try {
-			setIsLoading(true);
-			const data = new FormData();
-			data.append('email', 'ismabadmus@gmail.com');
-			data.append('password', '1234567890');
-			// data.append('role', 4);
-			// data.append('email', 'heryordejy.cloudware@gmail.com');
-			// data.append('password', 'Yusuf1996');
-			data.append('role', 2);
+	// const onNewLogin = async () => {
+	// 	try {
+	// 		setIsLoading(true);
+	// 		const data = new FormData();
+	// 		// data.append('email', 'oluwafemi.akinyemi@cloudware.ng');
+	// 		// data.append('password', 'University01');
+	// 		// data.append('email', 'ismabadmus@gmail.com');
+	// 		// data.append('password', '1234567890');
+	// 		// data.append('role', 4);
+	// 		data.append('email', 'heryordejy.cloudware@gmail.com');
+	// 		data.append('password', 'Yusuf1996');
+	// 		data.append('role', 3);
 
-			const transactionFormat = {
-				'0': '29',
-				appraisal_status: '0',
-				buyer_agent_id: 'cfd18a638ec697bcfb3723deb529842b',
-				closing_status: '2', // *****
-				creation_date: '2021-07-08 10:06:45',
-				financing_status: '0',
-				id: '29',
-				inspection_status: '0', // *****
-				last_updated: '2021-07-08 10:06:45',
-				make_offer_initiation_status: '1', // *****
-				make_offer_status: '0', // *****
-				property_created_date: '2021-07-06 15:56:55',
-				property_id: '60705998',
-				property_listing_date: '07/06/2021',
-				property_status: '4', // *****
-				repairs_status: '1', // *****
-				show_interest_status: '1', // *****
-				show_property_approval_status: '0', // *****
-				show_property_status: '1', // *****
-				transaction_id: 'bd5a1aae33b2c9286e1ee123cf48397c',
-				transaction_status: '0',
-			};
+	// 		const transactionFormat = {
+	// 			'0': '29',
+	// 			appraisal_status: '0',
+	// 			buyer_agent_id: 'cfd18a638ec697bcfb3723deb529842b',
+	// 			closing_status: '2', // *****
+	// 			creation_date: '2021-07-08 10:06:45',
+	// 			financing_status: '0',
+	// 			id: '29',
+	// 			inspection_status: '0', // *****
+	// 			last_updated: '2021-07-08 10:06:45',
+	// 			make_offer_initiation_status: '1', // *****
+	// 			make_offer_status: '0', // *****
+	// 			property_created_date: '2021-07-06 15:56:55',
+	// 			property_id: '60705998',
+	// 			property_listing_date: '07/06/2021',
+	// 			property_status: '4', // *****
+	// 			repairs_status: '1', // *****
+	// 			show_interest_status: '1', // *****
+	// 			show_property_approval_status: '0', // *****
+	// 			show_property_status: '1', // *****
+	// 			transaction_id: 'bd5a1aae33b2c9286e1ee123cf48397c',
+	// 			transaction_status: '0',
+	// 		};
 
-			// data.append('email', values.email);
-			// 			data.append('password', values.password);
-			// 			data.append('role', values.signInAs);
-			//
-			// console.log('...', data);
+	// 		// data.append('email', values.email);
+	// 		// 			data.append('password', values.password);
+	// 		// 			data.append('role', values.signInAs);
+	// 		//
+	// 		// console.log('...', data);
 
-			const res = await userLogin(data, values.signInAs);
+	// 		const res = await userLogin(data, values.signInAs);
 
-			setIsLoading(false);
-		} catch (error) {
-			setIsLoading(false);
-			displayError(error);
-		}
-	};
+	// 		setIsLoading(false);
+	// 	} catch (error) {
+	// 		setIsLoading(false);
+	// 		displayError(error);
+	// 	}
+	// };
 
 	let LOGIN_BUTTONS = [
 		'Buyer',
@@ -229,8 +225,8 @@ const Login = ({ navigation }) => {
 
 				<ButtonPrimaryBig
 					title={isLoading ? 'Loading...' : 'Sign In'}
-					// onPress={() => handleSubmit()}
-					onPress={() => onNewLogin()}
+					onPress={() => handleSubmit()}
+					// onPress={() => onNewLogin()}
 					containerStyle={{ marginVertical: RFValue(20) }}
 				/>
 

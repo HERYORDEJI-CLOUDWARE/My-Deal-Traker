@@ -30,6 +30,23 @@ const CloseDealForm = ({ checklist, route }) => {
 
 	const [isLoading, setIsLoading] = useState(false);
 
+	const [proptTrans, setProptTrans] = useState(null);
+
+	const getProptTrans = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const data = new FormData();
+			return await appApi.get(
+				`/get_property_transactions.php?property_transaction_id=${property.transaction_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+		} catch (error) {}
+	};
+
 	var CLOSING_PROCESS_BUTTONS = ['No', 'Yes', 'Cancel'];
 	var CLOSING_CANCEL_INDEX = 2;
 
@@ -62,7 +79,7 @@ const CloseDealForm = ({ checklist, route }) => {
 		``;
 	};
 
-	// console.log(transaction);
+	console.log(transaction, '\n \n', proptTrans);
 
 	useEffect(() => {
 		setLoadingList(true);

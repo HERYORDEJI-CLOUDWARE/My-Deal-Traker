@@ -15,7 +15,7 @@ const { height } = Dimensions.get('window');
 const DealProgress = ({ transaction, isLoading }) => {
 	const navigation = useNavigation();
 
-	console.log('\n\n', transaction, '\n\n', transaction.show_interest_status);
+	// console.log('\n\n', transaction, '\n\n', transaction.show_interest_status);
 
 	if (isLoading) {
 		return (

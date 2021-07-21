@@ -98,7 +98,7 @@ export default function SLCloseDealForm({ checklist, route }) {
 			console.log('res', res);
 		});
 	}, []);
-	// console.log(transaction, '\n \n', property);
+	console.log(transaction, '\n \n', proptTrans);
 
 	const onSubmitForm = async () => {
 		try {

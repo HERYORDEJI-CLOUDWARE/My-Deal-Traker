@@ -42,10 +42,34 @@ const HomeHeader = ({
 	} = useContext(UserContext);
 
 	const [properties, setProperties] = useState([]);
+	console.log('...subStatus...', subStatus);
 
 	React.useEffect(() => {
 		fetchSubStatus(user.unique_id);
+		_fetchSubStatus();
 	}, []);
+
+	const _fetchSubStatus = async () => {
+		try {
+			const token = await fetchAuthToken();
+			const response = await appApi.get(
+				`/get_user_active_plans_with_details.php?user_id=${user.unique_id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			// console.log(response.data.response.status);
+			if (response.data.response.status === 200) {
+				console.log('response.data.', response.data.response.data);
+			} else {
+				console.log(response.data.response);
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	const submitSearch = async () => {
 		const token = await fetchAuthToken();
@@ -112,8 +136,9 @@ const HomeHeader = ({
 
 					{user ? (
 						<Text style={styles.remaining}>
-							Available listing: {subStatus?.total_remaining_listings}/
-							{subStatus?.total_allowed_listings}
+							Available listing:{' '}
+							{subStatus?.total_remaining_listings_in_active_plans ?? '0'} /{' '}
+							{subStatus?.total_allowed_listings_in_active_plans ?? '0'}
 						</Text>
 					) : null}
 				</RN.View>
@@ -244,3 +269,35 @@ const styles = RN.StyleSheet.create({
 		resizeMode: 'cover',
 	},
 });
+
+const lll = {
+	allow_rollover: '0',
+	allowed_listings: '5',
+	date_subscribed: '2021-05-05 09:55:47',
+	description: 'Enjoy free plan',
+	expiry_date: '2021-05-15 09:55:47',
+	has_rollover: '0',
+	listings_made: '0',
+	maximum: '5',
+	name: 'Free',
+	period: 'day',
+	period_length: '10',
+	plan_id: '1',
+	price: null,
+	remaining_listings: '5',
+	subscription_id: '3efa8a4b4310e3a7d678b47356e9b8c5',
+	supposed_total_allowed_listings: '55',
+	supposed_total_allowed_listings_in_active_plans: '50',
+	supposed_total_remaining_listings: '54',
+	supposed_total_remaining_listings_in_active_plans: '55',
+	total_allowed_listings: '55',
+	total_allowed_listings_in_active_plans: '50',
+	total_property_listed: '1',
+	total_property_listed_in_active_plans: '1',
+	total_remaining_listings: '54',
+	total_remaining_listings_in_active_plans: '49',
+	total_subscription: '2',
+	total_subscription_in_active_plans: '1',
+	unique_id: '1',
+	user_id: 'f32ab9dcc2de579feca0af7e13f9ffb8',
+};

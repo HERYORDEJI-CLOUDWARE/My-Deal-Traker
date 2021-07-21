@@ -9,6 +9,9 @@ export interface Props {
 	label: string;
 	placeholder?: string;
 	value?: string;
+	keyboardType?: string;
+	autoCapitalize?: string;
+	error?: string;
 }
 
 export interface State {}
@@ -17,7 +20,12 @@ export default function InputBar(props: Props) {
 	return (
 		<RN.View style={styles.textInputContainer}>
 			{props.label && <RN.Text style={styles.label}>{props.label}</RN.Text>}
-			<RN.View style={styles.textInputWrapper}>
+			<RN.View
+				style={{
+					...styles.textInputWrapper,
+					borderColor: props.error ? 'red' : _colors.fair,
+				}}
+			>
 				<RN.TextInput
 					{...props}
 					value={props.value}
@@ -36,6 +44,8 @@ const styles = RN.StyleSheet.create({
 	},
 	textInputWrapper: {
 		height: RFValue(50),
+		borderWidth: RFValue(1),
+		borderRadius: RFValue(10),
 	},
 	textInput: {
 		color: _colors.white,

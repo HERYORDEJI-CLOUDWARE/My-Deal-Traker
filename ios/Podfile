@@ -23,4 +23,6 @@ target 'mdt' do
   #  end
   pod 'RNPaypal', :path => '../node_modules/react-native-paypal'
 
+  pod 'RNFileViewer', :path => '../node_modules/react-native-file-viewer'
+
 end

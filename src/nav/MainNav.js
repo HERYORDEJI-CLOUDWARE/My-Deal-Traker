@@ -616,7 +616,7 @@ const BuyersLawyer = ({ navigation }) => {
 				}}
 			/>
 			<Stack.Screen
-				name='blClosingScreen'
+				name={'blClosingScreen'}
 				component={CloseDealForm}
 				// component={BLClosing}
 				options={{

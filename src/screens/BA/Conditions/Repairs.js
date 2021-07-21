@@ -66,7 +66,7 @@ const Repairs = ({ transaction, property, notAgent, setView }) => {
 			);
 			if (response.data.response.status == 200) {
 				setRepairs(response.data.response.data);
-				console.log('JSON.stringify', response.data.response.data);
+				// console.log('JSON.stringify', response.data.response.data);
 				setIsLoading(false);
 			} else {
 				Toast.show({

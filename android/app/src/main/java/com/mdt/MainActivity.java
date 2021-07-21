@@ -1,4 +1,6 @@
 package com.mydealtracker.androidapp;
+// import com.rnfs.RNFSPackage;  // <--- import
+
 
 import android.os.Bundle;
 

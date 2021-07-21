@@ -118,17 +118,33 @@ Create the following function and add it to the onMessage prop:
 		let data = e.nativeEvent.data;
 		setShowGateway(false);
 		let payment = JSON.parse(data);
+		let {
+			id,
+			status,
+			payer: { email_address, payer_id },
+			purchase_units: [
+				{
+					payments: { captures },
+				},
+			],
+		} = payment;
 		if (payment.status === 'COMPLETED') {
 			// Alert.alert('PAYMENT MADE SUCCESSFULLY!');
 			setPaymentStatus(payment.status);
-			savePayment().then((res) => console.log(res.data));
+			savePayment(
+				id,
+				status,
+				email_address,
+				captures[0].id,
+				captures[0].amount.value,
+			).then((res) => console.log(res.data));
 			setShowResponseModal(true);
 			setPaymentResponse({
 				heading: 'Yesss Congrats!!!',
 				body: 'Payment made successfuly',
 			});
 		} else {
-			// Alert.alert('PAYMENT FAILED. PLEASE TRY AGAIN.');
+			Alert.alert('PAYMENT FAILED. PLEASE TRY AGAIN.');
 			setPaymentStatus(payment.status);
 			setShowResponseModal(true);
 			setPaymentResponse({
@@ -147,7 +163,8 @@ Create the following function and add it to the onMessage prop:
 	const renderPaymentValidModal = (
 		<Modal
 			swipeDirection={'down'}
-			isVisible={showResponseModal}
+			isVisible={true}
+			// isVisible={showResponseModal}
 			onBackButtonPress={() => setShowResponseModal(false)}
 			transparent={true}
 		>
@@ -194,15 +211,24 @@ Create the following function and add it to the onMessage prop:
 		</Modal>
 	);
 
-	console.log('selectedPlan.unique_id', user.unique_id);
-
-	const savePayment = async (paymentStatus) => {
+	const savePayment = async (
+		orderId,
+		orderStatus,
+		payerEmail,
+		paymentId,
+		amountPaid,
+	) => {
 		try {
 			const token = await fetchAuthToken();
 			const data = new FormData();
 			data.append('user_id', user?.unique_id);
 			data.append('plan_id', selectedPlan?.unique_id);
-			data.append('order_status', 'completed');
+			//
+			data.append('order_status', orderStatus);
+			data.append('email', payerEmail);
+			data.append('payment_id', paymentId);
+			data.append('order_id', orderId);
+			data.append('amount', amountPaid);
 			const response = await appApi.post(`/plan_subscription.php`, data, {
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -210,7 +236,8 @@ Create the following function and add it to the onMessage prop:
 			});
 			/*
 			URL: plan_subscription.php
-			Parameters: user_id, plan_id, order_status
+			Parameters: user_id, plan_id, order_status, email, payment_id, payer_id,
+									order_id, amount_paid
 			Type: POST
 			 */
 			return response;
@@ -265,7 +292,7 @@ Create the following function and add it to the onMessage prop:
 	if (loadingPlan) {
 		return (
 			<NB.Container style={styles.container}>
-				<ActivityIndicator color={colors.white} />
+				<ActivityIndicator color={colors.white} size={'large'} />
 			</NB.Container>
 		);
 	}
@@ -321,6 +348,7 @@ Create the following function and add it to the onMessage prop:
 							backgroundColor: 'White',
 							// flex: 1,
 							zIndex: 10000,
+							marginTop: RFValue(40),
 						}}
 					>
 						<DropDownPicker
@@ -337,14 +365,14 @@ Create the following function and add it to the onMessage prop:
 							setOpen={setOpen}
 							setValue={setValue}
 							setItems={setItems}
-							maxHeight={RFValue(200)}
+							// maxHeight={RFValue(200)}
 							onChangeValue={(value) => onSelectPlan(value)}
 							zIndex={100000}
-							zIndexInverse={1000}
 							style={{
 								// flex: 1,
 								zIndex: 10000,
-								borderWidth: 2,
+								borderWidth: RFValue(2),
+
 								// backgroundColor:'grey',
 								borderColor: colors.lightBrown,
 								backgroundColor: colors.brown,
